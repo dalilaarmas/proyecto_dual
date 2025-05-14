@@ -1,61 +1,49 @@
-/* Estilos generales para escritorios y dispositivos grandes */
 body {
-    font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-  }
-  
-  #datos-container{
-    width: 80%;
-    margin: 20px auto;
-    overflow-x: auto;
-  }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  th, td {
-    padding: 8px;
-    text-align: left;
-    border: 1px solid #ddd;
-  }
-  
-  /* Estilos para tabletas */
-  @media (max-width: 768px) {
-    #datos-container {
-      width: 90%;
-    }
-  
-    table {
-      font-size: 14px;
-    }
-  
-    th, td {
-      padding: 6px;
-    }
-  }
-  
-  /* Estilos para móviles */
-  @media (max-width: 480px) {
-    #datos-container {
-      width: 100%;
-      padding: 10px;
-    }
-  
-    table {
-      font-size: 12px;
-    }
-  
-    th, td {
-      padding: 5px;
-    }
-  }
+}
 
-  /* Hacer que la tabla se desplace horizontalmente en pantallas pequeñas */
-#datos-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch; /* Suaviza el desplazamiento en móviles */
-  }
-  
+h1 {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.filters-container {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    border: solid 1px grey;
+    border-radius: 5px;
+    margin-top: 20px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.filter-group {
+    margin-bottom: 10px;
+}
+
+.filter-group input,
+.filter-group select {
+    width: 100%;
+    padding: 5px;
+    margin-top: 5px;
+}
+
+@media (max-width: 768px) {
+    .filters-container {
+        position: relative;
+        margin-top: 0;
+        box-shadow: none;
+    }
+
+    .col-md-3, .col-md-9 {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .filters-container input,
+    .filters-container select {
+        width: 100%;
+    }
+}
