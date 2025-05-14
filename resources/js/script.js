@@ -8,10 +8,10 @@ document.addEventListener("DOMContentLoaded", function () {
   let datosFiltrados = [];
 
   const archivos = [
-    "consumo-energetico-2022.json",
-    "consumo-energetico-2023.json",
-    "consumo-energetico-2024.json",
-    "consumo-energetico-2025.json"
+    "../json/consumo-energetico-2022.json",
+    "../json/consumo-energetico-2023.json",
+    "../json/consumo-energetico-2024.json",
+    "../json/consumo-energetico-2025.json"
   ];
 
   const filtroAño = document.getElementById("filtro-año");
