@@ -1,2 +1,61 @@
-body { font-family: sans-serif; margin: 20px; }
-.dato { margin-bottom: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+/* Estilos generales para escritorios y dispositivos grandes */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  #datos-container{
+    width: 80%;
+    margin: 20px auto;
+    overflow-x: auto;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  
+  /* Estilos para tabletas */
+  @media (max-width: 768px) {
+    #datos-container {
+      width: 90%;
+    }
+  
+    table {
+      font-size: 14px;
+    }
+  
+    th, td {
+      padding: 6px;
+    }
+  }
+  
+  /* Estilos para móviles */
+  @media (max-width: 480px) {
+    #datos-container {
+      width: 100%;
+      padding: 10px;
+    }
+  
+    table {
+      font-size: 12px;
+    }
+  
+    th, td {
+      padding: 5px;
+    }
+  }
+
+  /* Hacer que la tabla se desplace horizontalmente en pantallas pequeñas */
+#datos-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Suaviza el desplazamiento en móviles */
+  }
+  
