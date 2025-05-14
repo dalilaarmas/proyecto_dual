@@ -2,60 +2,97 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consumo Energético - Cabildo de Tenerife</title>
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="resources/js/script.js"></script>
-    <link rel="stylesheet" href="resources/css/estilos.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Consumo Energético - Cabildo de Tenerife</title>
+
+  <!-- Estilos de DataTables -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+
+  <!-- Estilos de Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Estilos personalizados -->
+  <link rel="stylesheet" href="resources/css/estilos.css" />
 </head>
 
 <body>
-    <h1>Consumo Energético - Cabildo de Tenerife</h1>
+  <!-- Botón para mostrar/ocultar filtros en móviles -->
+  <button class="btn d-md-none" id="toggle-filtros">Filtros</button>
 
+  <!-- Cabecera de la página -->
+  <header class="bg-dark text-white p-3">
+    <h1 class="h5 mb-0">Consumo Energético - Cabildo de Tenerife</h1>
+  </header>
+
+  <div class="container-fluid">
     <div class="row">
-        <!-- Menú de filtros a la izquierda -->
-        <div class="col-md-3">
-            <div class="filters-container">
-                <div class="filter-group">
-                    <label for="filtro-municipio">Municipio:</label>
-                    <input type="text" id="filtro-municipio" placeholder="Filtrar por municipio" />
-                </div>
-                <div class="filter-group">
-                    <label for="filtro-cups">CUPS:</label>
-                    <input type="text" id="filtro-cups" placeholder="Filtrar por CUPS" />
-                </div>
-                <div class="filter-group">
-                    <label for="filtro-direccion">Dirección:</label>
-                    <input type="text" id="filtro-direccion" placeholder="Filtrar por dirección" />
-                </div>
-                <div class="filter-group">
-                    <label for="filtro-consumo">Consumo (kWh):</label>
-                    <input type="number" id="filtro-consumo" placeholder="Filtrar por consumo" />
-                </div>
-                <div class="filter-group">
-                    <input type="date" id="filtro-fecha">
-                    <select id="filtro-año">
-                        <option value="">Todos los años</option>
-                        <option value="2022">2022</option>
-                        <option value="2023">2023</option>
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
-                    </select>
-                </div>
-            </div>
-        </div>
+      <!-- Menú lateral de filtros. Visible en escritorio y ocultable en móviles -->
+      <aside id="sidebar-filtros" class="col-md-3 col-12 bg-light p-3 sidebar">
+        <div class="filters-container">
+          <!-- Campo para filtrar por municipio -->
+          <div class="filter-group mb-2">
+            <label for="filtro-municipio">Municipio:</label>
+            <input type="text" id="filtro-municipio" class="form-control" placeholder="Filtrar por municipio" />
+          </div>
 
-        <!-- Contenedor de la tabla a la derecha -->
-        <div class="col-md-9">
-            <div id="datos-container"></div>
+          <!-- Campo para filtrar por CUPS -->
+          <div class="filter-group mb-2">
+            <label for="filtro-cups">CUPS:</label>
+            <input type="text" id="filtro-cups" class="form-control" placeholder="Filtrar por CUPS" />
+          </div>
+
+          <!-- Campo para filtrar por dirección -->
+          <div class="filter-group mb-2">
+            <label for="filtro-direccion">Dirección:</label>
+            <input type="text" id="filtro-direccion" class="form-control" placeholder="Filtrar por dirección" />
+          </div>
+
+          <!-- Campo para filtrar por consumo -->
+          <div class="filter-group mb-2">
+            <label for="filtro-consumo">Consumo (kWh):</label>
+            <input type="number" id="filtro-consumo" class="form-control" placeholder="Filtrar por consumo" />
+          </div>
+
+          <!-- Campo para filtrar por fecha exacta -->
+          <div class="filter-group mb-2">
+            <label for="filtro-fecha">Fecha:</label>
+            <input type="date" id="filtro-fecha" class="form-control" />
+          </div>
+
+          <!-- Selector de año para filtrar registros -->
+          <div class="filter-group mb-2">
+            <label for="filtro-año">Año:</label>
+            <select id="filtro-año" class="form-control">
+              <option value="">Todos los años</option>
+              <option value="2022">2022</option>
+              <option value="2023">2023</option>
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+            </select>
+          </div>
         </div>
+      </aside>
+
+      <!-- Zona principal donde se cargará la tabla con los datos -->
+      <main class="col-md-9 col-12 mt-3 mt-md-0">
+        <!-- Aquí se insertará la tabla vía JavaScript -->
+        <div id="datos-container" class="table-responsive"></div>
+      </main>
     </div>
+  </div>
 
-    <!-- JS (para modales, menús, etc.) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- jQuery (necesario para DataTables y Bootstrap JS) -->
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+  <!-- Script de DataTables -->
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+  <!-- Bootstrap JavaScript (componentes interactivos) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Script personalizado para cargar tabla y filtros -->
+  <script src="/resources/js/script.js"></script>
 </body>
 
 </html>

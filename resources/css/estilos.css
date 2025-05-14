@@ -1,49 +1,62 @@
+/* Estilo general para evitar el desbordamiento horizontal de la página */
 body {
-    margin: 0;
-    padding: 0;
+    overflow-x: hidden;
 }
 
-h1 {
-    text-align: center;
-    margin-top: 20px;
+/* Estilo para el sidebar (panel lateral de filtros) con una transición suave */
+.sidebar {
+    transition: transform 0.3s ease;
 }
 
-.filters-container {
-    position: sticky;
-    top: 0;
-    background-color: white;
-    border: solid 1px grey;
-    border-radius: 5px;
-    margin-top: 20px;
-    padding: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.filter-group {
-    margin-bottom: 10px;
-}
-
-.filter-group input,
-.filter-group select {
-    width: 100%;
-    padding: 5px;
-    margin-top: 5px;
-}
-
+/* Estilos específicos para pantallas pequeñas (móviles) */
 @media (max-width: 768px) {
-    .filters-container {
-        position: relative;
-        margin-top: 0;
-        box-shadow: none;
+
+    /* Estilo para el botón de filtros en dispositivos móviles */
+    #toggle-filtros {
+        position: fixed; 
+        top: 0;
+        left: 0;
+        width: 100%; 
+        padding: 0.75rem; 
+        border-radius: 0; 
+        z-index: 1100; 
+        background-color: #f8f9fa; 
+        border: 1px solid #ccc; 
+        color: #000; 
     }
 
-    .col-md-3, .col-md-9 {
-        width: 100%;
-        margin-bottom: 20px;
+    /* Ajusta el margen superior del header para que no quede pegado al botón */
+    header {
+        margin-top: 3rem; 
     }
 
-    .filters-container input,
-    .filters-container select {
-        width: 100%;
+    /* Estilo para el sidebar en dispositivos móviles */
+    .sidebar {
+        position: fixed; 
+        top: 56px; 
+        left: 0;
+        width: 100%; 
+        height: auto;
+        max-height: calc(100vh - 56px); /* Calcula la altura máxima del sidebar */
+        overflow-y: auto; /* Habilita el scroll vertical si el contenido es largo */
+        background-color: #f8f9fa; 
+        z-index: 1040; 
+        transform: translateY(-100%); 
+        transition: transform 0.3s ease; 
+    }
+    /* Cuando se añade la clase 'show', el sidebar se muestra */
+    .sidebar.show {
+        transform: translateY(0); 
+    }
+
+    /* Estilo para el contenido principal, asegurando espacio por el botón y sidebar */
+    main {
+        padding-top: 60px; 
+    }
+
+    /* Ajusta los inputs y selects de los filtros para que ocupen todo el ancho disponible */
+    .filter-group input,
+    .filter-group select {
+        width: 100%; 
     }
 }
