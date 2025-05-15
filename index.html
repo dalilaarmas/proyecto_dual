@@ -73,22 +73,34 @@
           </div>
         </div>
       </aside>
-      
+
       <!-- Zona principal donde se cargará la tabla con los datos -->
       <main class="col-md-9 col-12 mt-3 mt-md-0">
         <!-- Mostrar errores -->
-        <div id="mensajeError" class="alert alert-danger d-none" role="alert" style="position: fixed; top: 10px; right: 10px; max-width: 400px; z-index: 1050;">
+        <div id="mensajeError" class="alert alert-danger d-none" role="alert"
+          style="position: fixed; top: 10px; right: 10px; max-width: 400px; z-index: 1050;">
           <div id="contenidoError"></div>
-          <button id="btnToggleDetalles" class="btn btn-sm btn-link" style="padding: 0; margin-top: 5px;">Ver detalles</button>
-          <pre id="detallesError" style="display: none; white-space: pre-wrap; max-height: 200px; overflow-y: auto; background: #f8d7da; padding: 10px; margin-top: 5px; border-radius: 4px;"></pre>
+          <button id="btnToggleDetalles" class="btn btn-sm btn-link" style="padding: 0; margin-top: 5px;">Ver
+            detalles</button>
+          <pre id="detallesError"
+            style="display: none; white-space: pre-wrap; max-height: 200px; overflow-y: auto; background: #f8d7da; padding: 10px; margin-top: 5px; border-radius: 4px;"></pre>
           <button id="cerrarError" class="btn btn-sm btn-secondary" style="margin-top: 5px;">Cerrar</button>
         </div>
-             
+        <div id="resumen-registros" class="alert alert-info mt-3">
+          Cargando datos...
+        </div>
+        <!-- Botón plegable para resumen de consumo -->
+        <div id="resumen-consumo" class="p-3"></div>
+
         <!-- Aquí se insertará la tabla vía JavaScript -->
         <div id="datos-container" class="table-responsive"></div>
         <div id="mensajeNoResultados" class="alert alert-warning d-none" role="alert">
-          No se encontraron registros con esos filtros. Prueba a cambiar los valores.
+          No se encontraron registros con los filtros aplicados.
         </div>
+        <div class="text-center my-3">
+          <button id="btn-cargar-mas" class="btn btn-primary">Cargar más</button>
+        </div>
+
       </main>
     </div>
   </div>
@@ -102,7 +114,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Script personalizado para cargar tabla y filtros -->
-  <script src="/resources/js/script.js"></script>
+  <script src="resources/js/script.js"></script>
 </body>
 
 </html>

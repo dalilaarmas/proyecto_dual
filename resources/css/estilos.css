@@ -35,14 +35,15 @@ body {
         position: fixed; 
         top: 56px; 
         left: 0;
-        width: 100%; 
+        width: 80%; 
         height: auto;
         max-height: calc(100vh - 56px); /* Calcula la altura máxima del sidebar */
         overflow-y: auto; /* Habilita el scroll vertical si el contenido es largo */
         background-color: #f8f9fa; 
         z-index: 1040; 
-        transform: translateY(-100%); 
-        transition: transform 0.3s ease; 
+        transform: translateX(-100%); 
+        transition: transform 0.3s ease;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); 
     }
     /* Cuando se añade la clase 'show', el sidebar se muestra */
     .sidebar.show {
@@ -52,6 +53,8 @@ body {
     /* Estilo para el contenido principal, asegurando espacio por el botón y sidebar */
     main {
         padding-top: 60px; 
+        position: relative;
+        z-index: 1;
     }
 
     /* Ajusta los inputs y selects de los filtros para que ocupen todo el ancho disponible */
