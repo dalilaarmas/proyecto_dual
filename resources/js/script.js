@@ -163,6 +163,14 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       });
       
+      const mensajeNoResultados = document.getElementById("mensajeNoResultados");
+
+    if (datosFiltrados.length === 0) {
+      mensajeNoResultados.classList.remove("d-none");
+    } else {
+      mensajeNoResultados.classList.add("d-none");
+    }
+
     // Sube al inicio de la página tras aplicar los filtros
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
