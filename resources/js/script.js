@@ -38,6 +38,11 @@ window.onerror = function (message, source, lineno, colno, error) {
   return true; // Evita que el error se propague al navegador
 };
 
+const MIN_CARACTERES_FILTRO = 3; // Cambia este valor según tus necesidades
+//filtrar a partir de un número de caracteres determinado MIN_CARACTERES_FILTRO
+function filtraTexto(datoValor, filtroValor) {
+  return filtroValor.length < MIN_CARACTERES_FILTRO || datoValor.toLowerCase().includes(filtroValor);
+}
 // Espera a que todo el DOM esté cargado antes de ejecutar el script
 document.addEventListener("DOMContentLoaded", function () {
   // Referencias a los campos de filtro del formulario
@@ -147,17 +152,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const consumoSeleccionado = parseFloat(filtroConsumo.value);
     const fechaSeleccionada = filtroFecha.value;
 
-    datosFiltrados = todosLosDatos.filter(dato => {
-      return (
-        (!añoSeleccionado || dato.año === añoSeleccionado) &&
-        (!municipioSeleccionado || dato.municipio.toLowerCase().includes(municipioSeleccionado)) &&
-        (!cupsSeleccionado || dato.cups_codigo.toLowerCase().includes(cupsSeleccionado)) &&
-        (!direccionSeleccionada || dato.cups_direccion.toLowerCase().includes(direccionSeleccionada)) &&
-        (isNaN(consumoSeleccionado) || dato.consumo >= consumoSeleccionado) &&
-        (!fechaSeleccionada || dato.fecha === fechaSeleccionada)
-      );
-    });
-
+      datosFiltrados = todosLosDatos.filter(dato => {
+        return (
+          (!añoSeleccionado || dato.año === añoSeleccionado) &&
+          filtraTexto(dato.municipio, municipioSeleccionado) &&
+          filtraTexto(dato.cups_codigo, cupsSeleccionado) &&
+          filtraTexto(dato.cups_direccion, direccionSeleccionada) &&
+          (isNaN(consumoSeleccionado) || dato.consumo >= consumoSeleccionado) &&
+          (!fechaSeleccionada || dato.fecha === fechaSeleccionada)
+        );
+      });
+      
     // Sube al inicio de la página tras aplicar los filtros
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -245,4 +250,5 @@ function limpiarErroresBootstrap() {
     btnToggleDetalles.textContent = "Ver detalles";  // Reiniciar texto del botón
   }
 }
+
 
