@@ -1,3 +1,43 @@
+function mostrarErrorBootstrap(mensaje, detalle = "") {
+  const mensajeError = document.getElementById("mensajeError");
+  const contenidoError = document.getElementById("contenidoError");
+  const detallesError = document.getElementById("detallesError");
+  const btnToggleDetalles = document.getElementById("btnToggleDetalles");
+
+  if (!mensajeError || !contenidoError || !detallesError || !btnToggleDetalles) {
+    console.error("No se encontró el contenedor de errores en el DOM");
+    alert(mensaje + "\n" + detalle); // fallback básico
+    return;
+  }
+
+  contenidoError.textContent = mensaje;
+  detallesError.textContent = detalle;
+  detallesError.style.display = "none";
+  btnToggleDetalles.textContent = "Ver detalles";
+
+  mensajeError.classList.remove("d-none");
+  mensajeError.classList.add("show");
+
+  btnToggleDetalles.onclick = () => {
+    if (detallesError.style.display === "none") {
+      detallesError.style.display = "block";
+      btnToggleDetalles.textContent = "Ocultar detalles";
+    } else {
+      detallesError.style.display = "none";
+      btnToggleDetalles.textContent = "Ver detalles";
+    }
+  };
+}
+
+// Captura errores globales, incluidos errores de sintaxis
+window.onerror = function (message, source, lineno, colno, error) {
+  mostrarErrorBootstrap(
+    "Error global detectado",
+    `${message} en ${source}:${lineno}:${colno}`
+  );
+  return true; // Evita que el error se propague al navegador
+};
+
 // Espera a que todo el DOM esté cargado antes de ejecutar el script
 document.addEventListener("DOMContentLoaded", function () {
   // Referencias a los campos de filtro del formulario
@@ -60,6 +100,10 @@ document.addEventListener("DOMContentLoaded", function () {
       searching: false,
       info: false
     });
+    const mensajeError = document.getElementById("mensajeError");
+
+    // Limpiar mensajes de error anteriores
+    limpiarErroresBootstrap();
 
     // Recorre cada archivo y agrega los datos al array principal
     for (const archivo of archivos) {
@@ -82,7 +126,11 @@ document.addEventListener("DOMContentLoaded", function () {
           });
         });
       } catch (err) {
-        console.error(`Error cargando ${archivo}:`, err);
+        console.error("Error en carga o parseo:", err);
+        mostrarErrorBootstrap(
+          `Error cargando el archivo ${archivo}. ${err.message}`,
+          err.stack || JSON.stringify(err, null, 2)
+        );
       }
     }
 
@@ -130,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function () {
         dato.cups_direccion || "Desconocida",
         dato.fecha || "Desconocida",
         dato.consumo || "Desconocido"
-      ]).draw();
+      ]).draw(false);
     });
 
     paginaActual++;
@@ -138,10 +186,20 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Carga un archivo JSON usando fetch y lo convierte a objeto
-  function cargarJSON(url) {
-    return fetch(url).then(res => res.json());
+  async function cargarJSON(url) {
+    const res = await fetch(url);
+  
+    if (!res.ok) {
+      throw new Error(`Error al cargar el archivo: ${res.status} ${res.statusText}`);
+    }
+  
+    try {
+      return await res.json();
+    } catch (e) {
+      throw new Error(`Error parseando JSON en ${url}: ${e.message}`);
+    }
   }
-
+  
   // Resetea la paginación al aplicar un nuevo filtro
   function reiniciarPaginacion() {
     paginaActual = 1;
@@ -155,8 +213,36 @@ document.addEventListener("DOMContentLoaded", function () {
       aplicarFiltros();
       cargarMasDatos();
     });
-  });
 
+  });
+// Evento para botón cerrar error
+const btnCerrarError = document.getElementById("cerrarError");
+if (btnCerrarError) {
+  btnCerrarError.addEventListener("click", () => {
+    limpiarErroresBootstrap();
+  });
+}
   // Comienza la carga de datos al cargar la página
   cargarYMostrarDatos();
+
+
+
 });
+
+
+function limpiarErroresBootstrap() {
+  const mensajeError = document.getElementById("mensajeError");
+  const contenidoError = document.getElementById("contenidoError");
+  const detallesError = document.getElementById("detallesError");
+
+  contenidoError.innerHTML = "";
+  detallesError.textContent = "";
+  detallesError.style.display = "none";  
+  mensajeError.classList.remove("show");
+  mensajeError.classList.add("d-none");
+
+  if (btnToggleDetalles) {
+    btnToggleDetalles.textContent = "Ver detalles";  // Reiniciar texto del botón
+  }
+}
+

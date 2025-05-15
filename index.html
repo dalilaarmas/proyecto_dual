@@ -73,15 +73,22 @@
           </div>
         </div>
       </aside>
-
+      
       <!-- Zona principal donde se cargará la tabla con los datos -->
       <main class="col-md-9 col-12 mt-3 mt-md-0">
+        <!-- Mostrar errores -->
+        <div id="mensajeError" class="alert alert-danger d-none" role="alert" style="position: fixed; top: 10px; right: 10px; max-width: 400px; z-index: 1050;">
+          <div id="contenidoError"></div>
+          <button id="btnToggleDetalles" class="btn btn-sm btn-link" style="padding: 0; margin-top: 5px;">Ver detalles</button>
+          <pre id="detallesError" style="display: none; white-space: pre-wrap; max-height: 200px; overflow-y: auto; background: #f8d7da; padding: 10px; margin-top: 5px; border-radius: 4px;"></pre>
+          <button id="cerrarError" class="btn btn-sm btn-secondary" style="margin-top: 5px;">Cerrar</button>
+        </div>
+             
         <!-- Aquí se insertará la tabla vía JavaScript -->
         <div id="datos-container" class="table-responsive"></div>
       </main>
     </div>
   </div>
-
   <!-- jQuery (necesario para DataTables y Bootstrap JS) -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 
