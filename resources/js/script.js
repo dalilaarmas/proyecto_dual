@@ -500,7 +500,19 @@ document.addEventListener("DOMContentLoaded", function () {
   if (canvas) {
     actualizarGrafico(datosFiltrados);
   }
-
+  paginaActual = 1;
+  tabla.clear().draw(); // Limpia la tabla para nueva paginación
+  cargarMasDatos();     // Vuelve a cargar la primera "página" de resultados
+  
+  // Mostrar u ocultar el botón según los datos filtrados
+  const btnCargarMas = document.getElementById("btn-cargar-mas");
+  if (btnCargarMas) {
+    if (REGISTROS_POR_CARGA < datosFiltrados.length) {
+      btnCargarMas.style.display = "inline-block";
+    } else {
+      btnCargarMas.style.display = "none";
+    }
+  }
     // Sube al inicio de la página tras aplicar los filtros
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
