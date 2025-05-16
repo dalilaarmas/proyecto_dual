@@ -96,18 +96,20 @@ document.addEventListener("DOMContentLoaded", function () {
       }
   
       if (dato.consumo != null) {
-        diasTotales.push({ fecha: dato.fecha, consumo: dato.consumo });
+        diasTotales.push({ fecha: dato.fecha || "Desconocida", consumo: dato.consumo });
   
-        if (dato.consumo > 0 && dato.consumo < diaMenorConsumo.consumo) {
+        if (dato.consumo < diaMenorConsumo.consumo) {
           diaMenorConsumo = { fecha: dato.fecha, consumo: dato.consumo };
-        }
-  
-        if (dato.consumo > diaMayorConsumo.consumo) {
-          diaMayorConsumo = { fecha: dato.fecha, consumo: dato.consumo };
         }
       }
   
-      if (!resumen[año]) resumen[año] = { total: 0, meses: {}, dias: {} };
+      if (!resumen[año]) resumen[año] = {
+        total: 0,
+        meses: {},
+        dias: {},
+        diasPorMes: {}, // Para top mensual
+      };
+  
       resumen[año].total += dato.consumo;
   
       if (!resumen[año].meses[mes]) resumen[año].meses[mes] = 0;
@@ -116,15 +118,20 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!resumen[año].dias[dato.fecha]) resumen[año].dias[dato.fecha] = 0;
       resumen[año].dias[dato.fecha] += dato.consumo;
   
-      // Para días por mes
-      if (!resumen[año].diasPorMes) resumen[año].diasPorMes = {};
       if (!resumen[año].diasPorMes[mes]) resumen[año].diasPorMes[mes] = [];
       resumen[año].diasPorMes[mes].push({ fecha: dato.fecha, consumo: dato.consumo });
+  
+      if (dato.consumo > diaMayorConsumo.consumo) {
+        diaMayorConsumo = { fecha: dato.fecha, consumo: dato.consumo };
+      }
     });
   
+    // Calcular año mayor y menor consumo total
     const años = Object.keys(resumen);
-    let añoMayor = null, consumoMayor = -Infinity;
-    let añoMenor = null, consumoMenor = Infinity;
+    let añoMayor = null;
+    let consumoMayor = -Infinity;
+    let añoMenor = null;
+    let consumoMenor = Infinity;
   
     años.forEach(año => {
       if (resumen[año].total > consumoMayor) {
@@ -137,6 +144,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   
+    // Calcular mes de menor consumo global
     let mesMenor = null;
     let consumoMesMenor = Infinity;
     años.forEach(año => {
@@ -148,16 +156,29 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   
-    const top3Dias = diasTotales
-      .filter(d => d.consumo != null)
-      .sort((a, b) => b.consumo - a.consumo)
-      .slice(0, 3);
+    // Top 3 días mayor consumo global
+    const top3DiasMayor = diasTotales.sort((a, b) => b.consumo - a.consumo).slice(0, 3);
+    // Top 3 días menor consumo global > 0
+    const diasNoCero = diasTotales.filter(d => d.consumo > 0);
+    const top3DiasMenor = diasNoCero.sort((a, b) => a.consumo - b.consumo).slice(0, 3);
   
-    const top3DiasMenor = diasTotales
-      .filter(d => d.consumo > 0)
-      .sort((a, b) => a.consumo - b.consumo)
-      .slice(0, 3);
+    // Calcular día mayor y menor consumo por año (sin contar consumos 0 para menor)
+    const diasMayorMenorPorAño = {};
+    años.forEach(año => {
+      const dias = Object.entries(resumen[año].dias).filter(([fecha, consumo]) => consumo != null);
+      if (dias.length === 0) return;
+      let mayor = { fecha: "", consumo: -Infinity };
+      let menor = { fecha: "", consumo: Infinity };
   
+      dias.forEach(([fecha, consumo]) => {
+        if (consumo > mayor.consumo) mayor = { fecha, consumo };
+        if (consumo > 0 && consumo < menor.consumo) menor = { fecha, consumo };
+      });
+  
+      diasMayorMenorPorAño[año] = { mayor, menor };
+    });
+  
+    // Generar HTML
     let html = `
       <div class="mb-3">
         <button id="btnToggleAños" class="btn btn-primary btn-sm me-2" onclick="toggleAños()">Mostrar consumo por años</button>
@@ -187,77 +208,92 @@ document.addEventListener("DOMContentLoaded", function () {
   
     html += `</div>`;
   
+    // Análisis adicional
     html += `
       <div id="resumen-analisis" style="display:none;">
         <h4>Análisis adicional</h4>
         <ul>
-          <li><strong>Día de mayor consumo (global):</strong> ${diaMayorConsumo.fecha} (${diaMayorConsumo.consumo.toFixed(2)} kWh)</li>
-          <li><strong>Día de menor consumo (global > 0):</strong> ${diaMenorConsumo.fecha} (${diaMenorConsumo.consumo.toFixed(2)} kWh)</li>
-          <li><strong>Top 3 días de mayor consumo (global):</strong>
-            <ol>${top3Dias.map(d => `<li>${d.fecha}: ${d.consumo.toFixed(2)} kWh</li>`).join("")}</ol>
+          <li><strong>Día de mayor consumo global:</strong> ${diaMayorConsumo.fecha} (${diaMayorConsumo.consumo.toFixed(2)} kWh)</li>
+          <li><strong>Día de menor consumo global:</strong> ${diaMenorConsumo.fecha} (${diaMenorConsumo.consumo.toFixed(2)} kWh)</li>
+          <li><strong>Top 3 días de mayor consumo global:</strong>
+            <ol>
+              ${top3DiasMayor.map(d => `<li>${d.fecha}: ${d.consumo.toFixed(2)} kWh</li>`).join("")}
+            </ol>
           </li>
-          <li><strong>Top 3 días de menor consumo (global > 0):</strong>
-            <ol>${top3DiasMenor.map(d => `<li>${d.fecha}: ${d.consumo.toFixed(2)} kWh</li>`).join("")}</ol>
+          <li><strong>Top 3 días de menor consumo global (consumo > 0):</strong>
+            <ol>
+              ${top3DiasMenor.map(d => `<li>${d.fecha}: ${d.consumo.toFixed(2)} kWh</li>`).join("")}
+            </ol>
           </li>
           <li><strong>Año de mayor consumo:</strong> ${añoMayor} (${consumoMayor.toFixed(2)} kWh)</li>
           <li><strong>Año de menor consumo:</strong> ${añoMenor} (${consumoMenor.toFixed(2)} kWh)</li>
-          <li><strong>Mes de menor consumo (global):</strong> ${mesMenor ? new Date(mesMenor + "-01").toLocaleString("es-ES", { month: "long", year: "numeric" }) : "Desconocido"} (${consumoMesMenor.toFixed(2)} kWh)</li>
+          <li><strong>Mes de menor consumo:</strong> ${mesMenor ? new Date(mesMenor + "-01").toLocaleString("es-ES", { month: "long", year: "numeric" }) : "Desconocido"} (${consumoMesMenor.toFixed(2)} kWh)</li>
     `;
   
     for (const año of años.sort()) {
-      const dias = Object.entries(resumen[año].dias).map(([fecha, consumo]) => ({ fecha, consumo }));
-      const diasNoCero = dias.filter(d => d.consumo > 0);
-      const mayorDia = dias.reduce((acc, cur) => cur.consumo > acc.consumo ? cur : acc);
-      const menorDia = diasNoCero.reduce((acc, cur) => cur.consumo < acc.consumo ? cur : acc, { fecha: "", consumo: Infinity });
-      const top3DiasAño = [...dias].sort((a, b) => b.consumo - a.consumo).slice(0, 3);
-      const top3DiasMenorAño = diasNoCero.sort((a, b) => a.consumo - b.consumo).slice(0, 3);
-  
+      const dias = resumen[año].dias;
+      const mayorDia = diasMayorMenorPorAño[año]?.mayor || { fecha: "N/A", consumo: 0 };
+      const menorDia = diasMayorMenorPorAño[año]?.menor || { fecha: "N/A", consumo: 0 };
       const meses = resumen[año].meses;
       const mayorMes = Object.keys(meses).reduce((acc, mes) => meses[mes] > meses[acc] ? mes : acc);
-      const menorMes = Object.keys(meses).reduce((acc, mes) => meses[mes] < meses[acc] ? mes : acc);
       const promedioMensual = resumen[año].total / Object.keys(meses).length;
   
       html += `
-        <li><strong>${año} (anual):</strong>
+        <li><strong>${año} (Anual):</strong>
           <ul>
             <li>Mes de mayor consumo: ${new Date(mayorMes + "-01").toLocaleString("es-ES", { month: "long", year: "numeric" })} (${meses[mayorMes].toFixed(2)} kWh)</li>
-            <li>Mes de menor consumo: ${new Date(menorMes + "-01").toLocaleString("es-ES", { month: "long", year: "numeric" })} (${meses[menorMes].toFixed(2)} kWh)</li>
-            <li>Día de mayor consumo: ${mayorDia.fecha} (${mayorDia.consumo.toFixed(2)} kWh)</li>
-            <li>Día de menor consumo (mayor a 0): ${menorDia.fecha} (${menorDia.consumo.toFixed(2)} kWh)</li>
-            <li>Top 3 días de mayor consumo:
-              <ol>${top3DiasAño.map(d => `<li>${d.fecha}: ${d.consumo.toFixed(2)} kWh</li>`).join("")}</ol>
-            </li>
-            <li>Top 3 días de menor consumo (mayor a 0):
-              <ol>${top3DiasMenorAño.map(d => `<li>${d.fecha}: ${d.consumo.toFixed(2)} kWh</li>`).join("")}</ol>
-            </li>
+            <li>Día de mayor consumo anual: ${mayorDia.fecha} (${mayorDia.consumo.toFixed(2)} kWh)</li>
+            <li>Día de menor consumo anual (sin 0): ${menorDia.fecha} (${menorDia.consumo.toFixed(2)} kWh)</li>
             <li>Promedio mensual: ${promedioMensual.toFixed(2)} kWh</li>
+          </ul>
+        </li>
       `;
-  
-      // Top 3 por mes dentro de este año
-      for (const mes of Object.keys(resumen[año].diasPorMes).sort()) {
-        const diasMes = resumen[año].diasPorMes[mes];
-        const diasMesNoCero = diasMes.filter(d => d.consumo > 0);
-        const top3MesMayor = diasMes.sort((a, b) => b.consumo - a.consumo).slice(0, 3);
-        const top3MesMenor = diasMesNoCero.sort((a, b) => a.consumo - b.consumo).slice(0, 3);
-  
-        html += `
-          <li><em>${new Date(mes + "-01").toLocaleString("es-ES", { month: "long", year: "numeric" })} (mensual):</em>
-            <ul>
-              <li>Top 3 días de mayor consumo:
-                <ol>${top3MesMayor.map(d => `<li>${d.fecha}: ${d.consumo.toFixed(2)} kWh</li>`).join("")}</ol>
-              </li>
-              <li>Top 3 días de menor consumo (mayor a 0):
-                <ol>${top3MesMenor.map(d => `<li>${d.fecha}: ${d.consumo.toFixed(2)} kWh</li>`).join("")}</ol>
-              </li>
-            </ul>
-          </li>
-        `;
-      }
-  
-      html += `</ul></li>`;
     }
   
-    html += `</ul></div>`;
+    html += `</ul>`;
+  
+    // Añadimos acordeón con top 3 diario mensual por año
+    html += `
+      <h5>Top 3 diario mensual por año (botones desplegables):</h5>
+      <div class="accordion" id="accordionTop3Mensual">
+        ${años.sort().map((año, i) => `
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="heading-${i}">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-${i}" aria-expanded="false" aria-controls="collapse-${i}">
+                Top 3 días mayor y menor consumo por mes en ${año}
+              </button>
+            </h2>
+            <div id="collapse-${i}" class="accordion-collapse collapse" aria-labelledby="heading-${i}" data-bs-parent="#accordionTop3Mensual">
+              <div class="accordion-body">
+                <ul>
+                  ${Object.entries(resumen[año].diasPorMes).sort((a,b) => a[0].localeCompare(b[0])).map(([mes, dias]) => {
+                    const diasNoCero = dias.filter(d => d.consumo > 0);
+                    const top3Mayor = [...dias].sort((a, b) => b.consumo - a.consumo).slice(0, 3);
+                    const top3Menor = diasNoCero.sort((a, b) => a.consumo - b.consumo).slice(0, 3);
+  
+                    return `
+                      <li><strong>${new Date(mes + "-01").toLocaleString("es-ES", { month: "long", year: "numeric" })}:</strong>
+                        <ul>
+                          <li>Top 3 días de mayor consumo:
+                            <ol>${top3Mayor.map(d => `<li>${d.fecha}: ${d.consumo.toFixed(2)} kWh</li>`).join("")}</ol>
+                          </li>
+                          <li>Top 3 días de menor consumo (consumo > 0):
+                            <ol>${top3Menor.map(d => `<li>${d.fecha}: ${d.consumo.toFixed(2)} kWh</li>`).join("")}</ol>
+                          </li>
+                        </ul>
+                      </li>
+                    `;
+                  }).join("")}
+                </ul>
+              </div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  
+    html += `</div>`;
+  
     contenedor.innerHTML = html;
   }
   
