@@ -63,3 +63,26 @@ body {
         width: 100%; 
     }
 }
+@media (min-width: 769px) {
+    .sidebar {
+      position: sticky;
+      top: 0px;
+      height: 100vh;
+      overflow-y: auto;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+      background-color: #f8f9fa;
+      width: 250px;
+    }
+  
+    main {
+      
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+      }
+      .row {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+      }
+}
+  
+ 

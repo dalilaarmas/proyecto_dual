@@ -566,7 +566,8 @@ document.addEventListener("DOMContentLoaded", function () {
     paginaActual = 1;
     tabla.clear().draw();
   }
-
+  
+  
   // Añade eventos a los campos de filtro para actualizar los resultados al escribir o cambiar valores
   [filtroAño, filtroMunicipio, filtroCups, filtroDireccion, filtroConsumo, filtroFecha].forEach(el => {
     el.addEventListener("input", () => {
