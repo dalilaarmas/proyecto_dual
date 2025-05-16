@@ -47,7 +47,7 @@ body {
     }
     /* Cuando se añade la clase 'show', el sidebar se muestra */
     .sidebar.show {
-        transform: translateY(0); 
+        transform: translateX(0); 
     }
 
     /* Estilo para el contenido principal, asegurando espacio por el botón y sidebar */
