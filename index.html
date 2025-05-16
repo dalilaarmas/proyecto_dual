@@ -87,6 +87,7 @@
             style="display: none; white-space: pre-wrap; max-height: 200px; overflow-y: auto; background: #f8d7da; padding: 10px; margin-top: 5px; border-radius: 4px;"></pre>
           <button id="cerrarError" class="btn btn-sm btn-secondary" style="margin-top: 5px;">Cerrar</button>
         </div>
+         <!-- recuento de registros -->
         <div id="resumen-registros" class="alert alert-info mt-3">
           Cargando datos...
         </div>
@@ -95,9 +96,7 @@
         <div id="resultado-mayor-consumo" class="alert alert-secondary d-none mt-3"></div>        
         <!-- Aquí se insertará la tabla vía JavaScript -->
         <div id="datos-container" class="table-responsive"></div>
-        <div id="mensajeNoResultados" class="alert alert-warning d-none" role="alert">
-          No se encontraron registros con los filtros aplicados.
-        </div>
+        <div id="mensajeNoResultados" class="alert alert-warning d-none" role="alert"></div>
         <div class="text-center my-3">
           <button id="btn-cargar-mas" class="btn btn-primary">Cargar más</button>
         </div>

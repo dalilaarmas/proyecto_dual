@@ -1,23 +1,28 @@
+// Función para mostrar un mensaje de error usando Bootstrap, con opción a mostrar detalles adicionales
 function mostrarErrorBootstrap(mensaje, detalle = "") {
   const mensajeError = document.getElementById("mensajeError");
   const contenidoError = document.getElementById("contenidoError");
   const detallesError = document.getElementById("detallesError");
   const btnToggleDetalles = document.getElementById("btnToggleDetalles");
 
+  // Validación para asegurar que los elementos existen en el DOM antes de continuar
   if (!mensajeError || !contenidoError || !detallesError || !btnToggleDetalles) {
     console.error("No se encontró el contenedor de errores en el DOM");
     alert(mensaje + "\n" + detalle); // fallback básico
     return;
   }
 
+   // Asigna el mensaje principal y los detalles (inicialmente ocultos)
   contenidoError.textContent = mensaje;
   detallesError.textContent = detalle;
   detallesError.style.display = "none";
   btnToggleDetalles.textContent = "Ver detalles";
 
+  // Cambia clases para mostrar el contenedor del error (usando clases Bootstrap)
   mensajeError.classList.remove("d-none");
   mensajeError.classList.add("show");
-
+ 
+  // Asigna la función para el botón que alterna la visibilidad de los detalles
   btnToggleDetalles.onclick = () => {
     if (detallesError.style.display === "none") {
       detallesError.style.display = "block";
@@ -29,20 +34,49 @@ function mostrarErrorBootstrap(mensaje, detalle = "") {
   };
 }
 
-// Captura errores globales, incluidos errores de sintaxis
+// Captura errores globales y muestra el error en el contenedor de error Bootstrap personalizado
 window.onerror = function (message, source, lineno, colno, error) {
-  mostrarErrorBootstrap(
-    "Error global detectado",
-    `${message} en ${source}:${lineno}:${colno}`
-  );
+  let detalle = `${message} en ${source}:${lineno}:${colno}`;
+
+  if (error) {
+    // Si existe el objeto error, añadimos su stack trace o su mensaje adicional
+    if (error.stack) {
+      detalle += `\nStack:\n${error.stack}`;
+    } else if (error.message && error.message !== message) {
+      detalle += `\nError message adicional: ${error.message}`;
+    }
+  }
+
+  mostrarErrorBootstrap("Error global detectado", detalle);
+
   return true; // Evita que el error se propague al navegador
 };
 
-const MIN_CARACTERES_FILTRO = 3; // Cambia este valor según tus necesidades
-//filtrar a partir de un número de caracteres determinado MIN_CARACTERES_FILTRO
+let datosFiltrados = [];
+const MIN_CARACTERES_FILTRO = 3; // Mínimo de caracteres para activar filtro en texto
+
+//Función para que el filtro se active solo cuando el filtro tiene igual o más caracteres que el mínimo.
+//Si el filtro está vacío (longitud 0) también se permite mostrar todo
 function filtraTexto(datoValor, filtroValor) {
-  return filtroValor.length < MIN_CARACTERES_FILTRO || datoValor.toLowerCase().includes(filtroValor);
+  if(filtroValor.length === 0 || (filtroValor.length >= MIN_CARACTERES_FILTRO && datoValor.toLowerCase().includes(filtroValor.toLowerCase())))
+    {
+      return true;
+    } 
+  else{
+    const mensajeNoResultados = document.getElementById("mensajeNoResultados");
+    if (filtroValor.length < MIN_CARACTERES_FILTRO) {
+      mensajeNoResultados.innerHTML = `Necesita mínimo <strong>${MIN_CARACTERES_FILTRO}</strong> caracteres para filtrar.`;
+      mensajeNoResultados.classList.remove("d-none"); // mostrar mensaje
+    } else if (datosFiltrados.length === 0) {
+      mensajeNoResultados.textContent = "No se encontraron registros con los filtros aplicados.";
+      mensajeNoResultados.classList.remove("d-none"); // mostrar mensaje
+    } else {
+      mensajeNoResultados.classList.add("d-none"); // ocultar mensaje
+    }
+    return false;
+  }
 }
+
 // Espera a que todo el DOM esté cargado antes de ejecutar el script
 document.addEventListener("DOMContentLoaded", function () {
   // Referencias a los campos de filtro del formulario
@@ -53,7 +87,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const filtroConsumo = document.getElementById("filtro-consumo");
   const filtroFecha = document.getElementById("filtro-fecha");
 
-  // Rutas de los archivos JSON que contienen los datos por año
+  // Archivos JSON con datos energéticos por año, que serán cargados y procesados
   const archivos = [
     "resources/json/consumo-energetico-2022.json",
     "resources/json/consumo-energetico-2023.json",
@@ -61,61 +95,77 @@ document.addEventListener("DOMContentLoaded", function () {
     "resources/json/consumo-energetico-2025.json"
   ];
 
-  // Configuración para carga paginada de registros
-  const REGISTROS_POR_CARGA = 20;
-  let paginaActual = 1;
-  let cargando = false;
+  // Parámetros para paginación manual
+  const REGISTROS_POR_CARGA = 20; // Cantidad de registros que se cargan por vez
+  let paginaActual = 1;            
+  let cargando = false;            // Flag para evitar múltiples cargas simultáneas
+  
 
   // Arrays para almacenar todos los datos y los datos filtrados
   let todosLosDatos = [];
-  let datosFiltrados = [];
   let tabla;
 
+  // Función que genera un resumen estadístico y visual de los datos filtrados. 
+  // Si no hay datos filtrados, muestra mensaje informativo
   function generarResumenConsumo() {
     const contenedor = document.getElementById("resumen-consumo");
     if (!contenedor) return;
-  
+   
+    // Si no hay datos filtrados, muestra una alerta Bootstrap informativa
     if (!datosFiltrados || datosFiltrados.length === 0) {
       contenedor.innerHTML = `<div class="alert alert-warning">No hay datos para mostrar en el resumen.</div>`;
       return;
     }
   
+    // Objeto para almacenar resumen estructurado: totales por año, meses y días
     const resumen = {};
-    const diasTotales = [];
+    const diasTotales = []; // Array con cada día y su consumo para análisis global
+   
+   // Variables para tracking de día mayor y menor consumo global
     let diaMayorConsumo = { fecha: "", consumo: -Infinity };
     let diaMenorConsumo = { fecha: "", consumo: Infinity };
   
     datosFiltrados.forEach(dato => {
+      // Validación básica para fecha válida
       if (!dato.fecha || typeof dato.fecha !== "string" || dato.fecha.length < 10) return;
   
+      // Extrae año y mes en formato "YYYY" y "YYYY-MM"
       const año = dato.fecha.slice(0, 4);
       const mes = dato.fecha.slice(0, 7); // "YYYY-MM"
   
       if (dato.consumo != null) {
+        // Guarda cada día con consumo para uso posterior en top3
         diasTotales.push({ fecha: dato.fecha, consumo: dato.consumo });
   
+        // Actualiza día de menor consumo siempre que sea mayor a cero y menor que el actual mínimo
         if (dato.consumo < diaMenorConsumo.consumo && dato.consumo > 0) {
           diaMenorConsumo = { fecha: dato.fecha, consumo: dato.consumo };
         }
+        // Actualiza día de mayor consumo
         if (dato.consumo > diaMayorConsumo.consumo) {
           diaMayorConsumo = { fecha: dato.fecha, consumo: dato.consumo };
         }
       }
   
+      // Inicializa estructura del resumen para cada año, si no existe
       if (!resumen[año]) resumen[año] = { total: 0, meses: {}, dias: {} };
   
+      // Acumula consumo total por año
       resumen[año].total += dato.consumo;
   
+      // Acumula consumo por mes y día
       resumen[año].meses[mes] = (resumen[año].meses[mes] || 0) + dato.consumo;
       resumen[año].dias[dato.fecha] = (resumen[año].dias[dato.fecha] || 0) + dato.consumo;
     });
   
+    // Lista ordenada de años para análisis
     const años = Object.keys(resumen).sort();
   
-    // Determinar año y mes de mayor y menor consumo anual
+     // Variables para año mayor y menor consumo
     let añoMayor = "", consumoMayor = -Infinity;
     let añoMenor = "", consumoMenor = Infinity;
   
+    // Determina el año con mayor y menor consumo total
     años.forEach(año => {
       if (resumen[año].total > consumoMayor) {
         añoMayor = año;
@@ -127,7 +177,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   
-    // Mes menor consumo global
+   // Encuentra el mes global con menor consumo en todos los años
     let mesMenor = null;
     let consumoMesMenor = Infinity;
     años.forEach(año => {
@@ -139,7 +189,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   
-    // Top 3 global mayor y menor (mayor que 0)
+    // Top 3 días globales de mayor y menor consumo (mayor que 0)
     const top3DiasGlobalMayor = diasTotales
       .sort((a, b) => b.consumo - a.consumo)
       .slice(0, 3);
@@ -149,10 +199,14 @@ document.addEventListener("DOMContentLoaded", function () {
       .sort((a, b) => a.consumo - b.consumo)
       .slice(0, 3);
   
-    // Top 3 mensual por año y mes
-    const top3MensualPorAño = {};
+    // Top 3 mensual por año: mayor y menor consumo (mayor que 0)
+    const top3MensualPorAñoMayor = {};
+    const top3MensualPorAñoMenor = {};
     años.forEach(año => {
-      top3MensualPorAño[año] = {};
+      top3MensualPorAñoMayor[año] = {};
+      top3MensualPorAñoMenor[año] = {};
+      
+      // Agrupa días por mes para cada año
       const diasPorMes = {};
       Object.entries(resumen[año].dias).forEach(([fecha, consumo]) => {
         if (consumo <= 0) return;
@@ -161,13 +215,17 @@ document.addEventListener("DOMContentLoaded", function () {
         diasPorMes[mes].push({ fecha, consumo });
       });
   
+      // Para cada mes en el año, calcula top 3 días mayor y menor consumo
       Object.entries(diasPorMes).forEach(([mes, dias]) => {
         dias.sort((a, b) => b.consumo - a.consumo);
-        top3MensualPorAño[año][mes] = dias.slice(0, 3);
+        top3MensualPorAñoMayor[año][mes] = dias.slice(0, 3);
+        // Para menor consumo (mayor que 0)
+        const diasMenor = dias.slice().sort((a,b) => a.consumo - b.consumo).slice(0, 3);
+        top3MensualPorAñoMenor[año][mes] = diasMenor;
       });
     });
   
-    // Construcción HTML con Bootstrap
+    // Genera HTML con resumen estadístico y visualización
     let html = `
       <div class="container py-3">
   
@@ -216,15 +274,33 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="accordion" id="accordionAños">
     `;
   
+    // Agrega detalles por año con tablas para top 3 días mayor y menor consumo mensual
     años.forEach((año, i) => {
-      const meses = Object.keys(top3MensualPorAño[año] || {}).sort();
-      const mesesHtml = meses.length === 0 
-        ? `<p class="text-muted fst-italic">No hay datos mensuales para este año.</p>` 
+     
+     // Obtiene los meses disponibles para el año actual, ordenados alfabéticamente (por ejemplo, "2024-01", "2024-02", ...)
+      const meses = Object.keys(top3MensualPorAñoMayor[año] || {}).sort();
+      
+       // Si no hay meses para este año, muestra un mensaje; si hay, genera el HTML para cada mes
+      const mesesHtml = meses.length === 0
+        ? `<p class="text-muted fst-italic">No hay datos mensuales para este año.</p>`
         : meses.map(mes => {
+            
             const mesId = `collapseMes${i}${mes.replace(/-/g, '')}`;
             const fechaFormateada = new Date(mes + "-01").toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+  
+            
+            const topMayor = top3MensualPorAñoMayor[año][mes].map(d => 
+              `<li><i class="bi bi-arrow-up-circle-fill text-danger me-2"></i>${d.fecha}: <span class="fw-bold text-danger">${d.consumo.toFixed(2)} kWh</span></li>`
+            ).join('');
+  
+            const topMenor = (top3MensualPorAñoMenor[año][mes] || []).map(d =>
+              `<li><i class="bi bi-arrow-down-circle-fill text-success me-2"></i>${d.fecha}: <span class="fw-bold text-success">${d.consumo.toFixed(2)} kWh</span></li>`
+            ).join('');
+  
+             // Devuelve el bloque HTML con la tarjeta colapsable para el mes, mostrando top mayor y menor consumo
+        
             return `
-              <div class="card mb-2">
+              <div class="card mb-2 shadow-sm">
                 <div class="card-header p-2" id="heading${mesId}">
                   <h6 class="mb-0">
                     <button class="btn btn-link text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#${mesId}" aria-expanded="false" aria-controls="${mesId}">
@@ -234,22 +310,30 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
                 <div id="${mesId}" class="collapse" aria-labelledby="heading${mesId}" data-bs-parent="#collapse${i}">
                   <div class="card-body p-3">
-                    <ol>
-                      ${top3MensualPorAño[año][mes].map(d => `<li>${d.fecha}: <span class="fw-bold">${d.consumo.toFixed(2)} kWh</span></li>`).join('')}
-                    </ol>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <strong class="text-danger">Top 3 días mayor consumo</strong>
+                        <ol>${topMayor}</ol>
+                      </div>
+                      <div class="col-md-6">
+                        <strong class="text-success">Top 3 días menor consumo (mayor que 0)</strong>
+                        <ol>${topMenor}</ol>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             `;
           }).join('');
   
+      // Identificador para el acordeón de meses dentro del año
       const mesesAccordionId = `collapse${i}`;
   
-      // Datos del año para mostrar debajo
+      // Obtiene el resumen mensual y diario para el año actual
       const mesesTotales = resumen[año].meses;
       const diasTotalesAño = resumen[año].dias;
   
-      // Mes de mayor consumo año
+      // Busca el mes con mayor consumo en el año
       let mesMayorConsumo = "", consumoMesMayor = -Infinity;
       for (const [mes, consumo] of Object.entries(mesesTotales)) {
         if (consumo > consumoMesMayor) {
@@ -258,7 +342,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
   
-      // Día mayor consumo año
+      
       let diaMayorConsumoAño = "", consumoDiaMayor = -Infinity;
       for (const [fecha, consumo] of Object.entries(diasTotalesAño)) {
         if (consumo > consumoDiaMayor) {
@@ -269,11 +353,12 @@ document.addEventListener("DOMContentLoaded", function () {
   
       const promedioMensual = resumen[año].total / Object.keys(mesesTotales).length;
   
+      // Añade al HTML principal un acordeón con el año, mostrando el detalle de meses y resumen
       html += `
         <div class="accordion-item shadow-sm mb-3">
           <h2 class="accordion-header" id="heading${i}">
             <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#${mesesAccordionId}" aria-expanded="false" aria-controls="${mesesAccordionId}">
-              <strong>${año}</strong> - Top 3 mensual días con mayor consumo
+              <strong>${año}</strong> - Análisis mensual con top 3 días mayor y menor consumo
             </button>
           </h2>
           <div id="${mesesAccordionId}" class="accordion-collapse collapse" aria-labelledby="heading${i}" data-bs-parent="#accordionAños">
@@ -396,7 +481,10 @@ document.addEventListener("DOMContentLoaded", function () {
       );
     });
 
-    const mensajeNoResultados = document.getElementById("mensajeNoResultados");
+    
+    
+    
+
 
     if (datosFiltrados.length === 0) {
       mensajeNoResultados.classList.remove("d-none");
@@ -485,7 +573,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 
-
+//Borra cualquier texto o contenido que esté mostrando un error, 
+// oculta los detalles del error si están visibles y actualiza el botón 
+// para que diga "Ver detalles".
 function limpiarErroresBootstrap() {
   const mensajeError = document.getElementById("mensajeError");
   const contenidoError = document.getElementById("contenidoError");
@@ -531,6 +621,9 @@ function toggleMeses() {
   }
 }
 
+//La función alterna (muestra u oculta) la sección de análisis en la página y 
+// cambia el texto del botón para que el usuario sepa si al pulsarlo va a mostrar 
+// o a ocultar esa sección.
 function toggleAnalisis() {
   const divAnalisis = document.getElementById("resumen-analisis");
   const btn = document.getElementById("btnToggleAnalisis");
