@@ -77,4 +77,8 @@ body {
 
 }
   
- 
+.table-hover tbody tr:hover td {
+    font-weight: bold;
+  }
+  
+  

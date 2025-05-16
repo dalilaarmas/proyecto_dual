@@ -404,7 +404,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Estructura HTML de la tabla
     contenedor.innerHTML = `
-      <table id="tabla-consumo" class="table table-striped table-bordered">
+      <table id="tabla-consumo" class="table table-hover table-striped table-bordered">
         <thead class="table-dark">
           <tr>
             <th>Municipio</th>
