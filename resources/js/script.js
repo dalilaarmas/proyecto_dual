@@ -80,40 +80,62 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   
     const resumen = {};
+    const diasTotales = []; // Para el Top 3
+    let diaMayorConsumo = { fecha: "", consumo: -Infinity };
   
     datosFiltrados.forEach(dato => {
       const año = dato.fecha.split("-")[0];
       const mes = dato.fecha.slice(0, 7); // YYYY-MM
   
-      if (!resumen[año]) resumen[año] = { total: 0, meses: {} };
+      // Guardar para top 3
+      diasTotales.push({ fecha: dato.fecha, consumo: dato.consumo });
+  
+      // Agrupación por año
+      if (!resumen[año]) resumen[año] = {
+        total: 0,
+        meses: {},
+        dias: {},
+      };
+  
+      // Total anual
       resumen[año].total += dato.consumo;
   
+      // Por mes
       if (!resumen[año].meses[mes]) resumen[año].meses[mes] = 0;
       resumen[año].meses[mes] += dato.consumo;
+  
+      // Por día
+      if (!resumen[año].dias[dato.fecha]) resumen[año].dias[dato.fecha] = 0;
+      resumen[año].dias[dato.fecha] += dato.consumo;
+  
+      // Mayor día global
+      if (dato.consumo > diaMayorConsumo.consumo) {
+        diaMayorConsumo = { fecha: dato.fecha, consumo: dato.consumo };
+      }
     });
   
-    // Botones para mostrar/ocultar años y meses
+    // Ordenar top 3 días
+    const top3Dias = diasTotales
+      .sort((a, b) => b.consumo - a.consumo)
+      .slice(0, 3);
+  
+    // HTML
     let html = `
       <div class="mb-3">
         <button id="btnToggleAños" class="btn btn-primary btn-sm me-2" onclick="toggleAños()">Mostrar consumo por años</button>
-        <button id="btnToggleMeses" class="btn btn-secondary btn-sm" onclick="toggleMeses()">Mostrar consumo por meses</button>
+        <button id="btnToggleMeses" class="btn btn-secondary btn-sm me-2" onclick="toggleMeses()">Mostrar consumo por meses</button>
+        <button id="btnToggleAnalisis" class="btn btn-success btn-sm" onclick="toggleAnalisis()">Mostrar análisis</button>
       </div>
+  
       <div id="resumen-años" style="display:none;">
-        <h4>Resumen por años</h4>
-        <ul>
+        <h4>Resumen por años</h4><ul>
     `;
   
-    // Añadimos los totales por años (ocultos inicialmente)
     for (const año of Object.keys(resumen).sort()) {
       html += `<li>${año}: ${resumen[año].total.toFixed(2)} kWh</li>`;
     }
   
-    html += `</ul></div>`;
-  
-    // Añadimos resumen por meses (oculto inicialmente)
-    html += `<div id="resumen-meses" style="display:none;">
-      <h4>Resumen por meses</h4>
-    `;
+    html += `</ul></div><div id="resumen-meses" style="display:none;"><h4>Resumen por meses</h4>`;
   
     for (const año of Object.keys(resumen).sort()) {
       html += `<h5>${año}</h5><ul>`;
@@ -126,6 +148,38 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   
     html += `</div>`;
+  
+    // 🔍 Análisis adicional (incluye top 3)
+    html += `<div id="resumen-analisis" style="display:none;">
+      <h4>Análisis adicional</h4>
+      <ul>
+        <li><strong>Día de mayor consumo:</strong> ${diaMayorConsumo.fecha} (${diaMayorConsumo.consumo.toFixed(2)} kWh)</li>
+        <li><strong>Top 3 días de mayor consumo:</strong>
+          <ol>
+            ${top3Dias.map(d => `<li>${d.fecha}: ${d.consumo.toFixed(2)} kWh</li>`).join("")}
+          </ol>
+        </li>
+    `;
+  
+    for (const año of Object.keys(resumen).sort()) {
+      const dias = resumen[año].dias;
+      const mayorDia = Object.keys(dias).reduce((acc, fecha) => dias[fecha] > dias[acc] ? fecha : acc);
+      const meses = resumen[año].meses;
+      const mayorMes = Object.keys(meses).reduce((acc, mes) => meses[mes] > meses[acc] ? mes : acc);
+      const promedioMensual = resumen[año].total / Object.keys(meses).length;
+  
+      html += `
+        <li><strong>${año}</strong>:
+          <ul>
+            <li>Mes de mayor consumo: ${new Date(mayorMes + "-01").toLocaleString("es-ES", { month: "long", year: "numeric" })} (${meses[mayorMes].toFixed(2)} kWh)</li>
+            <li>Día de mayor consumo: ${mayorDia} (${dias[mayorDia].toFixed(2)} kWh)</li>
+            <li>Promedio mensual: ${promedioMensual.toFixed(2)} kWh</li>
+          </ul>
+        </li>
+      `;
+    }
+  
+    html += `</ul></div>`;
   
     contenedor.innerHTML = html;
   }
@@ -345,10 +399,10 @@ function toggleAños() {
 
   if (divAños.style.display === "none") {
     divAños.style.display = "block";
-    btn.textContent = "Ocultar años";
+    btn.textContent = "Ocultar consumo por años";
   } else {
     divAños.style.display = "none";
-    btn.textContent = "Mostrar años";
+    btn.textContent = "Mostrar consumo por años";
   }
 }
 
@@ -360,10 +414,23 @@ function toggleMeses() {
 
   if (divMeses.style.display === "none") {
     divMeses.style.display = "block";
-    btn.textContent = "Ocultar meses";
+    btn.textContent = "Ocultar consumo por meses";
   } else {
     divMeses.style.display = "none";
-    btn.textContent = "Mostrar meses";
+    btn.textContent = "Mostrar consumo por meses";
   }
 }
 
+function toggleAnalisis() {
+  const divAnalisis = document.getElementById("resumen-analisis");
+  const btn = document.getElementById("btnToggleAnalisis");
+  if (!divAnalisis || !btn) return;
+
+  if (divAnalisis.style.display === "none") {
+    divAnalisis.style.display = "block";
+    btn.textContent = "Ocultar análisis";
+  } else {
+    divAnalisis.style.display = "none";
+    btn.textContent = "Mostrar análisis";
+  }
+}
