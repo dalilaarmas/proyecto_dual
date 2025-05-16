@@ -1,3 +1,4 @@
+
 // Función para mostrar un mensaje de error usando Bootstrap, con opción a mostrar detalles adicionales
 function mostrarErrorBootstrap(mensaje, detalle = "") {
   const mensajeError = document.getElementById("mensajeError");
@@ -53,6 +54,7 @@ window.onerror = function (message, source, lineno, colno, error) {
 };
 
 let datosFiltrados = [];
+let graficoConsumo;
 const MIN_CARACTERES_FILTRO = 3; // Mínimo de caracteres para activar filtro en texto
 
 //Función para que el filtro se active solo cuando el filtro tiene igual o más caracteres que el mínimo.
@@ -494,6 +496,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     actualizarResumenRegistros();
     generarResumenConsumo();
+    const canvas = document.getElementById("miGrafico");
+  if (canvas) {
+    actualizarGrafico(datosFiltrados);
+  }
 
     // Sube al inicio de la página tras aplicar los filtros
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -636,4 +642,49 @@ function toggleAnalisis() {
     divAnalisis.style.display = "none";
     btn.textContent = "Mostrar análisis";
   }
+}
+
+function actualizarGrafico(consumosFiltrados) {
+  const ctx = document.getElementById("miGrafico").getContext("2d");
+
+  // Agrupar consumos por mes o año
+  const agrupadoPorFecha = {};
+
+  consumosFiltrados.forEach(item => {
+    const fecha = new Date(item.fecha);
+    const clave = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`; // YYYY-MM
+    if (!agrupadoPorFecha[clave]) agrupadoPorFecha[clave] = 0;
+    agrupadoPorFecha[clave] += item.consumo;
+  });
+
+  const etiquetas = Object.keys(agrupadoPorFecha).sort();
+  const datos = etiquetas.map(clave => agrupadoPorFecha[clave]);
+
+  if (graficoConsumo) {
+    graficoConsumo.destroy();
+  }
+
+  graficoConsumo = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: etiquetas,
+      datasets: [{
+        label: 'Consumo energético (kWh)',
+        data: datos,
+        fill: false,
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: true },
+        title: {
+          display: true,
+          text: 'Evolución del consumo energético'
+        }
+      }
+    }
+  });
 }
