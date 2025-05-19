@@ -91,10 +91,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Archivos JSON con datos energéticos por año, que serán cargados y procesados
   const archivos = [
-    "resources/json/consumo-energetico-2022.json",
-    "resources/json/consumo-energetico-2023.json",
-    "resources/json/consumo-energetico-2024.json",
-    "resources/json/consumo-energetico-2025.json"
+    "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/refs/heads/master/resources/json/consumo-energetico-2022.json",
+    "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/refs/heads/master/resources/json/consumo-energetico-2023.json",
+    "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/refs/heads/master/resources/json/consumo-energetico-2024.json",
+    "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/refs/heads/master/resources/json/consumo-energetico-2025.json"
   ];
 
   // Parámetros para paginación manual
