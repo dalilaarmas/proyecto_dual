@@ -64,7 +64,7 @@ function filtraTexto(datoValor, filtroValor) {
   if (filtroValor.length < MIN_CARACTERES_FILTRO) {
     // Mostrar todos los registros (sin filtrar)
     const letrasInsuficientes = document.getElementById("letrasInsuficientes");
-    letrasInsuficientes.innerHTML = `Necesita mínimo <strong>${MIN_CARACTERES_FILTRO}</strong> caracteres para filtrar.`;
+    letrasInsuficientes.innerHTML = `Necesita mínimo <strong>${MIN_CARACTERES_FILTRO}</strong> caracteres para filtrar por dirección, CUPS y/o municipio.`;
     letrasInsuficientes.classList.remove("d-none"); // mostrar mensaje
     return true; // Mostrar el registro, no filtrar nada aún
   }
