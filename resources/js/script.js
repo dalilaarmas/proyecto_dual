@@ -60,24 +60,30 @@ const MIN_CARACTERES_FILTRO = 3; // Mínimo de caracteres para activar filtro en
 //Función para que el filtro se active solo cuando el filtro tiene igual o más caracteres que el mínimo.
 //Si el filtro está vacío (longitud 0) también se permite mostrar todo
 function filtraTexto(datoValor, filtroValor) {
-  if(filtroValor.length === 0 || (filtroValor.length >= MIN_CARACTERES_FILTRO && datoValor.toLowerCase().includes(filtroValor.toLowerCase())))
-    {
-      return true;
-    } 
-  else{
+  
+  if (filtroValor.length < MIN_CARACTERES_FILTRO) {
+    // Mostrar todos los registros (sin filtrar)
+    const letrasInsuficientes = document.getElementById("letrasInsuficientes");
+    letrasInsuficientes.innerHTML = `Necesita mínimo <strong>${MIN_CARACTERES_FILTRO}</strong> caracteres para filtrar.`;
+    letrasInsuficientes.classList.remove("d-none"); // mostrar mensaje
+    return true; // Mostrar el registro, no filtrar nada aún
+  }
+  // Si filtro tiene al menos MIN_CARACTERES_FILTRO caracteres
+  if (datoValor.toLowerCase().includes(filtroValor.toLowerCase())) {
+    // Ocultar mensaje porque hay resultados que coinciden
+    letrasInsuficientes.classList.add("d-none");
+    
+    return true;
+  } else {
+    // Aquí estás filtrando y no hay coincidencia en este registro
     const mensajeNoResultados = document.getElementById("mensajeNoResultados");
-    if (filtroValor.length < MIN_CARACTERES_FILTRO) {
-      mensajeNoResultados.innerHTML = `Necesita mínimo <strong>${MIN_CARACTERES_FILTRO}</strong> caracteres para filtrar.`;
-      mensajeNoResultados.classList.remove("d-none"); // mostrar mensaje
-    } else if (datosFiltrados.length === 0) {
-      mensajeNoResultados.textContent = "No se encontraron registros con los filtros aplicados.";
-      mensajeNoResultados.classList.remove("d-none"); // mostrar mensaje
-    } else {
-      mensajeNoResultados.classList.add("d-none"); // ocultar mensaje
-    }
+    mensajeNoResultados.innerHTML ="No existen registros con los filtros indicados";
+    mensajeNoResultados.classList.remove("d-none");
+     letrasInsuficientes.classList.add("d-none");
     return false;
   }
 }
+ 
 
 // Espera a que todo el DOM esté cargado antes de ejecutar el script
 document.addEventListener("DOMContentLoaded", function () {
