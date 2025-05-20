@@ -25,7 +25,7 @@ Este proyecto está desarrollado con las siguientes tecnologías y herramientas:
 - **Chart.js**: Librería para representar gráficamente los datos energéticos.
 - **Ficheros JSON alojados en GitHub**: Los datos del consumo energético se cargan dinámicamente mediante `fetch()` desde archivos `.json` públicos alojados en el repositorio.
 
-## 5. Cómo ejecutar el proyecto
+## Cómo ejecutar el proyecto
 No se requiere instalación ni servidor local.
 Para utilizar la aplicación:
 
@@ -51,3 +51,28 @@ Para utilizar la aplicación:
 
 
 
+## 7. Diagramas explicativos
+
+Para facilitar la comprensión del diseño y funcionamiento de la aplicación, se incluyen los siguientes diagramas UML:
+
+- **Diagrama de Clases**  
+  Muestra las principales clases, sus atributos y métodos, y cómo se relacionan entre ellas.
+
+![Diagrama de Clases](resources/imagenes/diagramas/diagrama_de_clases_v2.png)  
+
+- **Diagrama de Secuencia**  
+  Describe la interacción entre objetos durante la ejecución de procesos clave, como la carga y filtrado de datos.
+
+`Diagrama de Secuencia con filtros:`
+
+![Diagrama de Secuencia con filtros](resources/imagenes/diagramas/diagrama_comportamiento_secuencial_filtros.png)  
+
+`Diagrama de Secuencia sin filtros:`
+
+![Diagrama de Secuencia sin filtros](resources/imagenes/diagramas/diagrama_comportamiento_secuencial_sin_filtrar.png) 
+
+- **Diagrama de Actividad**  
+  Representa el flujo de actividades y decisiones dentro del sistema para mostrar el proceso lógico general.
+
+
+![Diagrama de Actividad](resources/imagenes/diagramas/diagrama_comportamiento_actividad.drawio.png)
