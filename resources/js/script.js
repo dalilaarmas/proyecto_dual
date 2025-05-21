@@ -5,13 +5,13 @@ let filtroAño, filtroMunicipio, filtroCups, filtroDireccion, filtroConsumo, fil
 let todosLosDatos = [];
 let datosFiltrados = [];
 let graficoConsumo;
- // Archivos JSON con datos energéticos por año, que serán cargados y procesados
-  const archivos = [
-    "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/refs/heads/master/resources/json/consumo-energetico-2022.json",
-    "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/refs/heads/master/resources/json/consumo-energetico-2023.json",
-    "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/refs/heads/master/resources/json/consumo-energetico-2024.json",
-    "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/refs/heads/master/resources/json/consumo-energetico-2025.json"
-  ];
+// Archivos JSON con datos energéticos por año, que serán cargados y procesados
+const archivos = [
+  "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/refs/heads/master/resources/json/consumo-energetico-2022.json",
+  "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/refs/heads/master/resources/json/consumo-energetico-2023.json",
+  "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/refs/heads/master/resources/json/consumo-energetico-2024.json",
+  "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/refs/heads/master/resources/json/consumo-energetico-2025.json"
+];
 
 // Función para mostrar un mensaje de error usando Bootstrap, con opción a mostrar detalles adicionales
 function mostrarErrorBootstrap(mensaje, detalle = "") {
@@ -62,11 +62,20 @@ window.onerror = function (message, source, lineno, colno, error) {
     }
   }
 
+  // Mostrar en interfaz
   mostrarErrorBootstrap("Error global detectado", detalle);
-
-  return true; // Evita que el error se propague al navegador
+// Mostrar por consola
+  console.error("Error global capturado:", detalle);
+  return false;
 };
 
+window.addEventListener("unhandledrejection", function (event) {
+  const error = event.reason;
+  let detalle = error && error.stack ? error.stack : error;
+
+  mostrarErrorBootstrap("Error en promesa no gestionada", detalle);
+  console.error("Unhandled rejection:", detalle);
+});
 
 const MIN_CARACTERES_FILTRO = 3; // Mínimo de caracteres para activar filtro en texto
 
@@ -74,15 +83,15 @@ const MIN_CARACTERES_FILTRO = 3; // Mínimo de caracteres para activar filtro en
 //Si el filtro está vacío (longitud 0) también se permite mostrar todo
 function filtraTexto(datoValor, filtroValor) {
   const letrasInsuficientes = document.getElementById("letrasInsuficientes");
-  
+
   if (filtroValor.length < MIN_CARACTERES_FILTRO) {
     letrasInsuficientes.innerHTML = `Necesita mínimo <strong>${MIN_CARACTERES_FILTRO}</strong> caracteres para filtrar por dirección, CUPS y/o municipio.`;
     letrasInsuficientes.classList.remove("d-none"); // mostrar mensaje
     return true; // Mostrar el registro, no filtrar nada aún
   }
-  
+
   letrasInsuficientes.classList.add("d-none"); // Ocultar mensaje si filtro válido
-  
+
   return datoValor.toLowerCase().includes(filtroValor.toLowerCase());
 }
 
@@ -104,7 +113,7 @@ document.addEventListener("DOMContentLoaded", function () {
   toggleBtn.addEventListener("click", () => {
     sidebar.classList.toggle("show");
   });
- // Carga los datos y solo entonces conecta los filtros y actualiza la vista
+  // Carga los datos y solo entonces conecta los filtros y actualiza la vista
   cargarYMostrarDatos().then(() => {
     datosFiltrados = [...todosLosDatos]; // Inicializa con todos los datos
     mostrarPagina();
@@ -113,7 +122,7 @@ document.addEventListener("DOMContentLoaded", function () {
     generarResumenConsumo();
     const canvas = document.getElementById("miGrafico");
     if (canvas) actualizarGrafico(datosFiltrados);
-  
+
     // Conectar eventos de los filtros
     [filtroAño, filtroMunicipio, filtroCups, filtroDireccion, filtroConsumo, filtroFecha].forEach(el => {
       if (el) {
@@ -126,128 +135,128 @@ document.addEventListener("DOMContentLoaded", function () {
     mostrarErrorBootstrap("Error al cargar los datos iniciales", err.message || err);
   });
 });
-  // Función que genera un resumen estadístico y visual de los datos filtrados. 
-  // Si no hay datos filtrados, muestra mensaje informativo
-  function generarResumenConsumo() {
-    const contenedor = document.getElementById("resumen-consumo");
-    if (!contenedor) return;
+// Función que genera un resumen estadístico y visual de los datos filtrados. 
+// Si no hay datos filtrados, muestra mensaje informativo
+function generarResumenConsumo() {
+  const contenedor = document.getElementById("resumen-consumo");
+  if (!contenedor) return;
 
-    // Si no hay datos filtrados, muestra una alerta Bootstrap informativa
-    if (!datosFiltrados || datosFiltrados.length === 0) {
-      contenedor.innerHTML = `<div class="alert alert-warning">No hay datos para mostrar en el resumen.</div>`;
-      return;
+  // Si no hay datos filtrados, muestra una alerta Bootstrap informativa
+  if (!datosFiltrados || datosFiltrados.length === 0) {
+    contenedor.innerHTML = `<div class="alert alert-warning">No hay datos para mostrar en el resumen.</div>`;
+    return;
+  }
+
+  // Objeto para almacenar resumen estructurado: totales por año, meses y días
+  const resumen = {};
+  const diasTotales = []; // Array con cada día y su consumo para análisis global
+
+  // Variables para tracking de día mayor y menor consumo global
+  let diaMayorConsumo = { fecha: "", consumo: -Infinity };
+  let diaMenorConsumo = { fecha: "", consumo: Infinity };
+
+  datosFiltrados.forEach(dato => {
+    // Validación básica para fecha válida
+    if (!dato.fecha || typeof dato.fecha !== "string" || dato.fecha.length < 10) return;
+
+    // Extrae año y mes en formato "YYYY" y "YYYY-MM"
+    const año = dato.fecha.slice(0, 4);
+    const mes = dato.fecha.slice(0, 7); // "YYYY-MM"
+
+    if (dato.consumo != null) {
+      // Guarda cada día con consumo para uso posterior en top3
+      diasTotales.push({ fecha: dato.fecha, consumo: dato.consumo });
+
+      // Actualiza día de menor consumo siempre que sea mayor a cero y menor que el actual mínimo
+      if (dato.consumo < diaMenorConsumo.consumo && dato.consumo > 0) {
+        diaMenorConsumo = { fecha: dato.fecha, consumo: dato.consumo };
+      }
+      // Actualiza día de mayor consumo
+      if (dato.consumo > diaMayorConsumo.consumo) {
+        diaMayorConsumo = { fecha: dato.fecha, consumo: dato.consumo };
+      }
     }
 
-    // Objeto para almacenar resumen estructurado: totales por año, meses y días
-    const resumen = {};
-    const diasTotales = []; // Array con cada día y su consumo para análisis global
+    // Inicializa estructura del resumen para cada año, si no existe
+    if (!resumen[año]) resumen[año] = { total: 0, meses: {}, dias: {} };
 
-    // Variables para tracking de día mayor y menor consumo global
-    let diaMayorConsumo = { fecha: "", consumo: -Infinity };
-    let diaMenorConsumo = { fecha: "", consumo: Infinity };
+    // Acumula consumo total por año
+    resumen[año].total += dato.consumo;
 
-    datosFiltrados.forEach(dato => {
-      // Validación básica para fecha válida
-      if (!dato.fecha || typeof dato.fecha !== "string" || dato.fecha.length < 10) return;
+    // Acumula consumo por mes y día
+    resumen[año].meses[mes] = (resumen[año].meses[mes] || 0) + dato.consumo;
+    resumen[año].dias[dato.fecha] = (resumen[año].dias[dato.fecha] || 0) + dato.consumo;
+  });
 
-      // Extrae año y mes en formato "YYYY" y "YYYY-MM"
-      const año = dato.fecha.slice(0, 4);
-      const mes = dato.fecha.slice(0, 7); // "YYYY-MM"
+  // Lista ordenada de años para análisis
+  const años = Object.keys(resumen).sort();
 
-      if (dato.consumo != null) {
-        // Guarda cada día con consumo para uso posterior en top3
-        diasTotales.push({ fecha: dato.fecha, consumo: dato.consumo });
+  // Variables para año mayor y menor consumo
+  let añoMayor = "", consumoMayor = -Infinity;
+  let añoMenor = "", consumoMenor = Infinity;
 
-        // Actualiza día de menor consumo siempre que sea mayor a cero y menor que el actual mínimo
-        if (dato.consumo < diaMenorConsumo.consumo && dato.consumo > 0) {
-          diaMenorConsumo = { fecha: dato.fecha, consumo: dato.consumo };
-        }
-        // Actualiza día de mayor consumo
-        if (dato.consumo > diaMayorConsumo.consumo) {
-          diaMayorConsumo = { fecha: dato.fecha, consumo: dato.consumo };
-        }
-      }
+  // Determina el año con mayor y menor consumo total
+  años.forEach(año => {
+    if (resumen[año].total > consumoMayor) {
+      añoMayor = año;
+      consumoMayor = resumen[año].total;
+    }
+    if (resumen[año].total < consumoMenor) {
+      añoMenor = año;
+      consumoMenor = resumen[año].total;
+    }
+  });
 
-      // Inicializa estructura del resumen para cada año, si no existe
-      if (!resumen[año]) resumen[año] = { total: 0, meses: {}, dias: {} };
-
-      // Acumula consumo total por año
-      resumen[año].total += dato.consumo;
-
-      // Acumula consumo por mes y día
-      resumen[año].meses[mes] = (resumen[año].meses[mes] || 0) + dato.consumo;
-      resumen[año].dias[dato.fecha] = (resumen[año].dias[dato.fecha] || 0) + dato.consumo;
-    });
-
-    // Lista ordenada de años para análisis
-    const años = Object.keys(resumen).sort();
-
-    // Variables para año mayor y menor consumo
-    let añoMayor = "", consumoMayor = -Infinity;
-    let añoMenor = "", consumoMenor = Infinity;
-
-    // Determina el año con mayor y menor consumo total
-    años.forEach(año => {
-      if (resumen[año].total > consumoMayor) {
-        añoMayor = año;
-        consumoMayor = resumen[año].total;
-      }
-      if (resumen[año].total < consumoMenor) {
-        añoMenor = año;
-        consumoMenor = resumen[año].total;
+  // Encuentra el mes global con menor consumo en todos los años
+  let mesMenor = null;
+  let consumoMesMenor = Infinity;
+  años.forEach(año => {
+    Object.entries(resumen[año].meses).forEach(([mes, consumo]) => {
+      if (consumo < consumoMesMenor) {
+        consumoMesMenor = consumo;
+        mesMenor = mes;
       }
     });
+  });
 
-    // Encuentra el mes global con menor consumo en todos los años
-    let mesMenor = null;
-    let consumoMesMenor = Infinity;
-    años.forEach(año => {
-      Object.entries(resumen[año].meses).forEach(([mes, consumo]) => {
-        if (consumo < consumoMesMenor) {
-          consumoMesMenor = consumo;
-          mesMenor = mes;
-        }
-      });
+  // Top 3 días globales de mayor y menor consumo (mayor que 0)
+  const top3DiasGlobalMayor = diasTotales
+    .sort((a, b) => b.consumo - a.consumo)
+    .slice(0, 3);
+
+  const top3DiasGlobalMenor = diasTotales
+    .filter(d => d.consumo > 0)
+    .sort((a, b) => a.consumo - b.consumo)
+    .slice(0, 3);
+
+  // Top 3 mensual por año: mayor y menor consumo (mayor que 0)
+  const top3MensualPorAñoMayor = {};
+  const top3MensualPorAñoMenor = {};
+  años.forEach(año => {
+    top3MensualPorAñoMayor[año] = {};
+    top3MensualPorAñoMenor[año] = {};
+
+    // Agrupa días por mes para cada año
+    const diasPorMes = {};
+    Object.entries(resumen[año].dias).forEach(([fecha, consumo]) => {
+      if (consumo <= 0) return;
+      const mes = fecha.slice(0, 7);
+      if (!diasPorMes[mes]) diasPorMes[mes] = [];
+      diasPorMes[mes].push({ fecha, consumo });
     });
 
-    // Top 3 días globales de mayor y menor consumo (mayor que 0)
-    const top3DiasGlobalMayor = diasTotales
-      .sort((a, b) => b.consumo - a.consumo)
-      .slice(0, 3);
-
-    const top3DiasGlobalMenor = diasTotales
-      .filter(d => d.consumo > 0)
-      .sort((a, b) => a.consumo - b.consumo)
-      .slice(0, 3);
-
-    // Top 3 mensual por año: mayor y menor consumo (mayor que 0)
-    const top3MensualPorAñoMayor = {};
-    const top3MensualPorAñoMenor = {};
-    años.forEach(año => {
-      top3MensualPorAñoMayor[año] = {};
-      top3MensualPorAñoMenor[año] = {};
-
-      // Agrupa días por mes para cada año
-      const diasPorMes = {};
-      Object.entries(resumen[año].dias).forEach(([fecha, consumo]) => {
-        if (consumo <= 0) return;
-        const mes = fecha.slice(0, 7);
-        if (!diasPorMes[mes]) diasPorMes[mes] = [];
-        diasPorMes[mes].push({ fecha, consumo });
-      });
-
-      // Para cada mes en el año, calcula top 3 días mayor y menor consumo
-      Object.entries(diasPorMes).forEach(([mes, dias]) => {
-        dias.sort((a, b) => b.consumo - a.consumo);
-        top3MensualPorAñoMayor[año][mes] = dias.slice(0, 3);
-        // Para menor consumo (mayor que 0)
-        const diasMenor = dias.slice().sort((a, b) => a.consumo - b.consumo).slice(0, 3);
-        top3MensualPorAñoMenor[año][mes] = diasMenor;
-      });
+    // Para cada mes en el año, calcula top 3 días mayor y menor consumo
+    Object.entries(diasPorMes).forEach(([mes, dias]) => {
+      dias.sort((a, b) => b.consumo - a.consumo);
+      top3MensualPorAñoMayor[año][mes] = dias.slice(0, 3);
+      // Para menor consumo (mayor que 0)
+      const diasMenor = dias.slice().sort((a, b) => a.consumo - b.consumo).slice(0, 3);
+      top3MensualPorAñoMenor[año][mes] = diasMenor;
     });
+  });
 
-    // Genera HTML con resumen estadístico y visualización
-    let html = `
+  // Genera HTML con resumen estadístico y visualización
+  let html = `
       <div class="container py-3">
   
         <div class="card mb-4 shadow-sm">
@@ -295,32 +304,32 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="accordion" id="accordionAños">
     `;
 
-    // Agrega detalles por año con tablas para top 3 días mayor y menor consumo mensual
-    años.forEach((año, i) => {
+  // Agrega detalles por año con tablas para top 3 días mayor y menor consumo mensual
+  años.forEach((año, i) => {
 
-      // Obtiene los meses disponibles para el año actual, ordenados alfabéticamente (por ejemplo, "2024-01", "2024-02", ...)
-      const meses = Object.keys(top3MensualPorAñoMayor[año] || {}).sort();
+    // Obtiene los meses disponibles para el año actual, ordenados alfabéticamente (por ejemplo, "2024-01", "2024-02", ...)
+    const meses = Object.keys(top3MensualPorAñoMayor[año] || {}).sort();
 
-      // Si no hay meses para este año, muestra un mensaje; si hay, genera el HTML para cada mes
-      const mesesHtml = meses.length === 0
-        ? `<p class="text-muted fst-italic">No hay datos mensuales para este año.</p>`
-        : meses.map(mes => {
+    // Si no hay meses para este año, muestra un mensaje; si hay, genera el HTML para cada mes
+    const mesesHtml = meses.length === 0
+      ? `<p class="text-muted fst-italic">No hay datos mensuales para este año.</p>`
+      : meses.map(mes => {
 
-          const mesId = `collapseMes${i}${mes.replace(/-/g, '')}`;
-          const fechaFormateada = new Date(mes + "-01").toLocaleString('es-ES', { month: 'long', year: 'numeric' });
+        const mesId = `collapseMes${i}${mes.replace(/-/g, '')}`;
+        const fechaFormateada = new Date(mes + "-01").toLocaleString('es-ES', { month: 'long', year: 'numeric' });
 
 
-          const topMayor = top3MensualPorAñoMayor[año][mes].map(d =>
-            `<li><i class="bi bi-arrow-up-circle-fill text-danger me-2"></i>${d.fecha}: <span class="fw-bold text-danger">${d.consumo.toFixed(2)} kWh</span></li>`
-          ).join('');
+        const topMayor = top3MensualPorAñoMayor[año][mes].map(d =>
+          `<li><i class="bi bi-arrow-up-circle-fill text-danger me-2"></i>${d.fecha}: <span class="fw-bold text-danger">${d.consumo.toFixed(2)} kWh</span></li>`
+        ).join('');
 
-          const topMenor = (top3MensualPorAñoMenor[año][mes] || []).map(d =>
-            `<li><i class="bi bi-arrow-down-circle-fill text-success me-2"></i>${d.fecha}: <span class="fw-bold text-success">${d.consumo.toFixed(2)} kWh</span></li>`
-          ).join('');
+        const topMenor = (top3MensualPorAñoMenor[año][mes] || []).map(d =>
+          `<li><i class="bi bi-arrow-down-circle-fill text-success me-2"></i>${d.fecha}: <span class="fw-bold text-success">${d.consumo.toFixed(2)} kWh</span></li>`
+        ).join('');
 
-          // Devuelve el bloque HTML con la tarjeta colapsable para el mes, mostrando top mayor y menor consumo
+        // Devuelve el bloque HTML con la tarjeta colapsable para el mes, mostrando top mayor y menor consumo
 
-          return `
+        return `
               <div class="card mb-2 shadow-sm">
                 <div class="card-header p-2" id="heading${mesId}">
                   <h6 class="mb-0">
@@ -345,37 +354,37 @@ document.addEventListener("DOMContentLoaded", function () {
                 </div>
               </div>
             `;
-        }).join('');
+      }).join('');
 
-      // Identificador para el acordeón de meses dentro del año
-      const mesesAccordionId = `collapse${i}`;
+    // Identificador para el acordeón de meses dentro del año
+    const mesesAccordionId = `collapse${i}`;
 
-      // Obtiene el resumen mensual y diario para el año actual
-      const mesesTotales = resumen[año].meses;
-      const diasTotalesAño = resumen[año].dias;
+    // Obtiene el resumen mensual y diario para el año actual
+    const mesesTotales = resumen[año].meses;
+    const diasTotalesAño = resumen[año].dias;
 
-      // Busca el mes con mayor consumo en el año
-      let mesMayorConsumo = "", consumoMesMayor = -Infinity;
-      for (const [mes, consumo] of Object.entries(mesesTotales)) {
-        if (consumo > consumoMesMayor) {
-          mesMayorConsumo = mes;
-          consumoMesMayor = consumo;
-        }
+    // Busca el mes con mayor consumo en el año
+    let mesMayorConsumo = "", consumoMesMayor = -Infinity;
+    for (const [mes, consumo] of Object.entries(mesesTotales)) {
+      if (consumo > consumoMesMayor) {
+        mesMayorConsumo = mes;
+        consumoMesMayor = consumo;
       }
+    }
 
 
-      let diaMayorConsumoAño = "", consumoDiaMayor = -Infinity;
-      for (const [fecha, consumo] of Object.entries(diasTotalesAño)) {
-        if (consumo > consumoDiaMayor) {
-          diaMayorConsumoAño = fecha;
-          consumoDiaMayor = consumo;
-        }
+    let diaMayorConsumoAño = "", consumoDiaMayor = -Infinity;
+    for (const [fecha, consumo] of Object.entries(diasTotalesAño)) {
+      if (consumo > consumoDiaMayor) {
+        diaMayorConsumoAño = fecha;
+        consumoDiaMayor = consumo;
       }
+    }
 
-      const promedioMensual = resumen[año].total / Object.keys(mesesTotales).length;
+    const promedioMensual = resumen[año].total / Object.keys(mesesTotales).length;
 
-      // Añade al HTML principal un acordeón con el año, mostrando el detalle de meses y resumen
-      html += `
+    // Añade al HTML principal un acordeón con el año, mostrando el detalle de meses y resumen
+    html += `
         <div class="accordion-item shadow-sm mb-3">
           <h2 class="accordion-header" id="heading${i}">
             <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#${mesesAccordionId}" aria-expanded="false" aria-controls="${mesesAccordionId}">
@@ -394,36 +403,36 @@ document.addEventListener("DOMContentLoaded", function () {
           </div>
         </div>
       `;
-    });
-
-    html += `</div></div>`;
-
-    contenedor.innerHTML = html;
-  }
-
-
-  // Botón para mostrar/ocultar el panel de filtros en móviles
-  const toggleBtn = document.getElementById("toggle-filtros");
-  const sidebar = document.getElementById("sidebar-filtros");
-  toggleBtn.addEventListener("click", () => {
-    sidebar.classList.toggle("show");
   });
 
+  html += `</div></div>`;
 
-  function actualizarResumenRegistros() {
-    const resumen = document.getElementById("resumen-registros");
-    resumen.textContent = `Mostrando ${datosFiltrados.length} de ${todosLosDatos.length} registros.`;
-  }
-  // Limpiar mensajes de error anteriores
-  limpiarErroresBootstrap();
+  contenedor.innerHTML = html;
+}
 
-  // Carga los datos de todos los archivos JSON y construye la tabla
-  async function cargarYMostrarDatos() {
-    todosLosDatos = []; // Vacía el array en caso de recarga
-    const contenedor = document.getElementById("datos-container");
 
-    // Estructura HTML de la tabla
-    contenedor.innerHTML = `
+// Botón para mostrar/ocultar el panel de filtros en móviles
+const toggleBtn = document.getElementById("toggle-filtros");
+const sidebar = document.getElementById("sidebar-filtros");
+toggleBtn.addEventListener("click", () => {
+  sidebar.classList.toggle("show");
+});
+
+
+function actualizarResumenRegistros() {
+  const resumen = document.getElementById("resumen-registros");
+  resumen.textContent = `Mostrando ${datosFiltrados.length} de ${todosLosDatos.length} registros.`;
+}
+// Limpiar mensajes de error anteriores
+limpiarErroresBootstrap();
+
+// Carga los datos de todos los archivos JSON y construye la tabla
+async function cargarYMostrarDatos() {
+  todosLosDatos = []; // Vacía el array en caso de recarga
+  const contenedor = document.getElementById("datos-container");
+
+  // Estructura HTML de la tabla
+  contenedor.innerHTML = `
       <table id="tabla-consumo" class="table table-hover table-striped table-bordered">
         <thead class="table-dark">
           <tr>
@@ -438,57 +447,57 @@ document.addEventListener("DOMContentLoaded", function () {
       </table>
     `;
 
-    const mensajeError = document.getElementById("mensajeError");
+  const mensajeError = document.getElementById("mensajeError");
 
-    // Recorre cada archivo y agrega los datos al array principal
-    for (const archivo of archivos) {
-      try {
-        const data = await cargarJSON(archivo);
-        data.municipios.forEach(municipio => {
-          municipio.cups.forEach(cups => {
-            if (Array.isArray(cups.consumos)) {
-              cups.consumos.forEach(consumo => {
-                todosLosDatos.push({
-                  municipio: municipio.cups_municipio || "Desconocido",
-                  cups_codigo: cups.cups_codigo || "Desconocido",
-                  cups_direccion: cups.cups_direccion || "Desconocida",
-                  fecha: consumo.fecha || "Desconocida",
-                  consumo: typeof consumo.consumo === "number" ? consumo.consumo : null,
-                  año: consumo.fecha ? consumo.fecha.split("-")[0] : "Desconocida" // Extrae el año de la fecha
-                });
+  // Recorre cada archivo y agrega los datos al array principal
+  for (const archivo of archivos) {
+    try {
+      const data = await cargarJSON(archivo);
+      data.municipios.forEach(municipio => {
+        municipio.cups.forEach(cups => {
+          if (Array.isArray(cups.consumos)) {
+            cups.consumos.forEach(consumo => {
+              todosLosDatos.push({
+                municipio: municipio.cups_municipio || "Desconocido",
+                cups_codigo: cups.cups_codigo || "Desconocido",
+                cups_direccion: cups.cups_direccion || "Desconocida",
+                fecha: consumo.fecha || "Desconocida",
+                consumo: typeof consumo.consumo === "number" ? consumo.consumo : null,
+                año: consumo.fecha ? consumo.fecha.split("-")[0] : "Desconocida" // Extrae el año de la fecha
               });
-            }
-          });
+            });
+          }
         });
-      } catch (err) {
-        console.error("Error en carga o parseo:", err);
-        mostrarErrorBootstrap(
-          `Error cargando el archivo ${archivo}. ${err.message}`,
-          err.stack || JSON.stringify(err, null, 2)
-        );
-      }
+      });
+    } catch (err) {
+      console.error("Error en carga o parseo:", err);
+      mostrarErrorBootstrap(
+        `Error cargando el archivo ${archivo}. ${err.message}`,
+        err.stack || JSON.stringify(err, null, 2)
+      );
     }
-    datosFiltrados = [...todosLosDatos];// copia del array plano
-    
-  
+  }
+  datosFiltrados = [...todosLosDatos];// copia del array plano
+
+
   actualizarResumenRegistros();
   generarResumenConsumo();
-   const canvas = document.getElementById("miGrafico");
+  const canvas = document.getElementById("miGrafico");
   if (canvas) {
     actualizarGrafico(todosLosDatos);
   }
-  }
-  mostrarPagina();
-  reiniciarPaginacion(datosFiltrados.length);
+}
+mostrarPagina();
+reiniciarPaginacion(datosFiltrados.length);
 
 
 
 // Filtra los datos según los valores introducidos en los campos
 function aplicarFiltros() {
   if (!todosLosDatos || todosLosDatos.length === 0) {
-  console.warn("Intento de aplicar filtros antes de que se cargaran los datos.");
-  return;
-}
+    console.warn("Intento de aplicar filtros antes de que se cargaran los datos.");
+    return;
+  }
 
   const añoSeleccionado = filtroAño.value;
   const municipioSeleccionado = filtroMunicipio.value.toLowerCase();
@@ -510,23 +519,23 @@ function aplicarFiltros() {
     );
   });
 
-if (datosFiltrados.length === 0) {
-  const mensajeNoResultados = document.getElementById("mensajeNoResultados");
-  mensajeNoResultados.innerHTML = "No existen registros con los filtros indicados";
-  mensajeNoResultados.classList.remove("d-none");
-} else {
-  document.getElementById("mensajeNoResultados").classList.add("d-none");
-}
+  if (datosFiltrados.length === 0) {
+    const mensajeNoResultados = document.getElementById("mensajeNoResultados");
+    mensajeNoResultados.innerHTML = "No existen registros con los filtros indicados";
+    mensajeNoResultados.classList.remove("d-none");
+  } else {
+    document.getElementById("mensajeNoResultados").classList.add("d-none");
+  }
 
 
 
   actualizarResumenRegistros();
   generarResumenConsumo();
   const canvas = document.getElementById("miGrafico");
-if (canvas) {
-  actualizarGrafico(datosFiltrados);
-}
-paginaActual = 1; // Reinicia la paginación al aplicar filtros
+  if (canvas) {
+    actualizarGrafico(datosFiltrados);
+  }
+  paginaActual = 1; // Reinicia la paginación al aplicar filtros
   mostrarPagina();
   renderPaginacion(datosFiltrados.length);
 
@@ -744,39 +753,46 @@ function renderPaginacion(totalRegistros) {
   // Botón » siguiente
   añadirBoton("»", paginaActual + 1, false, paginaActual === totalPaginas);
   const inputIrPagina = document.getElementById("ir-a-pagina");
-const btnIrPagina = document.getElementById("btn-ir-a-pagina");
+  const btnIrPagina = document.getElementById("btn-ir-a-pagina");
 
-if (inputIrPagina && btnIrPagina) {
- 
- btnIrPagina.onclick = () => {
-  try {
-    const pagina = parseInt(inputIrPagina.value);
-    const totalPaginas = Math.ceil(datosFiltrados.length / REGISTROS_POR_PAGINA);
-    const errorDiv = document.getElementById("error-paginacion");
+  if (inputIrPagina && btnIrPagina) {
 
-    if (!errorDiv) return; // Evita errores si no está en el DOM
+    btnIrPagina.onclick = () => {
+      try {
+        const pagina = parseInt(inputIrPagina.value);
+        const totalPaginas = Math.ceil(datosFiltrados.length / REGISTROS_POR_PAGINA);
+        const errorDiv = document.getElementById("error-paginacion");
 
-    if (!isNaN(pagina) && pagina >= 1 && pagina <= totalPaginas) {
-      // Página válida. Actualiza y oculta error
-      paginaActual = pagina;
-      mostrarPagina();
-      renderPaginacion(datosFiltrados.length);
+        if (!errorDiv) return; // Evita errores si no está en el DOM
 
-      errorDiv.classList.add("d-none");
-      errorDiv.textContent = "";
-    } else {
-      // Página no válida. Muestra alerta
-      errorDiv.textContent = `Introduce un número entre 1 y ${totalPaginas}`;
-      errorDiv.classList.remove("d-none");
-      errorDiv.classList.add("show");
-    }
-  } catch (error) {
-    mostrarErrorBootstrap("Error al cambiar de página", error.message || error);
+        if (totalPaginas === 0) {
+          errorDiv.textContent = "No hay registros disponibles para paginar.";
+          errorDiv.classList.remove("d-none");
+          errorDiv.classList.add("show");
+          return;
+        }
+        
+        if (!isNaN(pagina) && pagina >= 1 && pagina <= totalPaginas) {
+          // Página válida. Actualiza y oculta error
+          paginaActual = pagina;
+          mostrarPagina();
+          renderPaginacion(datosFiltrados.length);
+
+          errorDiv.classList.add("d-none");
+          errorDiv.textContent = "";
+        } else {
+          // Página no válida. Muestra alerta
+          errorDiv.textContent = `Introduce un número entre 1 y ${totalPaginas}`;
+          errorDiv.classList.remove("d-none");
+          errorDiv.classList.add("show");
+        }
+      } catch (error) {
+        mostrarErrorBootstrap("Error al cambiar de página", error.message || error);
+      }
+    };
+
+
   }
-};
-
-
-}
 }
 
 // Genera la tabla de una página específica de datos
@@ -784,12 +800,25 @@ function mostrarPagina() {
   const contenedor = document.getElementById("datos-container");
   const mensaje = document.getElementById("mensajeNoResultados");
   contenedor.innerHTML = "";
+  const errorDiv = document.getElementById("error-paginacion");
 
   if (datosFiltrados.length === 0) {
     mensaje.classList.remove("d-none");
+
+      // Si no hay datos, limpia también el error de paginación
+    if (errorDiv) {
+      errorDiv.classList.add("d-none");
+      errorDiv.textContent = "";
+    }
     return;
   } else {
     mensaje.classList.add("d-none");
+  }
+
+  // Limpiar el error aquí por si cambia la página
+  if (errorDiv) {
+    errorDiv.classList.add("d-none");
+    errorDiv.textContent = "";
   }
 
   const inicio = (paginaActual - 1) * REGISTROS_POR_PAGINA;
