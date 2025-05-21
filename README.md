@@ -30,16 +30,29 @@ https://datos.tenerife.es/es/datos/conjuntos-de-datos/consumo-energetico-del-cab
 
 ---
 
-## ▶️ Cómo ejecutar el proyecto
+### ▶️ Uso de la aplicación
 
-Este proyecto no requiere instalación ni servidor local. Para utilizar la aplicación:
+Este proyecto **no requiere instalación ni servidor local**. Puedes usarlo de dos formas:
 
-1. Abre directamente el archivo `index.html` en cualquier navegador moderno (Chrome, Firefox, Edge, etc.).
-2. La aplicación cargará automáticamente los datos energéticos desde archivos JSON públicos alojados en GitHub mediante `fetch()`.
+1. **Desde GitHub Pages (recomendado)**  
+   Puedes acceder directamente a la versión publicada online desde la rama de desarrollo:  
+   🔗 [https://dalilaarmas.github.io/proyecto_dual/](https://dalilaarmas.github.io/proyecto_dual/)
 
-> ⚠️ Es necesario tener conexión a internet para que los datos se carguen correctamente.
+2. **Desde tu ordenador (modo local)**  
+   También puedes ejecutar la aplicación en local **sin necesidad de instalar nada** ni configurar un servidor web.  
+   Para ello, debes seguir estos pasos:
 
-Si deseas **consultar el código fuente, modificar archivos o acceder a los diagramas y documentación**, puedes clonar o descargar este repositorio desde GitHub.
+   - Descarga el repositorio completo (no solo el archivo `index.html`), ya que el proyecto utiliza rutas relativas para acceder a scripts, hojas de estilo e imágenes dentro de la carpeta `resources/`.
+   - Abre el archivo `index.html` haciendo doble clic desde el explorador de archivos de tu sistema operativo.
+   - La aplicación funcionará correctamente si mantienes la estructura de carpetas original del proyecto.
+
+   **No necesitas tener los archivos `.json` descargados localmente.**  
+   Los datos se cargan automáticamente desde enlaces públicos de GitHub mediante `fetch()`, por lo que **es imprescindible tener conexión a internet** para que la aplicación funcione correctamente.
+
+> ⚠️ Si solo descargas el archivo `index.html` sin las carpetas `resources/js` y `resources/css`, la aplicación no se mostrará correctamente porque no encontrará los archivos necesarios.  
+>
+> ⚠️ Si haces clic sobre `index.html` desde el navegador en GitHub, solo verás el código fuente, no la página web en funcionamiento.
+
 
 ---
 
