@@ -32,11 +32,15 @@ https://datos.tenerife.es/es/datos/conjuntos-de-datos/consumo-energetico-del-cab
 
 ### ▶️ Uso de la aplicación
 
-Este proyecto **no requiere instalación ni servidor local**. Puedes usarlo de dos formas:
+Este proyecto **no requiere instalación ni servidor local**. Puedes visualizarlo de dos formas:
 
-1. **Desde GitHub Pages (recomendado)**  
-   Puedes acceder directamente a la versión publicada online desde la rama de desarrollo:  
-   🔗 [https://dalilaarmas.github.io/proyecto_dual/](https://dalilaarmas.github.io/proyecto_dual/)
+1. 🌐 **Acceso a la versión en línea**
+
+Puedes ver una **versión temporal del proyecto** desplegada desde la rama `desarrollo` a través de **GitHub Pages** en el siguiente enlace:
+
+🔗 [https://dalilaarmas.github.io/proyecto\_dual/](https://dalilaarmas.github.io/proyecto_dual/)
+
+Esta página se genera automáticamente con GitHub Pages para facilitar la visualización del proyecto sin necesidad de descargar ni configurar nada localmente.
 
 2. **Desde tu ordenador (modo local)**  
    También puedes ejecutar la aplicación en local **sin necesidad de instalar nada** ni configurar un servidor web.  
