@@ -5,10 +5,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Consumo Energético - Cabildo de Tenerife</title>
+  <!-- CSS de DataTables -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
   <!-- Estilos de Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <!-- Bootstrap Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
   <!-- Estilos personalizados -->
   <link rel="stylesheet" href="resources/css/estilos.css" />
 </head>
@@ -85,21 +87,26 @@
         </div>
         <canvas id="miGrafico" width="400" height="200"></canvas>
 
-         <!-- recuento de registros -->
+        <!-- recuento de registros -->
         <div id="resumen-registros" class="alert alert-info mt-3">
           Cargando datos...
         </div>
         <!-- Botón plegable para resumen de consumo -->
         <div id="resumen-consumo"></div>
         <div id="letrasInsuficientes" class="alert alert-warning d-none" role="alert"></div>
-        <div id="resultado-mayor-consumo" class="alert alert-secondary d-none mt-3"></div> 
-        <div id="mensajeNoResultados" class="alert alert-warning d-none" role="alert"></div>       
+        <div id="resultado-mayor-consumo" class="alert alert-secondary d-none mt-3"></div>
+        <div id="mensajeNoResultados" class="alert alert-warning d-none" role="alert"></div>
         <!-- Aquí se insertará la tabla vía JavaScript -->
         <div id="datos-container" class="table-responsive"></div>
-        <div class="text-center my-3">
-          <button id="btn-cargar-mas" class="btn btn-primary">Cargar más</button>
-        </div>
-
+        <nav style="overflow-x: auto;">
+          <div class="d-flex align-items-center flex-wrap gap-2">
+            <ul class="pagination mb-0" id="paginacion" style="flex-wrap: nowrap; white-space: nowrap;"></ul>
+            <div class="input-group input-group-sm" style="max-width: 150px;">
+              <input type="number" min="1" class="form-control" id="ir-a-pagina" placeholder="Ir a pág.">
+              <button class="btn btn-outline-primary" id="btn-ir-a-pagina">Ir</button>
+            </div>
+          </div>
+        </nav>
       </main>
     </div>
   </div>
@@ -114,7 +121,7 @@
 
   <!-- Script personalizado para cargar tabla y filtros -->
   <script src="resources/js/script.js"></script>
-  
+
   <!-- Script Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
