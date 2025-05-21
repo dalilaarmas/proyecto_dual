@@ -752,17 +752,29 @@ if (inputIrPagina && btnIrPagina) {
   try {
     const pagina = parseInt(inputIrPagina.value);
     const totalPaginas = Math.ceil(datosFiltrados.length / REGISTROS_POR_PAGINA);
+    const errorDiv = document.getElementById("error-paginacion");
+
+    if (!errorDiv) return; // Evita errores si no está en el DOM
+
     if (!isNaN(pagina) && pagina >= 1 && pagina <= totalPaginas) {
+      // Página válida. Actualiza y oculta error
       paginaActual = pagina;
       mostrarPagina();
       renderPaginacion(datosFiltrados.length);
+
+      errorDiv.classList.add("d-none");
+      errorDiv.textContent = "";
     } else {
-      alert(`Introduce un número entre 1 y ${totalPaginas}`);
+      // Página no válida. Muestra alerta
+      errorDiv.textContent = `Introduce un número entre 1 y ${totalPaginas}`;
+      errorDiv.classList.remove("d-none");
+      errorDiv.classList.add("show");
     }
   } catch (error) {
     mostrarErrorBootstrap("Error al cambiar de página", error.message || error);
   }
 };
+
 
 }
 }
