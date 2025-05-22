@@ -124,6 +124,34 @@ document.addEventListener("DOMContentLoaded", function () {
   }).catch(err => {
     mostrarErrorBootstrap("Error al cargar los datos iniciales", err.message || err);
   });
+
+  // Aplicar filtros al escribir
+const filtros = [
+  "filtro-municipio",
+  "filtro-cups",
+  "filtro-direccion",
+  "filtro-fecha-desde",
+  "filtro-fecha-hasta",
+  "filtro-consumo-min",
+  "filtro-consumo-max"
+];
+
+filtros.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener("input", () => {
+      try {
+        aplicarFiltros();
+      } catch (e) {
+        // Evitamos errores mientras se escribe
+      }
+    });
+  }
+});
+
+// También por botón
+document.getElementById("btn-aplicar-filtros")?.addEventListener("click", aplicarFiltros);
+
 });
 // Función que genera un resumen estadístico y visual de los datos filtrados. 
 // Si no hay datos filtrados, muestra mensaje informativo
@@ -131,61 +159,65 @@ function generarResumenConsumo() {
   const contenedor = document.getElementById("resumen-consumo");
   if (!contenedor) return;
 
-  // Si no hay datos filtrados, muestra una alerta Bootstrap informativa
-  if (!datosFiltrados || datosFiltrados.length === 0) {
+  const fechaDesde = document.getElementById("filtro-fecha-desde")?.value || "";
+  const fechaHasta = document.getElementById("filtro-fecha-hasta")?.value || "";
+
+  function esFechaParcialValida(fecha) {
+    return /^\d{4}(-\d{2}){0,2}$/.test(fecha);
+  }
+
+  const datosFiltradosCompatibles = datosFiltrados.filter(dato => {
+    const f = dato.fecha;
+
+    const cumpleDesde = fechaDesde && esFechaParcialValida(fechaDesde)
+      ? f >= fechaDesde
+      : true;
+
+    const cumpleHasta = fechaHasta && esFechaParcialValida(fechaHasta)
+      ? f <= fechaHasta
+      : true;
+
+    return cumpleDesde && cumpleHasta;
+  });
+
+  if (!datosFiltradosCompatibles || datosFiltradosCompatibles.length === 0) {
     contenedor.innerHTML = `<div class="alert alert-warning">No hay datos para mostrar en el resumen.</div>`;
     return;
   }
 
-  // Objeto para almacenar resumen estructurado: totales por año, meses y días
   const resumen = {};
-  const diasTotales = []; // Array con cada día y su consumo para análisis global
-
-  // Variables para tracking de día mayor y menor consumo global
+  const diasTotales = [];
   let diaMayorConsumo = { fecha: "", consumo: -Infinity };
   let diaMenorConsumo = { fecha: "", consumo: Infinity };
 
-  datosFiltrados.forEach(dato => {
-    // Validación básica para fecha válida
+  datosFiltradosCompatibles.forEach(dato => {
     if (!dato.fecha || typeof dato.fecha !== "string" || dato.fecha.length < 10) return;
 
-    // Extrae año y mes en formato "YYYY" y "YYYY-MM"
     const año = dato.fecha.slice(0, 4);
-    const mes = dato.fecha.slice(0, 7); // "YYYY-MM"
+    const mes = dato.fecha.slice(0, 7);
 
     if (dato.consumo != null) {
-      // Guarda cada día con consumo para uso posterior en top3
       diasTotales.push({ fecha: dato.fecha, consumo: dato.consumo });
 
-      // Actualiza día de menor consumo siempre que sea mayor a cero y menor que el actual mínimo
       if (dato.consumo < diaMenorConsumo.consumo && dato.consumo > 0) {
         diaMenorConsumo = { fecha: dato.fecha, consumo: dato.consumo };
       }
-      // Actualiza día de mayor consumo
       if (dato.consumo > diaMayorConsumo.consumo) {
         diaMayorConsumo = { fecha: dato.fecha, consumo: dato.consumo };
       }
     }
 
-    // Inicializa estructura del resumen para cada año, si no existe
     if (!resumen[año]) resumen[año] = { total: 0, meses: {}, dias: {} };
 
-    // Acumula consumo total por año
     resumen[año].total += dato.consumo;
-
-    // Acumula consumo por mes y día
     resumen[año].meses[mes] = (resumen[año].meses[mes] || 0) + dato.consumo;
     resumen[año].dias[dato.fecha] = (resumen[año].dias[dato.fecha] || 0) + dato.consumo;
   });
 
-  // Lista ordenada de años para análisis
   const años = Object.keys(resumen).sort();
-
-  // Variables para año mayor y menor consumo
   let añoMayor = "", consumoMayor = -Infinity;
   let añoMenor = "", consumoMenor = Infinity;
 
-  // Determina el año con mayor y menor consumo total
   años.forEach(año => {
     if (resumen[año].total > consumoMayor) {
       añoMayor = año;
@@ -197,7 +229,6 @@ function generarResumenConsumo() {
     }
   });
 
-  // Encuentra el mes global con menor consumo en todos los años
   let mesMenor = null;
   let consumoMesMenor = Infinity;
   años.forEach(año => {
@@ -209,25 +240,16 @@ function generarResumenConsumo() {
     });
   });
 
-  // Top 3 días globales de mayor y menor consumo (mayor que 0)
-  const top3DiasGlobalMayor = diasTotales
-    .sort((a, b) => b.consumo - a.consumo)
-    .slice(0, 3);
+  const top3DiasGlobalMayor = diasTotales.sort((a, b) => b.consumo - a.consumo).slice(0, 3);
+  const top3DiasGlobalMenor = diasTotales.filter(d => d.consumo > 0).sort((a, b) => a.consumo - b.consumo).slice(0, 3);
 
-  const top3DiasGlobalMenor = diasTotales
-    .filter(d => d.consumo > 0)
-    .sort((a, b) => a.consumo - b.consumo)
-    .slice(0, 3);
-
-  // Top 3 mensual por año: mayor y menor consumo (mayor que 0)
   const top3MensualPorAñoMayor = {};
   const top3MensualPorAñoMenor = {};
   años.forEach(año => {
     top3MensualPorAñoMayor[año] = {};
     top3MensualPorAñoMenor[año] = {};
-
-    // Agrupa días por mes para cada año
     const diasPorMes = {};
+
     Object.entries(resumen[año].dias).forEach(([fecha, consumo]) => {
       if (consumo <= 0) return;
       const mes = fecha.slice(0, 7);
@@ -235,16 +257,12 @@ function generarResumenConsumo() {
       diasPorMes[mes].push({ fecha, consumo });
     });
 
-    // Para cada mes en el año, calcula top 3 días mayor y menor consumo
     Object.entries(diasPorMes).forEach(([mes, dias]) => {
       dias.sort((a, b) => b.consumo - a.consumo);
       top3MensualPorAñoMayor[año][mes] = dias.slice(0, 3);
-      // Para menor consumo (mayor que 0)
-      const diasMenor = dias.slice().sort((a, b) => a.consumo - b.consumo).slice(0, 3);
-      top3MensualPorAñoMenor[año][mes] = diasMenor;
+      top3MensualPorAñoMenor[año][mes] = dias.slice().sort((a, b) => a.consumo - b.consumo).slice(0, 3);
     });
   });
-
   // Genera HTML con resumen estadístico y visualización
   let html = `
       <div class="container py-3">
@@ -428,46 +446,66 @@ async function cargarYMostrarDatos() {
       <tr>
         <th>
           Municipio
-          <i id="iconoFiltroMunicipio" class="bi bi-filter" data-bs-toggle="collapse" data-bs-target="#filtroMunicipioCollapse"></i>
+          <i id="iconoFiltroMunicipio" class="bi bi-filter"></i>
+          <i class="bi bi-info-circle ms-2 text-info" data-bs-toggle="tooltip" data-bs-placement="top"data-bs-target="#filtroDireccionCollapse"data-bs-toggle="tooltip" title="Debes introducir al menos 3 caracteres para que el filtro se aplique."></i>
           <div class="collapse mt-1" id="filtroMunicipioCollapse">
             <input type="text" class="form-control form-control-sm mt-1" id="filtro-municipio" placeholder="Filtrar municipio">
           </div>
         </th>
         <th>
           CUPS
-          <i id="iconoFiltroCups" class="bi bi-filter" data-bs-toggle="collapse" data-bs-target="#filtroCupsCollapse"></i>
+          <i id="iconoFiltroCups" class="bi bi-filter"></i>
+          <i class="bi bi-info-circle ms-2 text-info" data-bs-toggle="tooltip" data-bs-placement="top"data-bs-target="#filtroDireccionCollapse"data-bs-toggle="tooltip" title="Debes introducir al menos 3 caracteres para que el filtro se aplique."></i>
           <div class="collapse mt-1" id="filtroCupsCollapse">
             <input type="text" class="form-control form-control-sm mt-1" id="filtro-cups" placeholder="Filtrar CUPS">
           </div>
         </th>
         <th>
           Dirección
-          <i id="iconoFiltroDireccion" class="bi bi-filter" data-bs-toggle="collapse" data-bs-target="#filtroDireccionCollapse"></i>
+          <i id="iconoFiltroDireccion" class="bi bi-filter" data-bs-toggle="collapse" ></i>
+          <i class="bi bi-info-circle ms-2 text-info" data-bs-toggle="tooltip" data-bs-placement="top"data-bs-target="#filtroDireccionCollapse"data-bs-toggle="tooltip" title="Debes introducir al menos 3 caracteres para que el filtro se aplique."></i>
           <div class="collapse mt-1" id="filtroDireccionCollapse">
             <input type="text" class="form-control form-control-sm mt-1" id="filtro-direccion" placeholder="Filtrar dirección">
           </div>
         </th>
         <th>
           Fecha
-          <i id="iconoFiltroFecha" class="bi bi-filter" data-bs-toggle="collapse" data-bs-target="#filtroFechaCollapse"></i>
+          <i class="bi bi-filter" data-bs-toggle="collapse" data-bs-target="#filtroFechaCollapse" role="button"></i>
+          <i class="bi bi-info-circle ms-2 text-info" data-bs-toggle="tooltip" data-bs-placement="top"
+            title="Para filtrar con una sola fecha, introdúcela en el campo 'Desde'. Puedes usar formatos como 2023, 2023-05 o 2023-05-15."></i>
+
           <div class="collapse mt-1" id="filtroFechaCollapse">
             <input type="search" class="form-control form-control-sm mt-1" id="filtro-fecha-desde" placeholder="Desde (YYYY-MM-DD)">
             <input type="search" class="form-control form-control-sm mt-1" id="filtro-fecha-hasta" placeholder="Hasta (YYYY-MM-DD)">
           </div>
         </th>
+
         <th>
           Consumo (kWh)
           <i id="iconoFiltroConsumo" class="bi bi-filter" data-bs-toggle="collapse" data-bs-target="#filtroConsumoCollapse"></i>
+          <i class="bi bi-info-circle ms-2 text-info"
+          data-bs-toggle="tooltip"
+          title="Puedes introducir un valor mínimo, un máximo o ambos."></i>
+
           <div class="collapse mt-1" id="filtroConsumoCollapse">
             <input type="number" class="form-control form-control-sm mt-1" id="filtro-consumo-min" placeholder="Mínimo">
             <input type="number" class="form-control form-control-sm mt-1" id="filtro-consumo-max" placeholder="Máximo">
-          </div>
+            <button id="btn-aplicar-filtros" class="btn btn-primary btn-sm mt-2">Aplicar filtros</button>
+            </div>
         </th>
       </tr>
     </thead>
     <tbody></tbody>
     </table>
 `;
+
+//activar tooltips
+  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
+
+
+
+  document.getElementById("btn-aplicar-filtros").addEventListener("click", aplicarFiltros);
 
   const mensajeError = document.getElementById("mensajeError");
 
@@ -516,58 +554,41 @@ reiniciarPaginacion(datosFiltrados.length);
 
 // Filtra los datos según los valores introducidos en los campos
 function aplicarFiltros() {
-  if (!todosLosDatos || todosLosDatos.length === 0) {
-    console.warn("Intento de aplicar filtros antes de que se cargaran los datos.");
-    return;
-  }
+  if (!todosLosDatos || todosLosDatos.length === 0) return;
 
   const municipioSeleccionado = document.getElementById("filtro-municipio").value.toLowerCase();
   const cupsSeleccionado = document.getElementById("filtro-cups").value.toLowerCase();
   const direccionSeleccionada = document.getElementById("filtro-direccion").value.toLowerCase();
-  const fechaDesde = document.getElementById("filtro-fecha-desde").value;
-  const fechaHasta = document.getElementById("filtro-fecha-hasta").value;
-  const consumoMin = parseFloat(document.getElementById("filtro-consumo-min").value);
-  const consumoMax = parseFloat(document.getElementById("filtro-consumo-max").value);
+  const fechaDesde = document.getElementById("filtro-fecha-desde").value.trim();
+  const fechaHasta = document.getElementById("filtro-fecha-hasta").value.trim();
 
-  // Validaciones de rangos
-function esFechaParcialValida(fecha) {
-  return /^\d{4}(-\d{2}){0,2}$/.test(fecha); // Año, o año-mes, o año-mes-día
-}
+  const consumoMinInput = document.getElementById("filtro-consumo-min").value.trim().replace(",", ".");
+  const consumoMaxInput = document.getElementById("filtro-consumo-max").value.trim().replace(",", ".");
 
-function coincideFechaParcial(fechaDato, fechaFiltro) {
-  return fechaDato.startsWith(fechaFiltro);
-}
+  const consumoMin = consumoMinInput !== "" ? parseFloat(consumoMinInput) : null;
+  const consumoMax = consumoMaxInput !== "" ? parseFloat(consumoMaxInput) : null;
 
-// Validación personalizada
-if (fechaDesde && fechaHasta && esFechaParcialValida(fechaDesde) && esFechaParcialValida(fechaHasta)) {
-  if (fechaDesde.length === fechaHasta.length && fechaDesde > fechaHasta) {
+
+  if (
+    fechaDesde && fechaHasta &&
+    esFechaParcialValida(fechaDesde) &&
+    esFechaParcialValida(fechaHasta) &&
+    fechaDesde > fechaHasta
+  ) {
     mostrarErrorBootstrap("Rango de fechas no válido", "La fecha 'desde' no puede ser posterior a la fecha 'hasta'.");
     return;
   }
-}
 
-
-const consumoMinValido = !isNaN(consumoMin);
-const consumoMaxValido = !isNaN(consumoMax);
-
-if (consumoMinValido && consumoMaxValido && consumoMin > consumoMax) {
-  mostrarErrorBootstrap("Rango de consumo no válido", "El valor mínimo no puede ser mayor que el máximo.");
-  return;
-}
-
-  // Añade eventos a los campos de filtro para actualizar los resultados al escribir o cambiar valores
-
-
-    datosFiltrados = todosLosDatos.filter(dato => {
+  datosFiltrados = todosLosDatos.filter(dato => {
     const matchMunicipio = municipioSeleccionado === "" || filtraTexto(dato.municipio, municipioSeleccionado);
     const matchCups = cupsSeleccionado === "" || filtraTexto(dato.cups_codigo, cupsSeleccionado);
     const matchDireccion = direccionSeleccionada === "" || filtraTexto(dato.cups_direccion, direccionSeleccionada);
-    
-    const matchFechaDesde = !fechaDesde || !esFechaParcialValida(fechaDesde) || coincideFechaParcial(dato.fecha, fechaDesde);
-    const matchFechaHasta = !fechaHasta || !esFechaParcialValida(fechaHasta) || coincideFechaParcial(dato.fecha, fechaHasta);
-   
-    const matchConsumoMin = isNaN(consumoMin) || dato.consumo >= consumoMin;
-    const matchConsumoMax = isNaN(consumoMax) || dato.consumo <= consumoMax;
+
+    const matchFechaDesde = !fechaDesde || !esFechaParcialValida(fechaDesde) || dato.fecha >= fechaDesde;
+    const matchFechaHasta = !fechaHasta || !esFechaParcialValida(fechaHasta) || dato.fecha <= fechaHasta;
+
+    const matchConsumoMin = consumoMin === null || dato.consumo >= consumoMin;
+    const matchConsumoMax = consumoMax === null || dato.consumo <= consumoMax;
 
     return (
       matchMunicipio &&
@@ -579,31 +600,31 @@ if (consumoMinValido && consumoMaxValido && consumoMin > consumoMax) {
       matchConsumoMax
     );
   });
+
   const mensajeNoResultados = document.getElementById("mensajeNoResultados");
   if (datosFiltrados.length === 0) {
-
     mensajeNoResultados.innerHTML = "No existen registros con los filtros indicados";
     mensajeNoResultados.classList.remove("d-none");
   } else {
-    document.getElementById("mensajeNoResultados").classList.add("d-none");
+    mensajeNoResultados.classList.add("d-none");
   }
+
   actualizarResumenRegistros();
   generarResumenConsumo();
   const canvas = document.getElementById("miGrafico");
-  if (canvas) {
+  if (canvas && typeof Chart !== "undefined") {
     actualizarGrafico(datosFiltrados);
   }
-  paginaActual = 1; // Reinicia la paginación al aplicar filtros
 
-
-
+  paginaActual = 1;
   mostrarPagina();
   renderPaginacion(datosFiltrados.length);
-
   actualizarEstadoIconosFiltro();
-
- 
 }
+
+
+
+
 
 function actualizarEstadoIconosFiltro() {
   const filtros = [
@@ -740,7 +761,10 @@ function toggleAnalisis() {
 }
 
 function actualizarGrafico(consumosFiltrados) {
-  const ctx = document.getElementById("miGrafico").getContext("2d");
+  const canvas = document.getElementById("miGrafico");
+  if (!canvas) return;
+
+const ctx = canvas.getContext("2d");
 
   // Agrupar consumos por mes o año
   const agrupadoPorFecha = {};
@@ -892,7 +916,7 @@ function renderPaginacion(totalRegistros) {
 
 // Genera la tabla de una página específica de datos
 
-  function mostrarPagina() {
+function mostrarPagina() {
   const mensaje = document.getElementById("mensajeNoResultados");
   const errorDiv = document.getElementById("error-paginacion");
   const tbody = document.querySelector("#tabla-consumo tbody");
