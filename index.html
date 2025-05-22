@@ -24,53 +24,6 @@
 
   <div class="container-fluid">
     <div class="row">
-      <!-- Menú lateral de filtros. Visible en escritorio y ocultable en móviles -->
-      <aside id="sidebar-filtros" class="col-md-3 col-12 bg-light p-3 sidebar">
-        <div class="filters-container">
-          <!-- Campo para filtrar por municipio -->
-          <div class="filter-group mb-2">
-            <label for="filtro-municipio">Municipio:</label>
-            <input type="text" id="filtro-municipio" class="form-control" placeholder="Filtrar por municipio" />
-          </div>
-
-          <!-- Campo para filtrar por CUPS -->
-          <div class="filter-group mb-2">
-            <label for="filtro-cups">CUPS:</label>
-            <input type="text" id="filtro-cups" class="form-control" placeholder="Filtrar por CUPS" />
-          </div>
-
-          <!-- Campo para filtrar por dirección -->
-          <div class="filter-group mb-2">
-            <label for="filtro-direccion">Dirección:</label>
-            <input type="text" id="filtro-direccion" class="form-control" placeholder="Filtrar por dirección" />
-          </div>
-
-          <!-- Campo para filtrar por consumo -->
-          <div class="filter-group mb-2">
-            <label for="filtro-consumo">Consumo (kWh):</label>
-            <input type="number" id="filtro-consumo" class="form-control" placeholder="Filtrar por consumo" />
-          </div>
-
-          <!-- Campo para filtrar por fecha exacta -->
-          <div class="filter-group mb-2">
-            <label for="filtro-fecha">Fecha:</label>
-            <input type="date" id="filtro-fecha" class="form-control" />
-          </div>
-
-          <!-- Selector de año para filtrar registros -->
-          <div class="filter-group mb-2">
-            <label for="filtro-año">Año:</label>
-            <select id="filtro-año" class="form-control">
-              <option value="">Todos los años</option>
-              <option value="2022">2022</option>
-              <option value="2023">2023</option>
-              <option value="2024">2024</option>
-              <option value="2025">2025</option>
-            </select>
-          </div>
-        </div>
-      </aside>
-
       <!-- Zona principal donde se cargará la tabla con los datos -->
       <main class="col-md-9 col-12">
         <!-- Mostrar errores -->

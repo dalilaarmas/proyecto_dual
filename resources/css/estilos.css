@@ -81,4 +81,7 @@ body {
     font-weight: bold;
   }
   
- 
+  /* CAMBIO DE COLOR ICONO FILTRO ACTIVO */
+ .filtro-activo {
+  color: #0d6efd; /* Azul Bootstrap */
+}

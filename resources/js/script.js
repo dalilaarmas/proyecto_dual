@@ -64,7 +64,7 @@ window.onerror = function (message, source, lineno, colno, error) {
 
   // Mostrar en interfaz
   mostrarErrorBootstrap("Error global detectado", detalle);
-// Mostrar por consola
+  // Mostrar por consola
   console.error("Error global capturado:", detalle);
   return false;
 };
@@ -99,14 +99,6 @@ function filtraTexto(datoValor, filtroValor) {
 
 // Espera a que todo el DOM esté cargado antes de ejecutar el script
 document.addEventListener("DOMContentLoaded", function () {
-  // Referencias a los campos de filtro del formulario
-  filtroAño = document.getElementById("filtro-año");
-  filtroMunicipio = document.getElementById("filtro-municipio");
-  filtroCups = document.getElementById("filtro-cups");
-  filtroDireccion = document.getElementById("filtro-direccion");
-  filtroConsumo = document.getElementById("filtro-consumo");
-  filtroFecha = document.getElementById("filtro-fecha");
-
   // Botón para filtros en móviles
   const toggleBtn = document.getElementById("toggle-filtros");
   const sidebar = document.getElementById("sidebar-filtros");
@@ -123,14 +115,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const canvas = document.getElementById("miGrafico");
     if (canvas) actualizarGrafico(datosFiltrados);
 
-    // Conectar eventos de los filtros
-    [filtroAño, filtroMunicipio, filtroCups, filtroDireccion, filtroConsumo, filtroFecha].forEach(el => {
-      if (el) {
-        el.addEventListener("input", aplicarFiltros);
-      } else {
-        console.warn("Elemento de filtro no encontrado:", el);
-      }
-    });
+    ["filtro-municipio", "filtro-cups", "filtro-direccion", "filtro-fecha-desde", "filtro-fecha-hasta", "filtro-consumo-min", "filtro-consumo-max"]
+      .forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener("input", aplicarFiltros);
+      });
+
   }).catch(err => {
     mostrarErrorBootstrap("Error al cargar los datos iniciales", err.message || err);
   });
@@ -433,19 +423,51 @@ async function cargarYMostrarDatos() {
 
   // Estructura HTML de la tabla
   contenedor.innerHTML = `
-      <table id="tabla-consumo" class="table table-hover table-striped table-bordered">
-        <thead class="table-dark">
-          <tr>
-            <th>Municipio</th>
-            <th>CUPS</th>
-            <th>Dirección</th>
-            <th>Fecha</th>
-            <th>Consumo (kWh)</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    `;
+  <table class="table table-bordered table-striped" id="tabla-consumo">
+    <thead class="table-dark">
+      <tr>
+        <th>
+          Municipio
+          <i id="iconoFiltroMunicipio" class="bi bi-filter" data-bs-toggle="collapse" data-bs-target="#filtroMunicipioCollapse"></i>
+          <div class="collapse mt-1" id="filtroMunicipioCollapse">
+            <input type="text" class="form-control form-control-sm mt-1" id="filtro-municipio" placeholder="Filtrar municipio">
+          </div>
+        </th>
+        <th>
+          CUPS
+          <i id="iconoFiltroCups" class="bi bi-filter" data-bs-toggle="collapse" data-bs-target="#filtroCupsCollapse"></i>
+          <div class="collapse mt-1" id="filtroCupsCollapse">
+            <input type="text" class="form-control form-control-sm mt-1" id="filtro-cups" placeholder="Filtrar CUPS">
+          </div>
+        </th>
+        <th>
+          Dirección
+          <i id="iconoFiltroDireccion" class="bi bi-filter" data-bs-toggle="collapse" data-bs-target="#filtroDireccionCollapse"></i>
+          <div class="collapse mt-1" id="filtroDireccionCollapse">
+            <input type="text" class="form-control form-control-sm mt-1" id="filtro-direccion" placeholder="Filtrar dirección">
+          </div>
+        </th>
+        <th>
+          Fecha
+          <i id="iconoFiltroFecha" class="bi bi-filter" data-bs-toggle="collapse" data-bs-target="#filtroFechaCollapse"></i>
+          <div class="collapse mt-1" id="filtroFechaCollapse">
+            <input type="search" class="form-control form-control-sm mt-1" id="filtro-fecha-desde" placeholder="Desde (YYYY-MM-DD)">
+            <input type="search" class="form-control form-control-sm mt-1" id="filtro-fecha-hasta" placeholder="Hasta (YYYY-MM-DD)">
+          </div>
+        </th>
+        <th>
+          Consumo (kWh)
+          <i id="iconoFiltroConsumo" class="bi bi-filter" data-bs-toggle="collapse" data-bs-target="#filtroConsumoCollapse"></i>
+          <div class="collapse mt-1" id="filtroConsumoCollapse">
+            <input type="number" class="form-control form-control-sm mt-1" id="filtro-consumo-min" placeholder="Mínimo">
+            <input type="number" class="form-control form-control-sm mt-1" id="filtro-consumo-max" placeholder="Máximo">
+          </div>
+        </th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+    </table>
+`;
 
   const mensajeError = document.getElementById("mensajeError");
 
@@ -499,36 +521,72 @@ function aplicarFiltros() {
     return;
   }
 
-  const añoSeleccionado = filtroAño.value;
-  const municipioSeleccionado = filtroMunicipio.value.toLowerCase();
-  const cupsSeleccionado = filtroCups.value.toLowerCase();
-  const direccionSeleccionada = filtroDireccion.value.toLowerCase();
-  const consumoSeleccionado = parseFloat(filtroConsumo.value);
-  const fechaSeleccionada = filtroFecha.value;
+  const municipioSeleccionado = document.getElementById("filtro-municipio").value.toLowerCase();
+  const cupsSeleccionado = document.getElementById("filtro-cups").value.toLowerCase();
+  const direccionSeleccionada = document.getElementById("filtro-direccion").value.toLowerCase();
+  const fechaDesde = document.getElementById("filtro-fecha-desde").value;
+  const fechaHasta = document.getElementById("filtro-fecha-hasta").value;
+  const consumoMin = parseFloat(document.getElementById("filtro-consumo-min").value);
+  const consumoMax = parseFloat(document.getElementById("filtro-consumo-max").value);
+
+  // Validaciones de rangos
+function esFechaParcialValida(fecha) {
+  return /^\d{4}(-\d{2}){0,2}$/.test(fecha); // Año, o año-mes, o año-mes-día
+}
+
+function coincideFechaParcial(fechaDato, fechaFiltro) {
+  return fechaDato.startsWith(fechaFiltro);
+}
+
+// Validación personalizada
+if (fechaDesde && fechaHasta && esFechaParcialValida(fechaDesde) && esFechaParcialValida(fechaHasta)) {
+  if (fechaDesde.length === fechaHasta.length && fechaDesde > fechaHasta) {
+    mostrarErrorBootstrap("Rango de fechas no válido", "La fecha 'desde' no puede ser posterior a la fecha 'hasta'.");
+    return;
+  }
+}
+
+
+const consumoMinValido = !isNaN(consumoMin);
+const consumoMaxValido = !isNaN(consumoMax);
+
+if (consumoMinValido && consumoMaxValido && consumoMin > consumoMax) {
+  mostrarErrorBootstrap("Rango de consumo no válido", "El valor mínimo no puede ser mayor que el máximo.");
+  return;
+}
 
   // Añade eventos a los campos de filtro para actualizar los resultados al escribir o cambiar valores
 
-  datosFiltrados = todosLosDatos.filter(dato => {
+
+    datosFiltrados = todosLosDatos.filter(dato => {
+    const matchMunicipio = municipioSeleccionado === "" || filtraTexto(dato.municipio, municipioSeleccionado);
+    const matchCups = cupsSeleccionado === "" || filtraTexto(dato.cups_codigo, cupsSeleccionado);
+    const matchDireccion = direccionSeleccionada === "" || filtraTexto(dato.cups_direccion, direccionSeleccionada);
+    
+    const matchFechaDesde = !fechaDesde || !esFechaParcialValida(fechaDesde) || coincideFechaParcial(dato.fecha, fechaDesde);
+    const matchFechaHasta = !fechaHasta || !esFechaParcialValida(fechaHasta) || coincideFechaParcial(dato.fecha, fechaHasta);
+   
+    const matchConsumoMin = isNaN(consumoMin) || dato.consumo >= consumoMin;
+    const matchConsumoMax = isNaN(consumoMax) || dato.consumo <= consumoMax;
+
     return (
-      (!añoSeleccionado || dato.año === añoSeleccionado) &&
-      filtraTexto(dato.municipio, municipioSeleccionado) &&
-      filtraTexto(dato.cups_codigo, cupsSeleccionado) &&
-      filtraTexto(dato.cups_direccion, direccionSeleccionada) &&
-      (isNaN(consumoSeleccionado) || (typeof dato.consumo === "number" && dato.consumo >= consumoSeleccionado)) &&
-      (!fechaSeleccionada || dato.fecha === fechaSeleccionada)
+      matchMunicipio &&
+      matchCups &&
+      matchDireccion &&
+      matchFechaDesde &&
+      matchFechaHasta &&
+      matchConsumoMin &&
+      matchConsumoMax
     );
   });
-
+  const mensajeNoResultados = document.getElementById("mensajeNoResultados");
   if (datosFiltrados.length === 0) {
-    const mensajeNoResultados = document.getElementById("mensajeNoResultados");
+
     mensajeNoResultados.innerHTML = "No existen registros con los filtros indicados";
     mensajeNoResultados.classList.remove("d-none");
   } else {
     document.getElementById("mensajeNoResultados").classList.add("d-none");
   }
-
-
-
   actualizarResumenRegistros();
   generarResumenConsumo();
   const canvas = document.getElementById("miGrafico");
@@ -536,14 +594,51 @@ function aplicarFiltros() {
     actualizarGrafico(datosFiltrados);
   }
   paginaActual = 1; // Reinicia la paginación al aplicar filtros
+
+
+
   mostrarPagina();
   renderPaginacion(datosFiltrados.length);
 
+  actualizarEstadoIconosFiltro();
 
-  // Sube al inicio de la página tras aplicar los filtros
-  window.scrollTo({ top: 0, behavior: "smooth" });
+ 
 }
 
+function actualizarEstadoIconosFiltro() {
+  const filtros = [
+    { inputId: "filtro-municipio", iconoId: "iconoFiltroMunicipio" },
+    { inputId: "filtro-cups", iconoId: "iconoFiltroCups" },
+    { inputId: "filtro-direccion", iconoId: "iconoFiltroDireccion" },
+    { inputId: "filtro-fecha-desde", iconoId: "iconoFiltroFecha" },
+    { inputId: "filtro-fecha-hasta", iconoId: "iconoFiltroFecha" },
+    { inputId: "filtro-consumo-min", iconoId: "iconoFiltroConsumo" },
+    { inputId: "filtro-consumo-max", iconoId: "iconoFiltroConsumo" }
+  ];
+
+  const iconosActivos = {};
+
+  filtros.forEach(({ inputId, iconoId }) => {
+    const input = document.getElementById(inputId);
+    const icono = document.getElementById(iconoId);
+    if (!input || !icono) return;
+
+    if (input.value.trim() !== "") {
+      iconosActivos[iconoId] = true;
+    }
+  });
+
+  // Aplicar o quitar clase según estado
+  filtros.forEach(({ iconoId }) => {
+    const icono = document.getElementById(iconoId);
+    if (!icono) return;
+    if (iconosActivos[iconoId]) {
+      icono.classList.add("filtro-activo");
+    } else {
+      icono.classList.remove("filtro-activo");
+    }
+  });
+}
 // Carga un archivo JSON usando fetch y lo convierte a objeto
 async function cargarJSON(url) {
   const res = await fetch(url);
@@ -771,7 +866,7 @@ function renderPaginacion(totalRegistros) {
           errorDiv.classList.add("show");
           return;
         }
-        
+
         if (!isNaN(pagina) && pagina >= 1 && pagina <= totalPaginas) {
           // Página válida. Actualiza y oculta error
           paginaActual = pagina;
@@ -796,26 +891,26 @@ function renderPaginacion(totalRegistros) {
 }
 
 // Genera la tabla de una página específica de datos
-function mostrarPagina() {
-  const contenedor = document.getElementById("datos-container");
-  const mensaje = document.getElementById("mensajeNoResultados");
-  contenedor.innerHTML = "";
-  const errorDiv = document.getElementById("error-paginacion");
 
+  function mostrarPagina() {
+  const mensaje = document.getElementById("mensajeNoResultados");
+  const errorDiv = document.getElementById("error-paginacion");
+  const tbody = document.querySelector("#tabla-consumo tbody");
+  if (!tbody) return;
+
+  // Mostrar u ocultar mensaje de resultados
   if (datosFiltrados.length === 0) {
     mensaje.classList.remove("d-none");
-
-      // Si no hay datos, limpia también el error de paginación
     if (errorDiv) {
       errorDiv.classList.add("d-none");
       errorDiv.textContent = "";
     }
+    tbody.innerHTML = ""; // Borra filas
     return;
   } else {
     mensaje.classList.add("d-none");
   }
 
-  // Limpiar el error aquí por si cambia la página
   if (errorDiv) {
     errorDiv.classList.add("d-none");
     errorDiv.textContent = "";
@@ -825,20 +920,7 @@ function mostrarPagina() {
   const fin = inicio + REGISTROS_POR_PAGINA;
   const datosPagina = datosFiltrados.slice(inicio, fin);
 
-  let html = `
-    <table class="table table-bordered table-striped">
-      <thead class="table-dark">
-        <tr>
-          <th>Municipio</th>
-          <th>CUPS</th>
-          <th>Dirección</th>
-          <th>Fecha</th>
-          <th>Consumo (kWh)</th>
-        </tr>
-      </thead>
-      <tbody>
-  `;
-
+  let html = "";
   datosPagina.forEach(d => {
     html += `
       <tr>
@@ -850,8 +932,13 @@ function mostrarPagina() {
       </tr>`;
   });
 
-  html += "</tbody></table>";
-  contenedor.innerHTML = html;
-
+  tbody.innerHTML = html;
   renderPaginacion(datosFiltrados.length);
+}
+function esFechaParcialValida(fecha) {
+  return /^\d{4}(-\d{2}){0,2}$/.test(fecha);
+}
+
+function coincideFechaParcial(fechaDato, fechaFiltro) {
+  return fechaDato.startsWith(fechaFiltro);
 }
