@@ -13,16 +13,16 @@
   <link rel="stylesheet" href="resources/css/estilos.css" />
 </head>
 
-<body>
+<body class="min-vh-100 d-flex flex-column">
   <!-- Cabecera de la página -->
   <header class="bg-primary text-white p-3">
     <h1 class="h3 mb-0">Consumo Energético - Cabildo de Tenerife</h1>
   </header>
 
-  <div class="container-fluid">
-    <div class="row">
+  <div class="container-fluid flex-grow-1">
+    <div class="row h-100">
       <!-- Zona principal donde se cargará la tabla con los datos -->
-      <main class="col-md-9 col-12">
+      <main class="flex-fill col-md-9 col-12">
         <!-- Mostrar errores -->
         <div id="mensajeError" class="alert alert-danger d-none" role="alert"
           style="position: fixed; top: 10px; right: 10px; max-width: 400px; z-index: 1050;">
@@ -44,7 +44,7 @@
         <div id="resultado-mayor-consumo" class="alert alert-secondary d-none mt-3"></div>
         <div id="mensajeNoResultados" class="alert alert-warning d-none" role="alert"></div>
         <!-- Aquí se insertará la tabla vía JavaScript -->
-        <div id="datos-container" class="table-responsive"></div>
+        <div id="datos-container" class="table-responsive" style="max-height: 60vh; overflow-y: auto;"></div>
          <div id="error-paginacion" class="alert alert-danger d-none mt-2" role="alert"></div>
         <nav style="overflow-x: auto;">
           <div class="d-flex align-items-center flex-wrap gap-2">
