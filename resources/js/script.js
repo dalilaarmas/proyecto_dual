@@ -82,75 +82,69 @@ const MIN_CARACTERES_FILTRO = 3; // Mínimo de caracteres para activar filtro en
 //Función para que el filtro se active solo cuando el filtro tiene igual o más caracteres que el mínimo.
 //Si el filtro está vacío (longitud 0) también se permite mostrar todo
 function filtraTexto(datoValor, filtroValor) {
-  const letrasInsuficientes = document.getElementById("letrasInsuficientes");
-
   if (filtroValor.length < MIN_CARACTERES_FILTRO) {
-    letrasInsuficientes.innerHTML = `Necesita mínimo <strong>${MIN_CARACTERES_FILTRO}</strong> caracteres para filtrar por dirección, CUPS y/o municipio.`;
-    letrasInsuficientes.classList.remove("d-none"); // mostrar mensaje
-    return true; // Mostrar el registro, no filtrar nada aún
+    return true; // No aplicar filtro, mostrar todo
   }
-
-  letrasInsuficientes.classList.add("d-none"); // Ocultar mensaje si filtro válido
 
   return datoValor.toLowerCase().includes(filtroValor.toLowerCase());
 }
 
 
 
+
 // Espera a que todo el DOM esté cargado antes de ejecutar el script
 document.addEventListener("DOMContentLoaded", function () {
-  // Botón para filtros en móviles
-  const toggleBtn = document.getElementById("toggle-filtros");
-  const sidebar = document.getElementById("sidebar-filtros");
-  toggleBtn.addEventListener("click", () => {
-    sidebar.classList.toggle("show");
-  });
-  // Carga los datos y solo entonces conecta los filtros y actualiza la vista
-  cargarYMostrarDatos().then(() => {
-    datosFiltrados = [...todosLosDatos]; // Inicializa con todos los datos
-    mostrarPagina();
-    renderPaginacion(datosFiltrados.length);
-    actualizarResumenRegistros();
-    generarResumenConsumo();
-    const canvas = document.getElementById("miGrafico");
-    if (canvas) actualizarGrafico(datosFiltrados);
+    // Botón para filtros en móviles
+    const toggleBtn = document.getElementById("toggle-filtros");
+    const sidebar = document.getElementById("sidebar-filtros");
+    toggleBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("show");
+    });
+    // Carga los datos y solo entonces conecta los filtros y actualiza la vista
+   
+    // Aplicar filtros al escribir
+    const filtros = [
+      "filtro-municipio",
+      "filtro-cups",
+      "filtro-direccion",
+      "filtro-fecha-desde",
+      "filtro-fecha-hasta",
+      "filtro-consumo-min",
+      "filtro-consumo-max"
+    ];
 
-    ["filtro-municipio", "filtro-cups", "filtro-direccion", "filtro-fecha-desde", "filtro-fecha-hasta", "filtro-consumo-min", "filtro-consumo-max"]
-      .forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener("input", aplicarFiltros);
-      });
-
-  }).catch(err => {
-    mostrarErrorBootstrap("Error al cargar los datos iniciales", err.message || err);
-  });
-
-  // Aplicar filtros al escribir
-const filtros = [
-  "filtro-municipio",
-  "filtro-cups",
-  "filtro-direccion",
-  "filtro-fecha-desde",
-  "filtro-fecha-hasta",
-  "filtro-consumo-min",
-  "filtro-consumo-max"
-];
-
-filtros.forEach(id => {
-  const el = document.getElementById(id);
-  if (el) {
-    el.addEventListener("input", () => {
-      try {
-        aplicarFiltros();
-      } catch (e) {
-        // Evitamos errores mientras se escribe
+    filtros.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener("input", () => {
+          try {
+            aplicarFiltros();
+          } catch (e) {
+            // Evitamos errores mientras se escribe
+          }
+        });
       }
     });
-  }
-});
 
-// También por botón
-document.getElementById("btn-aplicar-filtros")?.addEventListener("click", aplicarFiltros);
+     cargarYMostrarDatos().then(() => {
+      datosFiltrados = [...todosLosDatos]; // Inicializa con todos los datos
+      mostrarPagina();
+      renderPaginacion(datosFiltrados.length);
+      actualizarResumenRegistros();
+      generarResumenConsumo();
+      const canvas = document.getElementById("miGrafico");
+      if (canvas) actualizarGrafico(datosFiltrados);
+
+      ["filtro-municipio", "filtro-cups", "filtro-direccion", "filtro-fecha-desde", "filtro-fecha-hasta", "filtro-consumo-min", "filtro-consumo-max"]
+        .forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.addEventListener("input", aplicarFiltros);
+        });
+
+    }).catch(err => {
+      mostrarErrorBootstrap("Error al cargar los datos iniciales", err.message || err);
+    });
+
 
 });
 // Función que genera un resumen estadístico y visual de los datos filtrados. 
@@ -445,35 +439,54 @@ async function cargarYMostrarDatos() {
     <thead class="table-dark">
       <tr>
         <th>
+        <i class="bi bi-info-circle text-info"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            data-bs-html="true"
+            data-bs-title='Debes introducir al menos 3 caracteres.<br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
+          </i>
           Municipio
-          <i id="iconoFiltroMunicipio" class="bi bi-filter"></i>
-          <i class="bi bi-info-circle ms-2 text-info" data-bs-toggle="tooltip" data-bs-placement="top"data-bs-target="#filtroDireccionCollapse"data-bs-toggle="tooltip" title="Debes introducir al menos 3 caracteres para que el filtro se aplique."></i>
+         <i id="iconoFiltroMunicipio" class="bi bi-filter"
+          data-bs-toggle="collapse" data-bs-target="#filtroMunicipioCollapse"
+          role="button" aria-expanded="false" aria-controls="filtroMunicipioCollapse"></i>
+
           <div class="collapse mt-1" id="filtroMunicipioCollapse">
             <input type="text" class="form-control form-control-sm mt-1" id="filtro-municipio" placeholder="Filtrar municipio">
           </div>
         </th>
         <th>
+         <i class="bi bi-info-circle text-info"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            data-bs-html="true"
+            data-bs-title='Debes introducir al menos 3 caracteres.<br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
+          </i>
           CUPS
           <i id="iconoFiltroCups" class="bi bi-filter"></i>
-          <i class="bi bi-info-circle ms-2 text-info" data-bs-toggle="tooltip" data-bs-placement="top"data-bs-target="#filtroDireccionCollapse"data-bs-toggle="tooltip" title="Debes introducir al menos 3 caracteres para que el filtro se aplique."></i>
-          <div class="collapse mt-1" id="filtroCupsCollapse">
+          <div class="collapse mt-1" id="filtroCupsCollapse"> 
             <input type="text" class="form-control form-control-sm mt-1" id="filtro-cups" placeholder="Filtrar CUPS">
           </div>
         </th>
         <th>
+         <i class="bi bi-info-circle text-info"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            data-bs-html="true"
+            data-bs-title='Debes introducir al menos 3 caracteres.<br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
+          </i>
           Dirección
           <i id="iconoFiltroDireccion" class="bi bi-filter" data-bs-toggle="collapse" ></i>
-          <i class="bi bi-info-circle ms-2 text-info" data-bs-toggle="tooltip" data-bs-placement="top"data-bs-target="#filtroDireccionCollapse"data-bs-toggle="tooltip" title="Debes introducir al menos 3 caracteres para que el filtro se aplique."></i>
+         
           <div class="collapse mt-1" id="filtroDireccionCollapse">
             <input type="text" class="form-control form-control-sm mt-1" id="filtro-direccion" placeholder="Filtrar dirección">
           </div>
         </th>
         <th>
+        <i class="bi bi-info-circle ms-2 text-info" data-bs-toggle="tooltip" data-bs-placement="top"
+            title="Para filtrar con una sola fecha, introdúcela en el campo 'Desde'. Puedes usar formatos como 2023, 2023-05 o 2023-05-15."></i>
           Fecha
           <i class="bi bi-filter" data-bs-toggle="collapse" data-bs-target="#filtroFechaCollapse" role="button"></i>
-          <i class="bi bi-info-circle ms-2 text-info" data-bs-toggle="tooltip" data-bs-placement="top"
-            title="Para filtrar con una sola fecha, introdúcela en el campo 'Desde'. Puedes usar formatos como 2023, 2023-05 o 2023-05-15."></i>
-
+          
           <div class="collapse mt-1" id="filtroFechaCollapse">
             <input type="search" class="form-control form-control-sm mt-1" id="filtro-fecha-desde" placeholder="Desde (YYYY-MM-DD)">
             <input type="search" class="form-control form-control-sm mt-1" id="filtro-fecha-hasta" placeholder="Hasta (YYYY-MM-DD)">
@@ -481,16 +494,20 @@ async function cargarYMostrarDatos() {
         </th>
 
         <th>
+          <i class="bi bi-info-circle text-info"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            data-bs-html="true"
+            data-bs-title='Puedes introducir solo mínimo, máximo o ambos.<br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
+          </i>
           Consumo (kWh)
           <i id="iconoFiltroConsumo" class="bi bi-filter" data-bs-toggle="collapse" data-bs-target="#filtroConsumoCollapse"></i>
-          <i class="bi bi-info-circle ms-2 text-info"
-          data-bs-toggle="tooltip"
-          title="Puedes introducir un valor mínimo, un máximo o ambos."></i>
+          
+
 
           <div class="collapse mt-1" id="filtroConsumoCollapse">
             <input type="number" class="form-control form-control-sm mt-1" id="filtro-consumo-min" placeholder="Mínimo">
             <input type="number" class="form-control form-control-sm mt-1" id="filtro-consumo-max" placeholder="Máximo">
-            <button id="btn-aplicar-filtros" class="btn btn-primary btn-sm mt-2">Aplicar filtros</button>
             </div>
         </th>
       </tr>
@@ -498,14 +515,46 @@ async function cargarYMostrarDatos() {
     <tbody></tbody>
     </table>
 `;
+document.getElementById("filtro-consumo-min")?.addEventListener("input", aplicarFiltros);
 
-//activar tooltips
+  // Activar tooltips con botón de cerrar funcional y soporte móvil
   const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-  tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
+  tooltipTriggerList.forEach(el => {
+    new bootstrap.Tooltip(el, {
+      trigger: 'click',
+      placement: 'auto',
+      html: true
+    });
+  });
+
+  // Cierre del tooltip con el botón "Cerrar"
+  document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("cerrar-tooltip")) {
+      document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+        const tip = bootstrap.Tooltip.getInstance(el);
+        if (tip) tip.hide();
+      });
+    }
+  });
+
+  // Activar collapse en los iconos de filtro
+  [
+    { icono: "iconoFiltroMunicipio", collapse: "filtroMunicipioCollapse" },
+    { icono: "iconoFiltroCups", collapse: "filtroCupsCollapse" },
+    { icono: "iconoFiltroDireccion", collapse: "filtroDireccionCollapse" },
+    { icono: "iconoFiltroConsumo", collapse: "filtroConsumoCollapse" }
+  ].forEach(({ icono, collapse }) => {
+    const iconoEl = document.getElementById(icono);
+    if (iconoEl) {
+      iconoEl.setAttribute("data-bs-toggle", "collapse");
+      iconoEl.setAttribute("data-bs-target", `#${collapse}`);
+      iconoEl.setAttribute("role", "button");
+      iconoEl.setAttribute("aria-expanded", "false");
+      iconoEl.setAttribute("aria-controls", collapse);
+    }
+  });
 
 
-
-  document.getElementById("btn-aplicar-filtros").addEventListener("click", aplicarFiltros);
 
   const mensajeError = document.getElementById("mensajeError");
 
@@ -522,7 +571,7 @@ async function cargarYMostrarDatos() {
                 cups_codigo: cups.cups_codigo || "Desconocido",
                 cups_direccion: cups.cups_direccion || "Desconocida",
                 fecha: consumo.fecha || "Desconocida",
-                consumo: typeof consumo.consumo === "number" ? consumo.consumo : null,
+                consumo: !isNaN(parseFloat(consumo.consumo)) ? parseFloat(consumo.consumo) : null,
                 año: consumo.fecha ? consumo.fecha.split("-")[0] : "Desconocida" // Extrae el año de la fecha
               });
             });
@@ -547,8 +596,7 @@ async function cargarYMostrarDatos() {
     actualizarGrafico(todosLosDatos);
   }
 }
-mostrarPagina();
-reiniciarPaginacion(datosFiltrados.length);
+
 
 
 
@@ -562,22 +610,14 @@ function aplicarFiltros() {
   const fechaDesde = document.getElementById("filtro-fecha-desde").value.trim();
   const fechaHasta = document.getElementById("filtro-fecha-hasta").value.trim();
 
-  const consumoMinInput = document.getElementById("filtro-consumo-min").value.trim().replace(",", ".");
-  const consumoMaxInput = document.getElementById("filtro-consumo-max").value.trim().replace(",", ".");
+const consumoMinInput = document.getElementById("filtro-consumo-min").value.trim().replace(",", ".");
+const consumoMaxInput = document.getElementById("filtro-consumo-max").value.trim().replace(",", ".");
 
-  const consumoMin = consumoMinInput !== "" ? parseFloat(consumoMinInput) : null;
-  const consumoMax = consumoMaxInput !== "" ? parseFloat(consumoMaxInput) : null;
+const parsedMin = parseFloat(consumoMinInput);
+const parsedMax = parseFloat(consumoMaxInput);
 
-
-  if (
-    fechaDesde && fechaHasta &&
-    esFechaParcialValida(fechaDesde) &&
-    esFechaParcialValida(fechaHasta) &&
-    fechaDesde > fechaHasta
-  ) {
-    mostrarErrorBootstrap("Rango de fechas no válido", "La fecha 'desde' no puede ser posterior a la fecha 'hasta'.");
-    return;
-  }
+const consumoMin = !isNaN(parsedMin) ? parsedMin : null;
+const consumoMax = !isNaN(parsedMax) ? parsedMax : null;
 
   datosFiltrados = todosLosDatos.filter(dato => {
     const matchMunicipio = municipioSeleccionado === "" || filtraTexto(dato.municipio, municipioSeleccionado);
@@ -587,8 +627,8 @@ function aplicarFiltros() {
     const matchFechaDesde = !fechaDesde || !esFechaParcialValida(fechaDesde) || dato.fecha >= fechaDesde;
     const matchFechaHasta = !fechaHasta || !esFechaParcialValida(fechaHasta) || dato.fecha <= fechaHasta;
 
-    const matchConsumoMin = consumoMin === null || dato.consumo >= consumoMin;
-    const matchConsumoMax = consumoMax === null || dato.consumo <= consumoMax;
+    const matchConsumoMin = consumoMin !== null ? dato.consumo != null && dato.consumo >= consumoMin : true;
+    const matchConsumoMax = consumoMax !== null ? dato.consumo != null && dato.consumo <= consumoMax : true;
 
     return (
       matchMunicipio &&
@@ -621,6 +661,7 @@ function aplicarFiltros() {
   renderPaginacion(datosFiltrados.length);
   actualizarEstadoIconosFiltro();
 }
+
 
 
 
@@ -764,7 +805,7 @@ function actualizarGrafico(consumosFiltrados) {
   const canvas = document.getElementById("miGrafico");
   if (!canvas) return;
 
-const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext("2d");
 
   // Agrupar consumos por mes o año
   const agrupadoPorFecha = {};
