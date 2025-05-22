@@ -500,6 +500,24 @@ async function cargarYMostrarDatos() {
     <tbody></tbody>
     </table>
 `;
+//poner negrita al tocar una fila
+const esMovil = /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent);
+
+if (esMovil) {
+document.addEventListener('click', function (e) {
+  if (e.target.tagName === 'TD') {
+    const fila = e.target.closest('tr');
+
+    // quitar la clase a todas las filas
+    document.querySelectorAll('#tabla-consumo tbody tr').forEach(tr => {
+      tr.classList.remove('tr-activa');
+    });
+
+    // aplicar a la fila tocada
+    fila.classList.add('tr-activa');
+  }
+});
+}
 document.getElementById("filtro-consumo-min")?.addEventListener("input", aplicarFiltros);
 
   // Activar tooltips con botón de cerrar funcional y soporte móvil

@@ -10,3 +10,6 @@ body {
 tr:hover{
   font-weight: bold;
 }
+.tr-activa {
+  font-weight: bold;
+}
