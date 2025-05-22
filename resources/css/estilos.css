@@ -2,12 +2,11 @@
 body {
     overflow-x: hidden;
 }
- 
-.table-hover tbody tr:hover td {
-    font-weight: bold;
-  }
   
   /* CAMBIO DE COLOR ICONO FILTRO ACTIVO */
  .filtro-activo {
   color: #0d6efd; /* Azul Bootstrap */
+}
+tr:hover{
+  font-weight: bold;
 }

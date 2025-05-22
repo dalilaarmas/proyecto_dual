@@ -94,13 +94,7 @@ function filtraTexto(datoValor, filtroValor) {
 
 // Espera a que todo el DOM esté cargado antes de ejecutar el script
 document.addEventListener("DOMContentLoaded", function () {
-    // Botón para filtros en móviles
-    const toggleBtn = document.getElementById("toggle-filtros");
-    const sidebar = document.getElementById("sidebar-filtros");
-    toggleBtn.addEventListener("click", () => {
-      sidebar.classList.toggle("show");
-    });
-    // Carga los datos y solo entonces conecta los filtros y actualiza la vista
+   
    
     // Aplicar filtros al escribir
     const filtros = [
@@ -412,15 +406,6 @@ function generarResumenConsumo() {
   contenedor.innerHTML = html;
 }
 
-
-// Botón para mostrar/ocultar el panel de filtros en móviles
-const toggleBtn = document.getElementById("toggle-filtros");
-const sidebar = document.getElementById("sidebar-filtros");
-toggleBtn.addEventListener("click", () => {
-  sidebar.classList.toggle("show");
-});
-
-
 function actualizarResumenRegistros() {
   const resumen = document.getElementById("resumen-registros");
   resumen.textContent = `Mostrando ${datosFiltrados.length} de ${todosLosDatos.length} registros.`;
@@ -435,18 +420,18 @@ async function cargarYMostrarDatos() {
 
   // Estructura HTML de la tabla
   contenedor.innerHTML = `
-  <table class="table table-bordered table-striped" id="tabla-consumo">
-    <thead class="table-dark">
+  <table class="table table-bordered border-success" id="tabla-consumo">
+    <thead class="table-success">
       <tr>
         <th>
-        <i class="bi bi-info-circle text-info"
+        <i class="bi bi-info-circle text-primary"
             data-bs-toggle="tooltip"
             data-bs-placement="top"
             data-bs-html="true"
-            data-bs-title='Debes introducir al menos 3 caracteres.<br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
+            data-bs-title='Haz click en el icono derecho para filtrar por municipio. Debes introducir al menos 3 caracteres.<br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
           </i>
           Municipio
-         <i id="iconoFiltroMunicipio" class="bi bi-filter"
+         <i id="iconoFiltroMunicipio" class="bi bi-geo-alt-fill text-danger"
           data-bs-toggle="collapse" data-bs-target="#filtroMunicipioCollapse"
           role="button" aria-expanded="false" aria-controls="filtroMunicipioCollapse"></i>
 
@@ -455,37 +440,37 @@ async function cargarYMostrarDatos() {
           </div>
         </th>
         <th>
-         <i class="bi bi-info-circle text-info"
+         <i class="bi bi-info-circle text-primary"
             data-bs-toggle="tooltip"
             data-bs-placement="top"
             data-bs-html="true"
-            data-bs-title='Debes introducir al menos 3 caracteres.<br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
+            data-bs-title='Haz click en el icono derecho para filtrar por CUPS. Debes introducir al menos 3 caracteres.<br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
           </i>
           CUPS
-          <i id="iconoFiltroCups" class="bi bi-filter"></i>
+          <i id="iconoFiltroCups" class="bi bi-plug-fill text-danger"></i>
           <div class="collapse mt-1" id="filtroCupsCollapse"> 
             <input type="text" class="form-control form-control-sm mt-1" id="filtro-cups" placeholder="Filtrar CUPS">
           </div>
         </th>
         <th>
-         <i class="bi bi-info-circle text-info"
+         <i class="bi bi-info-circle text-primary"
             data-bs-toggle="tooltip"
             data-bs-placement="top"
             data-bs-html="true"
-            data-bs-title='Debes introducir al menos 3 caracteres.<br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
+            data-bs-title='Haz click en el icono derecho para filtrar por dirección. Debes introducir al menos 3 caracteres.<br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
           </i>
           Dirección
-          <i id="iconoFiltroDireccion" class="bi bi-filter" data-bs-toggle="collapse" ></i>
+          <i id="iconoFiltroDireccion" class="bi bi-map-fill text-danger" data-bs-toggle="collapse" ></i>
          
           <div class="collapse mt-1" id="filtroDireccionCollapse">
             <input type="text" class="form-control form-control-sm mt-1" id="filtro-direccion" placeholder="Filtrar dirección">
           </div>
         </th>
         <th>
-        <i class="bi bi-info-circle ms-2 text-info" data-bs-toggle="tooltip" data-bs-placement="top"
-            title="Para filtrar con una sola fecha, introdúcela en el campo 'Desde'. Puedes usar formatos como 2023, 2023-05 o 2023-05-15."></i>
+        <i class="bi bi-info-circle ms-2 text-primary" data-bs-toggle="tooltip" data-bs-placement="top"
+            title="Haz click en el icono derecho para filtrar por fecha. Para filtrar con una sola fecha, introdúcela en el campo 'Desde'. Puedes usar formatos como 2023, 2023-05 o 2023-05-15."></i>
           Fecha
-          <i class="bi bi-filter" data-bs-toggle="collapse" data-bs-target="#filtroFechaCollapse" role="button"></i>
+          <i class="bi bi-calendar-date-fill text-danger" data-bs-toggle="collapse" data-bs-target="#filtroFechaCollapse" role="button"></i>
           
           <div class="collapse mt-1" id="filtroFechaCollapse">
             <input type="search" class="form-control form-control-sm mt-1" id="filtro-fecha-desde" placeholder="Desde (YYYY-MM-DD)">
@@ -494,14 +479,14 @@ async function cargarYMostrarDatos() {
         </th>
 
         <th>
-          <i class="bi bi-info-circle text-info"
+          <i class="bi bi-info-circle text-primary"
             data-bs-toggle="tooltip"
             data-bs-placement="top"
             data-bs-html="true"
-            data-bs-title='Puedes introducir solo mínimo, máximo o ambos.<br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
+            data-bs-title='Haz click en el icono derecho para filtrar por consumo. Puedes introducir solo mínimo, máximo o ambos.<br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
           </i>
           Consumo (kWh)
-          <i id="iconoFiltroConsumo" class="bi bi-filter" data-bs-toggle="collapse" data-bs-target="#filtroConsumoCollapse"></i>
+          <i id="iconoFiltroConsumo" class="bi bi-lightning-charge-fill text-danger" data-bs-toggle="collapse" data-bs-target="#filtroConsumoCollapse"></i>
           
 
 
