@@ -7,26 +7,38 @@ https://datos.tenerife.es/es/datos/conjuntos-de-datos/consumo-energetico-del-cab
 
 ---
 
+Con todo lo que has implementado y ajustado en el proyecto (validaciones dinámicas, tooltips accesibles, eventos sobre inputs generados dinámicamente, mejora del filtrado por mínimo, corrección de errores de carga y UI más clara), el README puede reflejar de forma más precisa y profesional tus avances.
+
+Aquí tienes una versión actualizada del bloque:
+
+---
+
 ## ⚙️ Funcionalidades implementadas
 
-- Visualización de consumo energético por año, mes y día.
-- Tabla interactiva con filtros por municipio, CUPS, dirección, fecha exacta y consumo mínimo.
-- Gráficos dinámicos generados con Chart.js.
-- Paginación personalizada con buscador de página.
-- Resúmenes automáticos: día/año/mes con mayor y menor consumo.
-- Carga de datos dinámica desde archivos JSON públicos en GitHub.
-- Interfaz responsive con Bootstrap 5.
-- Aplicación 100% cliente: no requiere instalación ni backend.
+* Visualización del consumo energético por año, mes y día.
+* Tabla interactiva con filtros combinables por municipio, CUPS, dirección, fecha y consumo energético.
+* Filtro por consumo mínimo y/o máximo, sin necesidad de completar ambos campos.
+* Filtro de fechas flexible: permite introducir solo el año, año y mes, o fecha completa.
+* Tooltips informativos integrados en cada filtro, compatibles con dispositivos móviles.
+* Gráficos dinámicos generados con Chart.js según los filtros aplicados.
+* Paginación personalizada con selección directa de página.
+* Resúmenes automáticos de consumo: día, mes y año con mayor y menor consumo.
+* Carga dinámica de datos desde archivos JSON públicos alojados en GitHub.
+* Interfaz responsive adaptada con Bootstrap 5.
+* Aplicación 100 % en cliente: no requiere instalación ni backend.
 
 ---
 
 ## 🚧 Funcionalidades en desarrollo
 
-- 🖨️ **Impresión personalizada** del contenido mostrado (tabla, gráficos y resumen).
-- 📱 **Mejor adaptación a dispositivos móviles** (optimizaciones de diseño y comportamiento).
-- 🔢 **Filtros por rangos**:
-  - **Consumo (kWh)**: selección de mínimo y máximo.
-  - **Fecha**: filtro por rango de fechas (inicio/fin), no solo fecha exacta.
+* 🖨️ **Impresión personalizada** de los contenidos filtrados (tabla, gráficos y resúmenes).
+Perfecto. Si estás trabajando en un rediseño compacto y adaptable, lo ideal es reflejar que la aplicación está **en proceso de optimización para todos los tamaños de pantalla**, no solo móviles. Aquí tienes el bloque **ajustado profesionalmente** para dejarlo claro:
+
+* 📱💻 **Optimización del diseño para todo tipo de pantallas**:
+
+  * Rediseño más compacto y limpio para minimizar el uso del scroll.
+  * Distribución adaptable de la información según el tamaño de pantalla.
+  * Uso de elementos colapsables/desplegables para mejorar la navegación.
 
 ---
 
