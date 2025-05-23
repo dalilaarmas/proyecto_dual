@@ -116,7 +116,7 @@ Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros s
 * Junto a cada filtro encontrarás un icono `ℹ️` que muestra una breve explicación sobre su funcionamiento.
 * Puedes consultarlo:
 
-  * **En ordenador:** pasando el cursor o haciendo clic.
+  * **En ordenador:** Haciendo clic.
   * **En dispositivos táctiles:** tocando el icono con el dedo.
 
 ---
