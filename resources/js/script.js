@@ -645,42 +645,52 @@ function aplicarFiltros() {
 
 function actualizarEstadoIconosFiltro() {
   const filtros = [
-    { inputId: "filtro-municipio", iconoId: "iconoFiltroMunicipio" },
-    { inputId: "filtro-cups", iconoId: "iconoFiltroCups" },
-    { inputId: "filtro-direccion", iconoId: "iconoFiltroDireccion" },
-    { inputId: "filtro-fecha-desde", iconoId: "iconoFiltroFecha" },
-    { inputId: "filtro-fecha-hasta", iconoId: "iconoFiltroFecha" },
-    { inputId: "filtro-consumo-min", iconoId: "iconoFiltroConsumo" },
-    { inputId: "filtro-consumo-max", iconoId: "iconoFiltroConsumo" }
+    { inputId: "filtro-municipio", iconoId: "iconoFiltroMunicipio", tipo: "texto" },
+    { inputId: "filtro-cups", iconoId: "iconoFiltroCups", tipo: "texto" },
+    { inputId: "filtro-direccion", iconoId: "iconoFiltroDireccion", tipo: "texto" },
+    { inputId: "filtro-fecha-desde", iconoId: "iconoFiltroFecha", tipo: "otros" },
+    { inputId: "filtro-fecha-hasta", iconoId: "iconoFiltroFecha", tipo: "otros" },
+    { inputId: "filtro-consumo-min", iconoId: "iconoFiltroConsumo", tipo: "otros" },
+    { inputId: "filtro-consumo-max", iconoId: "iconoFiltroConsumo", tipo: "otros" }
   ];
 
-  const iconosActivos = {};
+  const estadoIconos = {};
 
-  filtros.forEach(({ inputId, iconoId }) => {
+  filtros.forEach(({ inputId, iconoId, tipo }) => {
     const input = document.getElementById(inputId);
-    const icono = document.getElementById(iconoId);
-    if (!input || !icono) return;
+    if (!input) return;
+    const valor = input.value.trim();
+    if (!estadoIconos[iconoId]) estadoIconos[iconoId] = { danger: true, warning: false, primary: false };
 
-    if (input.value.trim() !== "") {
-      iconosActivos[iconoId] = true;
+    if (tipo === "texto") {
+      if (valor.length >= 3) {
+        estadoIconos[iconoId] = { danger: false, warning: false, primary: true };
+      } else if (valor.length > 0) {
+        estadoIconos[iconoId] = { danger: false, warning: true, primary: false };
+      }
+    } else {
+      if (valor !== "") {
+        estadoIconos[iconoId] = { danger: false, warning: false, primary: true };
+      }
     }
   });
 
-  // Aplicar o quitar clase según estado
-  filtros.forEach(({ iconoId }) => {
+  Object.entries(estadoIconos).forEach(([iconoId, estado]) => {
     const icono = document.getElementById(iconoId);
     if (!icono) return;
-    if (iconosActivos[iconoId]) {
-      // Elimina cualquier clase de color Bootstrap
-      icono.classList.remove("text-danger");
-      // Añade la clase que indica estado activo
-      icono.classList.add("filtro-activo");
+
+    icono.classList.remove("text-danger", "text-warning", "text-primary");
+
+    if (estado.primary) {
+      icono.classList.add("text-primary");
+    } else if (estado.warning) {
+      icono.classList.add("text-warning");
     } else {
-      icono.classList.remove("filtro-activo");
       icono.classList.add("text-danger");
     }
   });
 }
+
 // Carga un archivo JSON usando fetch y lo convierte a objeto
 async function cargarJSON(url) {
   const res = await fetch(url);

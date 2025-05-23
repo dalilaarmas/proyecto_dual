@@ -71,6 +71,14 @@ Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros s
 #### 📌 Municipio / CUPS / Dirección
 
 * ✏️ Introduce **al menos 3 caracteres** para que el filtro empiece a funcionar.
+
+🎨 **Colores del icono:**
+
+🔴 Rojo: el campo está vacío.
+🟡 Amarillo: has escrito 1 o 2 caracteres (aún no filtra).
+🔵 Azul: se está aplicando el filtro (3 o más caracteres).
+
+
 * 🔄 Puedes combinar estos campos con los demás filtros.
 
 #### 📅 Fecha
@@ -82,6 +90,11 @@ Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros s
   * Fecha completa: `2023-05-15`
 * Puedes escribir solo el campo "Desde", solo el campo "Hasta" o ambos.
 
+🎨 **Colores del icono:**
+
+🔴 Rojo: no hay ningún valor introducido.
+🔵 Azul: el campo tiene una fecha escrita y el filtro está activo.
+
 #### ⚡ Consumo (kWh)
 
 * Puedes usar:
@@ -90,6 +103,11 @@ Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros s
   * Solo **máximo**
   * O **ambos** para establecer un rango
 * Deja vacío cualquiera de los dos campos si solo quieres un límite.
+
+🎨 **Colores del icono:**
+
+🔴 Rojo: ambos campos vacíos.
+🔵 Azul: al menos uno de los campos tiene un valor, y se está aplicando el filtro.
 
 ---
 
