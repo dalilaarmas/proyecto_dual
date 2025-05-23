@@ -428,10 +428,10 @@ async function cargarYMostrarDatos() {
             data-bs-toggle="tooltip"
             data-bs-placement="top"
             data-bs-html="true"
-            data-bs-title='Haz click en el icono derecho para filtrar por municipio. Debes introducir al menos 3 caracteres.<br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
+            data-bs-title='Haz click en el icono derecho para filtrar por municipio. Debes introducir al menos 3 caracteres. Toca de nuevo el icono para ocultar la caja de texto.<br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
           </i>
           Municipio
-         <i id="iconoFiltroMunicipio" class="bi bi-geo-alt-fill text-danger"
+         <i id="iconoFiltroMunicipio" class="bi bi-geo-alt-fill"
           data-bs-toggle="collapse" data-bs-target="#filtroMunicipioCollapse"
           role="button" aria-expanded="false" aria-controls="filtroMunicipioCollapse"></i>
 
@@ -444,10 +444,10 @@ async function cargarYMostrarDatos() {
             data-bs-toggle="tooltip"
             data-bs-placement="top"
             data-bs-html="true"
-            data-bs-title='Haz click en el icono derecho para filtrar por CUPS. Debes introducir al menos 3 caracteres.<br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
+            data-bs-title='Haz click en el icono derecho para filtrar por CUPS. Debes introducir al menos 3 caracteres. Toca de nuevo el icono para ocultar la caja de texto.<br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
           </i>
           CUPS
-          <i id="iconoFiltroCups" class="bi bi-plug-fill text-danger"></i>
+          <i id="iconoFiltroCups" class="bi bi-plug-fill"></i>
           <div class="collapse mt-1" id="filtroCupsCollapse"> 
             <input type="text" class="form-control form-control-sm mt-1" id="filtro-cups" placeholder="Filtrar CUPS">
           </div>
@@ -457,10 +457,10 @@ async function cargarYMostrarDatos() {
             data-bs-toggle="tooltip"
             data-bs-placement="top"
             data-bs-html="true"
-            data-bs-title='Haz click en el icono derecho para filtrar por dirección. Debes introducir al menos 3 caracteres.<br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
+            data-bs-title='Haz click en el icono derecho para filtrar por dirección. Debes introducir al menos 3 caracteres. Toca de nuevo el icono para ocultar la caja de texto. <br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
           </i>
           Dirección
-          <i id="iconoFiltroDireccion" class="bi bi-map-fill text-danger" data-bs-toggle="collapse" ></i>
+          <i id="iconoFiltroDireccion" class="bi bi-map-fill" data-bs-toggle="collapse" ></i>
          
           <div class="collapse mt-1" id="filtroDireccionCollapse">
             <input type="text" class="form-control form-control-sm mt-1" id="filtro-direccion" placeholder="Filtrar dirección">
@@ -468,9 +468,9 @@ async function cargarYMostrarDatos() {
         </th>
         <th>
         <i class="bi bi-info-circle ms-2 text-primary" data-bs-toggle="tooltip" data-bs-placement="top"
-            title="Haz click en el icono derecho para filtrar por fecha. Para filtrar con una sola fecha, introdúcela en el campo 'Desde'. Puedes usar formatos como 2023, 2023-05 o 2023-05-15."></i>
+            title="Haz click en el icono derecho para filtrar por fecha. Para filtrar con una sola fecha, introdúcela en el campo 'Desde'. Puedes usar formatos como 2023, 2023-05 o 2023-05-15. Toca de nuevo el icono para ocultar la caja de texto."></i>
           Fecha
-          <i class="bi bi-calendar-date-fill text-danger" data-bs-toggle="collapse" data-bs-target="#filtroFechaCollapse" role="button"></i>
+          <i id="iconoFiltroFecha" class="bi bi-calendar-date-fill" data-bs-toggle="collapse" data-bs-target="#filtroFechaCollapse" role="button"></i>
           
           <div class="collapse mt-1" id="filtroFechaCollapse">
             <input type="search" class="form-control form-control-sm mt-1" id="filtro-fecha-desde" placeholder="Desde (YYYY-MM-DD)">
@@ -483,10 +483,10 @@ async function cargarYMostrarDatos() {
             data-bs-toggle="tooltip"
             data-bs-placement="top"
             data-bs-html="true"
-            data-bs-title='Haz click en el icono derecho para filtrar por consumo. Puedes introducir solo mínimo, máximo o ambos.<br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
+            data-bs-title='Haz click en el icono derecho para filtrar por consumo. Puedes introducir solo mínimo, máximo o ambos. Toca de nuevo el icono para ocultar la caja de texto.<br><button class="btn btn-sm btn-link cerrar-tooltip">Cerrar</button>'>
           </i>
           Consumo (kWh)
-          <i id="iconoFiltroConsumo" class="bi bi-lightning-charge-fill text-danger" data-bs-toggle="collapse" data-bs-target="#filtroConsumoCollapse"></i>
+          <i id="iconoFiltroConsumo" class="bi bi-lightning-charge-fill" data-bs-toggle="collapse" data-bs-target="#filtroConsumoCollapse"></i>
           
 
 
@@ -598,6 +598,7 @@ document.getElementById("filtro-consumo-min")?.addEventListener("input", aplicar
   if (canvas) {
     actualizarGrafico(todosLosDatos);
   }
+  aplicarFiltros();
 }
 
 
@@ -613,14 +614,14 @@ function aplicarFiltros() {
   const fechaDesde = document.getElementById("filtro-fecha-desde").value.trim();
   const fechaHasta = document.getElementById("filtro-fecha-hasta").value.trim();
 
-const consumoMinInput = document.getElementById("filtro-consumo-min").value.trim().replace(",", ".");
-const consumoMaxInput = document.getElementById("filtro-consumo-max").value.trim().replace(",", ".");
+  const consumoMinInput = document.getElementById("filtro-consumo-min").value.trim().replace(",", ".");
+  const consumoMaxInput = document.getElementById("filtro-consumo-max").value.trim().replace(",", ".");
 
-const parsedMin = parseFloat(consumoMinInput);
-const parsedMax = parseFloat(consumoMaxInput);
+  const parsedMin = parseFloat(consumoMinInput);
+  const parsedMax = parseFloat(consumoMaxInput);
 
-const consumoMin = !isNaN(parsedMin) ? parsedMin : null;
-const consumoMax = !isNaN(parsedMax) ? parsedMax : null;
+  const consumoMin = !isNaN(parsedMin) ? parsedMin : null;
+  const consumoMax = !isNaN(parsedMax) ? parsedMax : null;
 
   datosFiltrados = todosLosDatos.filter(dato => {
     const matchMunicipio = municipioSeleccionado === "" || filtraTexto(dato.municipio, municipioSeleccionado);
@@ -698,10 +699,14 @@ function actualizarEstadoIconosFiltro() {
     const icono = document.getElementById(iconoId);
     if (!icono) return;
     if (iconosActivos[iconoId]) {
-      icono.classList.add("filtro-activo");
-    } else {
-      icono.classList.remove("filtro-activo");
-    }
+    // Elimina cualquier clase de color Bootstrap
+    icono.classList.remove("text-danger");
+    // Añade la clase que indica estado activo
+    icono.classList.add("filtro-activo");
+  } else {
+    icono.classList.remove("filtro-activo");
+    icono.classList.add("text-danger");
+  }
   });
 }
 // Carga un archivo JSON usando fetch y lo convierte a objeto
