@@ -94,82 +94,117 @@ function filtraTexto(datoValor, filtroValor) {
 
 // Espera a que todo el DOM esté cargado antes de ejecutar el script
 document.addEventListener("DOMContentLoaded", function () {
-   
-   
-    // Aplicar filtros al escribir
-    const filtros = [
-      "filtro-municipio",
-      "filtro-cups",
-      "filtro-direccion",
-      "filtro-fecha-desde",
-      "filtro-fecha-hasta",
-      "filtro-consumo-min",
-      "filtro-consumo-max"
-    ];
 
-    filtros.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) {
-        el.addEventListener("input", () => {
-          try {
-            aplicarFiltros();
-          } catch (e) {
-            // Evitamos errores mientras se escribe
-          }
-        });
-      }
+  const btnGrafico = document.getElementById('btn-toggle-grafico');
+  const btnResumen = document.getElementById('btn-toggle-resumen');
+  const colGrafico = document.getElementById('columna-grafico');
+  const colResumen = document.getElementById('columna-resumen');
+
+  function ajustarColumnas() {
+    const graficoVisible = !colGrafico.classList.contains('d-none');
+    const resumenVisible = !colResumen.classList.contains('d-none');
+
+    if (graficoVisible && resumenVisible) {
+      colGrafico.className = 'col-lg-8 col-12 mb-3 mb-lg-0';
+      colResumen.className = 'col-lg-4 col-12';
+    } else if (graficoVisible) {
+      colGrafico.className = 'col-12';
+    } else if (resumenVisible) {
+      colResumen.className = 'col-12';
+    }
+  }
+
+  if (btnGrafico && colGrafico) {
+    btnGrafico.addEventListener('click', () => {
+      const visible = !colGrafico.classList.contains('d-none');
+      colGrafico.classList.toggle('d-none', visible);
+      btnGrafico.textContent = visible ? 'Mostrar gráfica' : 'Ocultar gráfica';
+      ajustarColumnas();
     });
+  }
 
-     cargarYMostrarDatos().then(() => {
-      datosFiltrados = [...todosLosDatos]; // Inicializa con todos los datos
-      mostrarPagina();
-      renderPaginacion(datosFiltrados.length);
-      actualizarResumenRegistros();
-      generarResumenConsumo();
-      const canvas = document.getElementById("miGrafico");
-      if (canvas) actualizarGrafico(datosFiltrados);
-
-      ["filtro-municipio", "filtro-cups", "filtro-direccion", "filtro-fecha-desde", "filtro-fecha-hasta", "filtro-consumo-min", "filtro-consumo-max"]
-        .forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.addEventListener("input", aplicarFiltros);
-        });
-
-    }).catch(err => {
-      mostrarErrorBootstrap("Error al cargar los datos iniciales", err.message || err);
+  if (btnResumen && colResumen) {
+    btnResumen.addEventListener('click', () => {
+      const visible = !colResumen.classList.contains('d-none');
+      colResumen.classList.toggle('d-none', visible);
+      btnResumen.textContent = visible ? 'Mostrar resumen' : 'Ocultar resumen';
+      ajustarColumnas();
     });
+  }
+
+
+
+  // Aplicar filtros al escribir
+  const filtros = [
+    "filtro-municipio",
+    "filtro-cups",
+    "filtro-direccion",
+    "filtro-fecha-desde",
+    "filtro-fecha-hasta",
+    "filtro-consumo-min",
+    "filtro-consumo-max"
+  ];
+
+  filtros.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener("input", () => {
+        try {
+          aplicarFiltros();
+        } catch (e) {
+          // Evitamos errores mientras se escribe
+        }
+      });
+    }
+  });
+
+  cargarYMostrarDatos().then(() => {
+    datosFiltrados = [...todosLosDatos]; // Inicializa con todos los datos
+    mostrarPagina();
+    renderPaginacion(datosFiltrados.length);
+    actualizarResumenRegistros();
+    generarResumenConsumo();
+    const canvas = document.getElementById("miGrafico");
+    if (canvas) actualizarGrafico(datosFiltrados);
+
+    ["filtro-municipio", "filtro-cups", "filtro-direccion", "filtro-fecha-desde", "filtro-fecha-hasta", "filtro-consumo-min", "filtro-consumo-max"]
+      .forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener("input", aplicarFiltros);
+      });
+
+  }).catch(err => {
+    mostrarErrorBootstrap("Error al cargar los datos iniciales", err.message || err);
+  });
 
 
 });
 // Función que genera un resumen estadístico y visual de los datos filtrados. 
 // Si no hay datos filtrados, muestra mensaje informativo
-function generarResumenConsumo() {
-  const contenedor = document.getElementById("resumen-consumo");
-  if (!contenedor) return;
 
-  const fechaDesde = document.getElementById("filtro-fecha-desde")?.value || "";
-  const fechaHasta = document.getElementById("filtro-fecha-hasta")?.value || "";
+function actualizarResumenRegistros() {
+  const resumen = document.getElementById("resumen-registros");
 
-  function esFechaParcialValida(fecha) {
-    return /^\d{4}(-\d{2}){0,2}$/.test(fecha);
+  if (datosFiltrados.length === 0) {
+    resumen.classList.add("d-none"); // Oculta el div si no hay registros
+  } else {
+    resumen.classList.remove("d-none"); // Muestra el div si hay registros
+    resumen.textContent = `Mostrando ${datosFiltrados.length} de ${todosLosDatos.length} registros.`;
   }
+}
+function generarResumenConsumo() {
+  const contenedorResumen = document.getElementById("resumen-general-consumo");
+  const contenedorTarjetas = document.getElementById("modulos-anuales");
 
-  const datosFiltradosCompatibles = datosFiltrados.filter(dato => {
-    const f = dato.fecha;
+  if (!contenedorResumen || !contenedorTarjetas) return;
 
-    const cumpleDesde = fechaDesde && esFechaParcialValida(fechaDesde)
-      ? f >= fechaDesde
-      : true;
+  // Limpia el contenido anterior
+  contenedorResumen.innerHTML = "";
+  contenedorTarjetas.innerHTML = "";
 
-    const cumpleHasta = fechaHasta && esFechaParcialValida(fechaHasta)
-      ? f <= fechaHasta
-      : true;
-
-    return cumpleDesde && cumpleHasta;
-  });
-
-  if (!datosFiltradosCompatibles || datosFiltradosCompatibles.length === 0) {
-    contenedor.innerHTML = `<div class="alert alert-warning">No hay datos para mostrar en el resumen.</div>`;
+  if (!datosFiltrados || datosFiltrados.length === 0) {
+    contenedorResumen.innerHTML = `
+      <div class="alert alert-warning p-2 small">No hay datos para mostrar en el resumen.</div>`;
     return;
   }
 
@@ -178,33 +213,34 @@ function generarResumenConsumo() {
   let diaMayorConsumo = { fecha: "", consumo: -Infinity };
   let diaMenorConsumo = { fecha: "", consumo: Infinity };
 
-  datosFiltradosCompatibles.forEach(dato => {
+  datosFiltrados.forEach(dato => {
     if (!dato.fecha || typeof dato.fecha !== "string" || dato.fecha.length < 10) return;
 
     const año = dato.fecha.slice(0, 4);
     const mes = dato.fecha.slice(0, 7);
 
+    if (!resumen[año]) resumen[año] = { total: 0, meses: {}, dias: {} };
+
     if (dato.consumo != null) {
+      resumen[año].total += dato.consumo;
+      resumen[año].meses[mes] = (resumen[año].meses[mes] || 0) + dato.consumo;
+      resumen[año].dias[dato.fecha] = (resumen[año].dias[dato.fecha] || 0) + dato.consumo;
+
       diasTotales.push({ fecha: dato.fecha, consumo: dato.consumo });
 
-      if (dato.consumo < diaMenorConsumo.consumo && dato.consumo > 0) {
-        diaMenorConsumo = { fecha: dato.fecha, consumo: dato.consumo };
-      }
       if (dato.consumo > diaMayorConsumo.consumo) {
         diaMayorConsumo = { fecha: dato.fecha, consumo: dato.consumo };
       }
+      if (dato.consumo > 0 && dato.consumo < diaMenorConsumo.consumo) {
+        diaMenorConsumo = { fecha: dato.fecha, consumo: dato.consumo };
+      }
     }
-
-    if (!resumen[año]) resumen[año] = { total: 0, meses: {}, dias: {} };
-
-    resumen[año].total += dato.consumo;
-    resumen[año].meses[mes] = (resumen[año].meses[mes] || 0) + dato.consumo;
-    resumen[año].dias[dato.fecha] = (resumen[año].dias[dato.fecha] || 0) + dato.consumo;
   });
 
   const años = Object.keys(resumen).sort();
   let añoMayor = "", consumoMayor = -Infinity;
   let añoMenor = "", consumoMenor = Infinity;
+  let mesMenor = null, consumoMesMenor = Infinity;
 
   años.forEach(año => {
     if (resumen[año].total > consumoMayor) {
@@ -215,201 +251,125 @@ function generarResumenConsumo() {
       añoMenor = año;
       consumoMenor = resumen[año].total;
     }
-  });
-
-  let mesMenor = null;
-  let consumoMesMenor = Infinity;
-  años.forEach(año => {
-    Object.entries(resumen[año].meses).forEach(([mes, consumo]) => {
+    for (const [mes, consumo] of Object.entries(resumen[año].meses)) {
       if (consumo < consumoMesMenor) {
         consumoMesMenor = consumo;
         mesMenor = mes;
       }
-    });
+    }
   });
 
   const top3DiasGlobalMayor = diasTotales.sort((a, b) => b.consumo - a.consumo).slice(0, 3);
   const top3DiasGlobalMenor = diasTotales.filter(d => d.consumo > 0).sort((a, b) => a.consumo - b.consumo).slice(0, 3);
 
-  const top3MensualPorAñoMayor = {};
-  const top3MensualPorAñoMenor = {};
+  // HTML del resumen general
+  contenedorResumen.innerHTML = `
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h3 class="mb-0">Resumen General de Consumo</h3>
+      </div>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-arrow-up-circle-fill text-danger me-2"></i>Día de mayor consumo</span>
+            <span class="badge bg-danger rounded-pill">${diaMayorConsumo.fecha} (${diaMayorConsumo.consumo.toFixed(2)} kWh)</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-arrow-down-circle-fill text-success me-2"></i>Día de menor consumo</span>
+            <span class="badge bg-success rounded-pill">${diaMenorConsumo.fecha} (${diaMenorConsumo.consumo.toFixed(2)} kWh)</span>
+          </li>
+          <li class="list-group-item"><strong>Top 3 días de mayor consumo</strong>
+            <ol class="mt-2">
+              ${top3DiasGlobalMayor.map(d => `<li>${d.fecha} - <span class="fw-bold text-danger">${d.consumo.toFixed(2)} kWh</span></li>`).join("")}
+            </ol>
+          </li>
+          <li class="list-group-item"><strong>Top 3 días de menor consumo (mayor que 0)</strong>
+            <ol class="mt-2">
+              ${top3DiasGlobalMenor.map(d => `<li>${d.fecha} - <span class="fw-bold text-success">${d.consumo.toFixed(2)} kWh</span></li>`).join("")}
+            </ol>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-calendar-event text-warning me-2"></i>Año con más consumo</span>
+            <span class="badge bg-warning text-dark rounded-pill">${añoMayor} (${consumoMayor.toFixed(2)} kWh)</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-calendar-event-fill text-info me-2"></i>Año con menos consumo</span>
+            <span class="badge bg-info text-white rounded-pill">${añoMenor} (${consumoMenor.toFixed(2)} kWh)</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-calendar3 text-secondary me-2"></i>Mes con menor consumo</span>
+            <span class="badge bg-secondary rounded-pill">${mesMenor ? new Date(mesMenor + "-01").toLocaleString("es-ES", { month: "long", year: "numeric" }) : "Desconocido"} (${consumoMesMenor.toFixed(2)} kWh)</span>
+          </li>
+        </ul>
+      </div>
+    </div>`;
+
+  // Tarjetas anuales
   años.forEach(año => {
-    top3MensualPorAñoMayor[año] = {};
-    top3MensualPorAñoMenor[año] = {};
-    const diasPorMes = {};
+    const idCollapse = `detalles-${año}`;
+    const total = resumen[año].total.toFixed(2);
+    const promedio = (resumen[año].total / Object.keys(resumen[año].meses).length).toFixed(2);
+    let mesMayor = "", consumoMayor = -Infinity;
+    for (const [mes, consumo] of Object.entries(resumen[año].meses)) {
+      if (consumo > consumoMayor) {
+        mesMayor = mes;
+        consumoMayor = consumo;
+      }
+    }
+    const mesFormateado = new Date(mesMayor + "-01").toLocaleString("es-ES", { month: "long", year: "numeric" });
 
-    Object.entries(resumen[año].dias).forEach(([fecha, consumo]) => {
-      if (consumo <= 0) return;
+    const diasMes = resumen[año].dias;
+    const detalleMeses = Object.entries(diasMes).reduce((acc, [fecha, consumo]) => {
       const mes = fecha.slice(0, 7);
-      if (!diasPorMes[mes]) diasPorMes[mes] = [];
-      diasPorMes[mes].push({ fecha, consumo });
-    });
-
-    Object.entries(diasPorMes).forEach(([mes, dias]) => {
+      if (!acc[mes]) acc[mes] = [];
+      acc[mes].push({ fecha, consumo });
+      return acc;
+    }, {});
+    Object.entries(detalleMeses).forEach(([mes, dias]) => {
       dias.sort((a, b) => b.consumo - a.consumo);
-      top3MensualPorAñoMayor[año][mes] = dias.slice(0, 3);
-      top3MensualPorAñoMenor[año][mes] = dias.slice().sort((a, b) => a.consumo - b.consumo).slice(0, 3);
+      detalleMeses[mes] = dias.slice(0, 3);
     });
-  });
-  // Genera HTML con resumen estadístico y visualización
-  let html = `
-      <div class="container py-3">
-  
-        <div class="card mb-4 shadow-sm">
-          <div class="card-header bg-primary text-white">
-            <h3 class="mb-0">Resumen General de Consumo</h3>
-          </div>
-          <div class="card-body">
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-arrow-up-circle-fill text-danger me-2"></i>Día de mayor consumo global</span>
-                <span class="badge bg-danger rounded-pill">${diaMayorConsumo.fecha} (${diaMayorConsumo.consumo.toFixed(2)} kWh)</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-arrow-down-circle-fill text-success me-2"></i>Día de menor consumo global</span>
-                <span class="badge bg-success rounded-pill">${diaMenorConsumo.fecha} (${diaMenorConsumo.consumo.toFixed(2)} kWh)</span>
-              </li>
-              <li class="list-group-item">
-                <strong>Top 3 días de mayor consumo global</strong>
-                <ol class="mt-2">
-                  ${top3DiasGlobalMayor.map(d => `<li>${d.fecha} - <span class="fw-bold text-danger">${d.consumo.toFixed(2)} kWh</span></li>`).join('')}
-                </ol>
-              </li>
-              <li class="list-group-item">
-                <strong>Top 3 días de menor consumo global (mayor que 0)</strong>
-                <ol class="mt-2">
-                  ${top3DiasGlobalMenor.map(d => `<li>${d.fecha} - <span class="fw-bold text-success">${d.consumo.toFixed(2)} kWh</span></li>`).join('')}
-                </ol>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-calendar-event text-warning me-2"></i>Año de mayor consumo</span>
-                <span class="badge bg-warning text-dark rounded-pill">${añoMayor} (${consumoMayor.toFixed(2)} kWh)</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-calendar-event-fill text-info me-2"></i>Año de menor consumo</span>
-                <span class="badge bg-info text-white rounded-pill">${añoMenor} (${consumoMenor.toFixed(2)} kWh)</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-calendar3 text-secondary me-2"></i>Mes de menor consumo global</span>
-                <span class="badge bg-secondary rounded-pill">${mesMenor ? new Date(mesMenor + "-01").toLocaleString("es-ES", { month: "long", year: "numeric" }) : "Desconocido"} (${consumoMesMenor.toFixed(2)} kWh)</span>
-              </li>
-            </ul>
-          </div>
+
+    const detalleHtml = Object.entries(detalleMeses).map(([mes, dias]) => `
+      <strong>${new Date(mes + "-01").toLocaleString("es-ES", { month: "long", year: "numeric" })}</strong>
+      <ul class="mb-2 small">
+        ${dias.map(d => `<li>${d.fecha}: <span class="text-danger fw-bold">${d.consumo.toFixed(2)} kWh</span></li>`).join("")}
+      </ul>
+    `).join("");
+
+    const tarjeta = document.createElement("div");
+    tarjeta.className = "card shadow-sm";
+    tarjeta.style.minWidth = "280px";
+    tarjeta.style.maxWidth = "280px";
+    tarjeta.innerHTML = `
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <span class="fw-bold mb-0">${año}</span>
+        <button class="btn btn-sm btn-light text-dark" onclick="toggleDetalles('${idCollapse}', this)">Mostrar detalles</button>
+      </div>
+      <div class="card-body">
+        <p class="mb-1"><strong>Total anual:</strong> ${total} kWh</p>
+        <p class="mb-1"><strong>Promedio mensual:</strong> ${promedio} kWh</p>
+        <p class="mb-3"><strong>Mes más alto:</strong> ${mesFormateado} (${consumoMayor.toFixed(2)} kWh)</p>
+        <div class="collapse" id="${idCollapse}">
+          <div class="border-top pt-2 small mt-2">${detalleHtml}</div>
         </div>
-  
-        <div class="accordion" id="accordionAños">
-    `;
-
-  // Agrega detalles por año con tablas para top 3 días mayor y menor consumo mensual
-  años.forEach((año, i) => {
-
-    // Obtiene los meses disponibles para el año actual, ordenados alfabéticamente (por ejemplo, "2024-01", "2024-02", ...)
-    const meses = Object.keys(top3MensualPorAñoMayor[año] || {}).sort();
-
-    // Si no hay meses para este año, muestra un mensaje; si hay, genera el HTML para cada mes
-    const mesesHtml = meses.length === 0
-      ? `<p class="text-muted fst-italic">No hay datos mensuales para este año.</p>`
-      : meses.map(mes => {
-
-        const mesId = `collapseMes${i}${mes.replace(/-/g, '')}`;
-        const fechaFormateada = new Date(mes + "-01").toLocaleString('es-ES', { month: 'long', year: 'numeric' });
-
-
-        const topMayor = top3MensualPorAñoMayor[año][mes].map(d =>
-          `<li><i class="bi bi-arrow-up-circle-fill text-danger me-2"></i>${d.fecha}: <span class="fw-bold text-danger">${d.consumo.toFixed(2)} kWh</span></li>`
-        ).join('');
-
-        const topMenor = (top3MensualPorAñoMenor[año][mes] || []).map(d =>
-          `<li><i class="bi bi-arrow-down-circle-fill text-success me-2"></i>${d.fecha}: <span class="fw-bold text-success">${d.consumo.toFixed(2)} kWh</span></li>`
-        ).join('');
-
-        // Devuelve el bloque HTML con la tarjeta colapsable para el mes, mostrando top mayor y menor consumo
-
-        return `
-              <div class="card mb-2 shadow-sm">
-                <div class="card-header p-2" id="heading${mesId}">
-                  <h6 class="mb-0">
-                    <button class="btn btn-link text-decoration-none" type="button" data-bs-toggle="collapse" data-bs-target="#${mesId}" aria-expanded="false" aria-controls="${mesId}">
-                      ${fechaFormateada}
-                    </button>
-                  </h6>
-                </div>
-                <div id="${mesId}" class="collapse" aria-labelledby="heading${mesId}" data-bs-parent="#collapse${i}">
-                  <div class="card-body p-3">
-                    <div class="row">
-                      <div class="col-md-6">
-                        <strong class="text-danger">Top 3 días mayor consumo</strong>
-                        <ol>${topMayor}</ol>
-                      </div>
-                      <div class="col-md-6">
-                        <strong class="text-success">Top 3 días menor consumo (mayor que 0)</strong>
-                        <ol>${topMenor}</ol>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            `;
-      }).join('');
-
-    // Identificador para el acordeón de meses dentro del año
-    const mesesAccordionId = `collapse${i}`;
-
-    // Obtiene el resumen mensual y diario para el año actual
-    const mesesTotales = resumen[año].meses;
-    const diasTotalesAño = resumen[año].dias;
-
-    // Busca el mes con mayor consumo en el año
-    let mesMayorConsumo = "", consumoMesMayor = -Infinity;
-    for (const [mes, consumo] of Object.entries(mesesTotales)) {
-      if (consumo > consumoMesMayor) {
-        mesMayorConsumo = mes;
-        consumoMesMayor = consumo;
-      }
-    }
-
-
-    let diaMayorConsumoAño = "", consumoDiaMayor = -Infinity;
-    for (const [fecha, consumo] of Object.entries(diasTotalesAño)) {
-      if (consumo > consumoDiaMayor) {
-        diaMayorConsumoAño = fecha;
-        consumoDiaMayor = consumo;
-      }
-    }
-
-    const promedioMensual = resumen[año].total / Object.keys(mesesTotales).length;
-
-    // Añade al HTML principal un acordeón con el año, mostrando el detalle de meses y resumen
-    html += `
-        <div class="accordion-item shadow-sm mb-3">
-          <h2 class="accordion-header" id="heading${i}">
-            <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#${mesesAccordionId}" aria-expanded="false" aria-controls="${mesesAccordionId}">
-              <strong>${año}</strong> - Análisis mensual con top 3 días mayor y menor consumo
-            </button>
-          </h2>
-          <div id="${mesesAccordionId}" class="accordion-collapse collapse" aria-labelledby="heading${i}" data-bs-parent="#accordionAños">
-            <div class="accordion-body bg-white">
-              ${mesesHtml}
-              <div class="mt-3 border-top pt-3">
-                <p><strong>Mes de mayor consumo:</strong> ${new Date(mesMayorConsumo + "-01").toLocaleString("es-ES", { month: "long", year: "numeric" })} (${consumoMesMayor.toFixed(2)} kWh)</p>
-                <p><strong>Día de mayor consumo:</strong> ${diaMayorConsumoAño} (${consumoDiaMayor.toFixed(2)} kWh)</p>
-                <p><strong>Promedio mensual:</strong> ${promedioMensual.toFixed(2)} kWh</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
+      </div>`;
+    contenedorTarjetas.appendChild(tarjeta);
   });
-
-  html += `</div></div>`;
-
-  contenedor.innerHTML = html;
 }
 
-function actualizarResumenRegistros() {
-  const resumen = document.getElementById("resumen-registros");
-  resumen.textContent = `Mostrando ${datosFiltrados.length} de ${todosLosDatos.length} registros.`;
+
+// Para alternar visibilidad de detalles dentro de una tarjeta
+function toggleDetalles(id, btn) {
+  const elemento = document.getElementById(id);
+  if (!elemento) return;
+  const activo = elemento.classList.contains("show");
+  const colapso = new bootstrap.Collapse(elemento, {
+    toggle: true
+  });
+  btn.textContent = activo ? "Mostrar detalles" : "Ocultar detalles";
 }
+
 // Limpiar mensajes de error anteriores
 limpiarErroresBootstrap();
 
@@ -500,25 +460,25 @@ async function cargarYMostrarDatos() {
     <tbody></tbody>
     </table>
 `;
-//poner negrita al tocar una fila
-const esMovil = /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent);
+  //poner negrita al tocar una fila
+  const esMovil = /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent);
 
-if (esMovil) {
-document.addEventListener('click', function (e) {
-  if (e.target.tagName === 'TD') {
-    const fila = e.target.closest('tr');
+  if (esMovil) {
+    document.addEventListener('click', function (e) {
+      if (e.target.tagName === 'TD') {
+        const fila = e.target.closest('tr');
 
-    // quitar la clase a todas las filas
-    document.querySelectorAll('#tabla-consumo tbody tr').forEach(tr => {
-      tr.classList.remove('tr-activa');
+        // quitar la clase a todas las filas
+        document.querySelectorAll('#tabla-consumo tbody tr').forEach(tr => {
+          tr.classList.remove('tr-activa');
+        });
+
+        // aplicar a la fila tocada
+        fila.classList.add('tr-activa');
+      }
     });
-
-    // aplicar a la fila tocada
-    fila.classList.add('tr-activa');
   }
-});
-}
-document.getElementById("filtro-consumo-min")?.addEventListener("input", aplicarFiltros);
+  document.getElementById("filtro-consumo-min")?.addEventListener("input", aplicarFiltros);
 
   // Activar tooltips con botón de cerrar funcional y soporte móvil
   const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -557,6 +517,18 @@ document.getElementById("filtro-consumo-min")?.addEventListener("input", aplicar
     }
   });
 
+document.addEventListener("click", function (e) {
+  if (e.target.id === "btn-toggle-tarjetas") {
+    const wrapper = document.getElementById("modulos-anuales-wrapper");
+    const btn = e.target;
+
+    if (!wrapper || !btn) return;
+
+    const visible = wrapper.style.display !== "none";
+    wrapper.style.display = visible ? "none" : "flex";
+    btn.textContent = visible ? "Mostrar tarjetas por año" : "Ocultar tarjetas por año";
+  }
+});
 
 
   const mensajeError = document.getElementById("mensajeError");
@@ -699,14 +671,14 @@ function actualizarEstadoIconosFiltro() {
     const icono = document.getElementById(iconoId);
     if (!icono) return;
     if (iconosActivos[iconoId]) {
-    // Elimina cualquier clase de color Bootstrap
-    icono.classList.remove("text-danger");
-    // Añade la clase que indica estado activo
-    icono.classList.add("filtro-activo");
-  } else {
-    icono.classList.remove("filtro-activo");
-    icono.classList.add("text-danger");
-  }
+      // Elimina cualquier clase de color Bootstrap
+      icono.classList.remove("text-danger");
+      // Añade la clase que indica estado activo
+      icono.classList.add("filtro-activo");
+    } else {
+      icono.classList.remove("filtro-activo");
+      icono.classList.add("text-danger");
+    }
   });
 }
 // Carga un archivo JSON usando fetch y lo convierte a objeto
@@ -856,6 +828,59 @@ function actualizarGrafico(consumosFiltrados) {
     }
   });
 }
+
+// Genera la tabla de una página específica de datos
+
+function mostrarPagina() {
+  const mensaje = document.getElementById("mensajeNoResultados");
+  const errorDiv = document.getElementById("error-paginacion");
+  const tbody = document.querySelector("#tabla-consumo tbody");
+  if (!tbody) return;
+
+  // Mostrar u ocultar mensaje de resultados
+  if (datosFiltrados.length === 0) {
+    mensaje.classList.remove("d-none");
+    if (errorDiv) {
+      errorDiv.classList.add("d-none");
+      errorDiv.textContent = "";
+    }
+    tbody.innerHTML = ""; // Borra filas
+    return;
+  } else {
+    mensaje.classList.add("d-none");
+  }
+
+  if (errorDiv) {
+    errorDiv.classList.add("d-none");
+    errorDiv.textContent = "";
+  }
+
+  const inicio = (paginaActual - 1) * REGISTROS_POR_PAGINA;
+  const fin = inicio + REGISTROS_POR_PAGINA;
+  const datosPagina = datosFiltrados.slice(inicio, fin);
+
+  let html = "";
+  datosPagina.forEach(d => {
+    html += `
+      <tr>
+        <td>${d.municipio}</td>
+        <td>${d.cups_codigo}</td>
+        <td>${d.cups_direccion}</td>
+        <td>${d.fecha}</td>
+        <td>${d.consumo != null ? d.consumo.toFixed(2) : "Desconocido"}</td>
+      </tr>`;
+  });
+
+  tbody.innerHTML = html;
+  renderPaginacion(datosFiltrados.length);
+}
+function esFechaParcialValida(fecha) {
+  return /^\d{4}(-\d{2}){0,2}$/.test(fecha);
+}
+
+function coincideFechaParcial(fechaDato, fechaFiltro) {
+  return fechaDato.startsWith(fechaFiltro);
+}
 function renderPaginacion(totalRegistros) {
   const totalPaginas = Math.ceil(totalRegistros / REGISTROS_POR_PAGINA);
   const paginacion = document.getElementById("paginacion");
@@ -958,60 +983,18 @@ function renderPaginacion(totalRegistros) {
         mostrarErrorBootstrap("Error al cambiar de página", error.message || error);
       }
     };
-
-
   }
+
+
 }
+function toggleDetalles(id, boton) {
+  const seccion = document.getElementById(id);
+  const visible = seccion.classList.contains("show");
 
-// Genera la tabla de una página específica de datos
-
-function mostrarPagina() {
-  const mensaje = document.getElementById("mensajeNoResultados");
-  const errorDiv = document.getElementById("error-paginacion");
-  const tbody = document.querySelector("#tabla-consumo tbody");
-  if (!tbody) return;
-
-  // Mostrar u ocultar mensaje de resultados
-  if (datosFiltrados.length === 0) {
-    mensaje.classList.remove("d-none");
-    if (errorDiv) {
-      errorDiv.classList.add("d-none");
-      errorDiv.textContent = "";
-    }
-    tbody.innerHTML = ""; // Borra filas
-    return;
-  } else {
-    mensaje.classList.add("d-none");
-  }
-
-  if (errorDiv) {
-    errorDiv.classList.add("d-none");
-    errorDiv.textContent = "";
-  }
-
-  const inicio = (paginaActual - 1) * REGISTROS_POR_PAGINA;
-  const fin = inicio + REGISTROS_POR_PAGINA;
-  const datosPagina = datosFiltrados.slice(inicio, fin);
-
-  let html = "";
-  datosPagina.forEach(d => {
-    html += `
-      <tr>
-        <td>${d.municipio}</td>
-        <td>${d.cups_codigo}</td>
-        <td>${d.cups_direccion}</td>
-        <td>${d.fecha}</td>
-        <td>${d.consumo != null ? d.consumo.toFixed(2) : "Desconocido"}</td>
-      </tr>`;
+  const bsCollapse = new bootstrap.Collapse(seccion, {
+    toggle: true
   });
 
-  tbody.innerHTML = html;
-  renderPaginacion(datosFiltrados.length);
-}
-function esFechaParcialValida(fecha) {
-  return /^\d{4}(-\d{2}){0,2}$/.test(fecha);
-}
-
-function coincideFechaParcial(fechaDato, fechaFiltro) {
-  return fechaDato.startsWith(fechaFiltro);
+  // Cambia el texto del botón
+  boton.textContent = visible ? "Mostrar detalles mensuales" : "Ocultar detalles mensuales";
 }

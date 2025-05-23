@@ -18,3 +18,32 @@ tr:hover{
     width: 100%;
   }
 }
+@media (min-width: 992px) {
+  #resumen-consumo {
+    height: 100%;
+  }
+}
+.scroll-sombra {
+  position: relative;
+}
+
+.scroll-sombra::before,
+.scroll-sombra::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 30px;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.scroll-sombra::before {
+  left: 0;
+  background: linear-gradient(to right, rgba(255,255,255,0.9), transparent);
+}
+
+.scroll-sombra::after {
+  right: 0;
+  background: linear-gradient(to left, rgba(255,255,255,0.9), transparent);
+}
