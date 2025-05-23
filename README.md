@@ -7,12 +7,6 @@ https://datos.tenerife.es/es/datos/conjuntos-de-datos/consumo-energetico-del-cab
 
 ---
 
-Con todo lo que has implementado y ajustado en el proyecto (validaciones dinámicas, tooltips accesibles, eventos sobre inputs generados dinámicamente, mejora del filtrado por mínimo, corrección de errores de carga y UI más clara), el README puede reflejar de forma más precisa y profesional tus avances.
-
-Aquí tienes una versión actualizada del bloque:
-
----
-
 ## ⚙️ Funcionalidades implementadas
 
 * Visualización del consumo energético por año, mes y día.
