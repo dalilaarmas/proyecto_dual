@@ -7,10 +7,10 @@ let datosFiltrados = [];
 let graficoConsumo;
 // Archivos JSON con datos energéticos por año, que serán cargados y procesados
 const archivos = [
-  "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/refs/heads/master/resources/json/consumo-energetico-2022.json",
-  "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/refs/heads/master/resources/json/consumo-energetico-2023.json",
-  "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/refs/heads/master/resources/json/consumo-energetico-2024.json",
-  "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/refs/heads/master/resources/json/consumo-energetico-2025.json"
+  "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/master/resources/json/consumo-energetico-2022.json",
+  "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/master/resources/json/consumo-energetico-2023.json",
+  "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/master/resources/json/consumo-energetico-2024.json",
+  "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/master/resources/json/consumo-energetico-2025.json"
 ];
 
 // Función para mostrar un mensaje de error usando Bootstrap, con opción a mostrar detalles adicionales
