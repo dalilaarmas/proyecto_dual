@@ -13,3 +13,8 @@ tr:hover{
 .tr-activa {
   font-weight: bold;
 }
+@media (max-width: 768px) {
+  input[type="search"] {
+    width: 100%;
+  }
+}
