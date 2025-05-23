@@ -28,12 +28,6 @@ https://datos.tenerife.es/es/datos/conjuntos-de-datos/consumo-energetico-del-cab
 * 🖨️ **Impresión personalizada** de los contenidos filtrados (tabla, gráficos y resúmenes).
 Perfecto. Si estás trabajando en un rediseño compacto y adaptable, lo ideal es reflejar que la aplicación está **en proceso de optimización para todos los tamaños de pantalla**, no solo móviles. Aquí tienes el bloque **ajustado profesionalmente** para dejarlo claro:
 
-* 📱💻 **Optimización del diseño para todo tipo de pantallas**:
-
-  * Rediseño más compacto y limpio para minimizar el uso del scroll.
-  * Distribución adaptable de la información según el tamaño de pantalla.
-  * Uso de elementos colapsables/desplegables para mejorar la navegación.
-
 ---
 
 ### ▶️ Uso de la aplicación
