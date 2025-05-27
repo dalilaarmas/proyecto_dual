@@ -96,11 +96,10 @@ function filtraTexto(datoValor, filtroValor) {
 // Espera a que todo el DOM esté cargado antes de ejecutar el script
 document.addEventListener("DOMContentLoaded", function () {
 
-  const btnGrafico = document.getElementById('btn-toggle-grafico');
-  const btnResumen = document.getElementById('btn-toggle-resumen');
+ 
   const colGrafico = document.getElementById('columna-grafico');
   const colResumen = document.getElementById('columna-resumen');
-  const canvasWrapper = document.getElementById("contenedor-canvas");
+
 
   function ajustarColumnas() {
     const graficoVisible = !colGrafico.classList.contains('d-none');
@@ -115,26 +114,42 @@ document.addEventListener("DOMContentLoaded", function () {
       colResumen.className = 'col-12';
     }
   }
-  if (btnGrafico && canvasWrapper) {
-  btnGrafico.addEventListener("click", () => {
-    const visible = canvasWrapper.style.display !== "none";
-    canvasWrapper.style.display = visible ? "none" : "block";
-    btnGrafico.textContent = visible ? "Mostrar gráfica" : "Ocultar gráfica";
-  });
-}
-
   
+function configurarBotonToggle(idBoton, idSeccion, textoMostrar, textoOcultar) {
+    const btn = document.getElementById(idBoton);
+    const seccion = document.getElementById(idSeccion);
 
-  if (btnResumen && colResumen) {
-    btnResumen.addEventListener('click', () => {
-      const visible = !colResumen.classList.contains('d-none');
-      colResumen.classList.toggle('d-none', visible);
-      btnResumen.textContent = visible ? 'Mostrar resumen' : 'Ocultar resumen';
-      ajustarColumnas();
-    });
+    if (btn && seccion) {
+      // Estado inicial
+      let visible = true;
+      btn.innerHTML = `<i class="bi bi-eye-slash-fill me-1"></i> ${textoOcultar}`;
+      btn.classList.add("btn-danger");
+      btn.classList.remove("btn-outline-primary");
+
+      btn.addEventListener("click", () => {
+        visible = !visible;
+        seccion.classList.remove("fade-in", "fade-out");
+        seccion.classList.add(visible ? "fade-in" : "fade-out");
+
+        setTimeout(() => {
+          seccion.classList.toggle("d-none", !visible);
+          if (typeof ajustarColumnas === "function") ajustarColumnas();
+        }, 200);
+
+        btn.innerHTML = visible
+          ? `<i class="bi bi-eye-slash-fill me-1"></i> ${textoOcultar}`
+          : `<i class="bi bi-eye-fill me-1"></i> ${textoMostrar}`;
+
+        btn.classList.toggle("btn-danger", visible);
+        btn.classList.toggle("btn-outline-primary", !visible);
+      });
+    }
   }
 
-
+  // Aquí va la llamada DESPUÉS de definir la función
+  configurarBotonToggle("btn-toggle-grafico", "contenedor-canvas", "Mostrar gráfica", "Ocultar gráfica");
+  configurarBotonToggle("btn-toggle-resumen", "columna-resumen", "Mostrar resumen", "Ocultar resumen");
+  configurarBotonToggle("btn-toggle-tarjetas", "modulos-anuales-wrapper", "Mostrar tarjetas por año", "Ocultar tarjetas por año");
 
   // Aplicar filtros al escribir
   const filtros = [
@@ -178,39 +193,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }).catch(err => {
     mostrarErrorBootstrap("Error al cargar los datos iniciales", err.message || err);
   });
-const btnToggleTarjetas = document.getElementById("btn-toggle-tarjetas");
-const wrapperTarjetas = document.getElementById("modulos-anuales-wrapper");
 
-if (btnToggleTarjetas && wrapperTarjetas) {
-  // Asegura que se muestre desde el principio
-  wrapperTarjetas.style.display = "block";
-
-  // Asegura estado e icono correcto al inicio
-  
-  btnToggleTarjetas.innerHTML = `<i class="bi bi-eye-slash-fill me-1"></i> Ocultar tarjetas por año`;
-  btnToggleTarjetas.classList.add("btn-danger");
-  btnToggleTarjetas.classList.remove("btn-warning");
-
-  btnToggleTarjetas.addEventListener("click", () => {
-    tarjetasVisibles = !tarjetasVisibles;
-
-    wrapperTarjetas.classList.remove("fade-in", "fade-out");
-    wrapperTarjetas.classList.add(tarjetasVisibles ? "fade-in" : "fade-out");
-    
-    // Cambia visibilidad justo al final de la animación
-    setTimeout(() => {
-      wrapperTarjetas.style.display = tarjetasVisibles ? "block" : "none";
-    }, 200);
-
-    // Icono, color y texto del botón
-    btnToggleTarjetas.innerHTML = tarjetasVisibles
-      ? `<i class="bi bi-eye-slash-fill me-1"></i> Ocultar tarjetas por año`
-      : `<i class="bi bi-eye-fill me-1"></i> Mostrar tarjetas por año`;
-
-    btnToggleTarjetas.classList.toggle("btn-danger", tarjetasVisibles);
-    btnToggleTarjetas.classList.toggle("btn-warning", !tarjetasVisibles);
-  });
-}
 
 
 });
