@@ -517,18 +517,32 @@ async function cargarYMostrarDatos() {
     }
   });
 
-document.addEventListener("click", function (e) {
-  if (e.target.id === "btn-toggle-tarjetas") {
-    const wrapper = document.getElementById("modulos-anuales-wrapper");
-    const btn = e.target;
+const btnToggleTarjetas = document.getElementById("btn-toggle-tarjetas");
+const wrapperTarjetas = document.getElementById("modulos-anuales-wrapper");
 
-    if (!wrapper || !btn) return;
+if (btnToggleTarjetas && wrapperTarjetas) {
+  btnToggleTarjetas.addEventListener("click", () => {
+    const visible = wrapperTarjetas.style.display !== "none";
 
-    const visible = wrapper.style.display !== "none";
-    wrapper.style.display = visible ? "none" : "flex";
-    btn.textContent = visible ? "Mostrar tarjetas por año" : "Ocultar tarjetas por año";
-  }
-});
+    // Aplica clases animadas
+    wrapperTarjetas.classList.remove("fade-in", "fade-out");
+    wrapperTarjetas.classList.add(visible ? "fade-out" : "fade-in");
+
+    // Espera la animación antes de ocultar completamente
+    setTimeout(() => {
+      wrapperTarjetas.style.display = visible ? "none" : "block";
+    }, 200); // debe coincidir con la duración de la animación CSS
+
+    // Cambia texto y color del botón
+    btnToggleTarjetas.innerHTML = visible
+      ? `<i class="bi bi-eye-fill me-1"></i> Mostrar tarjetas por año`
+      : `<i class="bi bi-eye-slash-fill me-1"></i> Ocultar tarjetas por año`;
+
+    btnToggleTarjetas.classList.toggle("btn-danger", !visible);
+    btnToggleTarjetas.classList.toggle("btn-warning", visible);
+  });
+}
+
 
 
   const mensajeError = document.getElementById("mensajeError");

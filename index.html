@@ -34,7 +34,7 @@
           <button id="cerrarError" class="btn btn-sm btn-secondary mt-2">Cerrar</button>
         </div>
 
-        <!-- Botones de ocultar -->
+        <!-- Botones de mostrar/ocultar gráfica y resumen -->
         <div class="d-flex justify-content-end gap-2 my-3">
           <button id="btn-toggle-grafico" class="btn btn-outline-primary btn-sm">Ocultar gráfica</button>
           <button id="btn-toggle-resumen" class="btn btn-outline-primary btn-sm">Ocultar resumen</button>
@@ -54,12 +54,12 @@
         </div>
 
         <!-- Botón y tarjetas anuales -->
-        <div class="d-flex justify-content-end mb-2">
-          <button class="btn btn-outline-secondary btn-sm" id="btn-toggle-tarjetas">Ocultar tarjetas por año</button>
+        <div class="d-flex justify-content-end mb-2 px-3">
+          <button class="btn btn-warning btn-sm fw-bold" id="btn-toggle-tarjetas"> <i class="bi bi-eye-fill me-1"></i>Mostrar tarjetas por año</button>
         </div>
 
-        <div id="modulos-anuales-wrapper" class="pb-3">
-          <div id="modulos-anuales" class="d-flex flex-row flex-nowrap gap-3 overflow-auto px-2">
+        <div id="modulos-anuales-wrapper" class="pb-3 px-3" style="display: none;">
+          <div id="modulos-anuales" class="d-flex flex-row flex-nowrap gap-3 overflow-auto">
             <!-- Tarjetas por año generadas dinámicamente -->
           </div>
         </div>
