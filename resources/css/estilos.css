@@ -63,3 +63,21 @@ tr:hover{
   from { opacity: 1; transform: translateY(0); }
   to { opacity: 0; transform: translateY(-10px); }
 }
+
+#modulos-anuales-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#modulos-anuales {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1rem;
+}
+
+#modulos-anuales .card {
+  flex: 0 0 auto; /* Evita que se reduzcan o se repartan */
+  width: 280px;
+  min-width: 260px;
+  max-width: 100%;
+}
