@@ -5,6 +5,7 @@ let filtroAño, filtroMunicipio, filtroCups, filtroDireccion, filtroConsumo, fil
 let todosLosDatos = [];
 let datosFiltrados = [];
 let graficoConsumo;
+let tarjetasVisibles = true;
 // Archivos JSON con datos energéticos por año, que serán cargados y procesados
 const archivos = [
   "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/refs/heads/master/resources/json/consumo-energetico-2022.json",
@@ -99,6 +100,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const btnResumen = document.getElementById('btn-toggle-resumen');
   const colGrafico = document.getElementById('columna-grafico');
   const colResumen = document.getElementById('columna-resumen');
+  const canvasWrapper = document.getElementById("contenedor-canvas");
 
   function ajustarColumnas() {
     const graficoVisible = !colGrafico.classList.contains('d-none');
@@ -113,15 +115,15 @@ document.addEventListener("DOMContentLoaded", function () {
       colResumen.className = 'col-12';
     }
   }
+  if (btnGrafico && canvasWrapper) {
+  btnGrafico.addEventListener("click", () => {
+    const visible = canvasWrapper.style.display !== "none";
+    canvasWrapper.style.display = visible ? "none" : "block";
+    btnGrafico.textContent = visible ? "Mostrar gráfica" : "Ocultar gráfica";
+  });
+}
 
-  if (btnGrafico && colGrafico) {
-    btnGrafico.addEventListener('click', () => {
-      const visible = !colGrafico.classList.contains('d-none');
-      colGrafico.classList.toggle('d-none', visible);
-      btnGrafico.textContent = visible ? 'Mostrar gráfica' : 'Ocultar gráfica';
-      ajustarColumnas();
-    });
-  }
+  
 
   if (btnResumen && colResumen) {
     btnResumen.addEventListener('click', () => {
@@ -176,6 +178,39 @@ document.addEventListener("DOMContentLoaded", function () {
   }).catch(err => {
     mostrarErrorBootstrap("Error al cargar los datos iniciales", err.message || err);
   });
+const btnToggleTarjetas = document.getElementById("btn-toggle-tarjetas");
+const wrapperTarjetas = document.getElementById("modulos-anuales-wrapper");
+
+if (btnToggleTarjetas && wrapperTarjetas) {
+  // Asegura que se muestre desde el principio
+  wrapperTarjetas.style.display = "block";
+
+  // Asegura estado e icono correcto al inicio
+  
+  btnToggleTarjetas.innerHTML = `<i class="bi bi-eye-slash-fill me-1"></i> Ocultar tarjetas por año`;
+  btnToggleTarjetas.classList.add("btn-danger");
+  btnToggleTarjetas.classList.remove("btn-warning");
+
+  btnToggleTarjetas.addEventListener("click", () => {
+    tarjetasVisibles = !tarjetasVisibles;
+
+    wrapperTarjetas.classList.remove("fade-in", "fade-out");
+    wrapperTarjetas.classList.add(tarjetasVisibles ? "fade-in" : "fade-out");
+    
+    // Cambia visibilidad justo al final de la animación
+    setTimeout(() => {
+      wrapperTarjetas.style.display = tarjetasVisibles ? "block" : "none";
+    }, 200);
+
+    // Icono, color y texto del botón
+    btnToggleTarjetas.innerHTML = tarjetasVisibles
+      ? `<i class="bi bi-eye-slash-fill me-1"></i> Ocultar tarjetas por año`
+      : `<i class="bi bi-eye-fill me-1"></i> Mostrar tarjetas por año`;
+
+    btnToggleTarjetas.classList.toggle("btn-danger", tarjetasVisibles);
+    btnToggleTarjetas.classList.toggle("btn-warning", !tarjetasVisibles);
+  });
+}
 
 
 });
@@ -516,34 +551,6 @@ async function cargarYMostrarDatos() {
       iconoEl.setAttribute("aria-controls", collapse);
     }
   });
-
-const btnToggleTarjetas = document.getElementById("btn-toggle-tarjetas");
-const wrapperTarjetas = document.getElementById("modulos-anuales-wrapper");
-
-if (btnToggleTarjetas && wrapperTarjetas) {
-  btnToggleTarjetas.addEventListener("click", () => {
-    const visible = wrapperTarjetas.style.display !== "none";
-
-    // Aplica clases animadas
-    wrapperTarjetas.classList.remove("fade-in", "fade-out");
-    wrapperTarjetas.classList.add(visible ? "fade-out" : "fade-in");
-
-    // Espera la animación antes de ocultar completamente
-    setTimeout(() => {
-      wrapperTarjetas.style.display = visible ? "none" : "block";
-    }, 200); // debe coincidir con la duración de la animación CSS
-
-    // Cambia texto y color del botón
-    btnToggleTarjetas.innerHTML = visible
-      ? `<i class="bi bi-eye-fill me-1"></i> Mostrar tarjetas por año`
-      : `<i class="bi bi-eye-slash-fill me-1"></i> Ocultar tarjetas por año`;
-
-    btnToggleTarjetas.classList.toggle("btn-danger", !visible);
-    btnToggleTarjetas.classList.toggle("btn-warning", visible);
-  });
-}
-
-
 
   const mensajeError = document.getElementById("mensajeError");
 

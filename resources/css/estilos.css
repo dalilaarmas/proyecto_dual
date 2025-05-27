@@ -1,53 +1,35 @@
-/* Estilo general para evitar el desbordamiento horizontal de la página */
+
 body {
-    overflow-x: hidden;
+  overflow-x: hidden;
 }
-  
-  /* CAMBIO DE COLOR ICONO FILTRO ACTIVO */
- .filtro-activo {
-  color: #0d6efd; /* Azul Bootstrap */
+.filtro-activo {
+  color: #0d6efd;
 }
-tr:hover{
+#btn-toggle-tarjetas {
   font-weight: bold;
+  font-size: 0.95rem;
+  /* animation: pulse 1.2s infinite; */
 }
-.tr-activa {
-  font-weight: bold;
+/* @keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+} */
+#modulos-anuales-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 1rem;
 }
-@media (max-width: 768px) {
-  input[type="search"] {
-    width: 100%;
-  }
+#modulos-anuales {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1rem;
 }
-@media (min-width: 992px) {
-  #resumen-consumo {
-    height: 100%;
-  }
-}
-.scroll-sombra {
-  position: relative;
-}
-
-.scroll-sombra::before,
-.scroll-sombra::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  width: 30px;
-  height: 100%;
-  z-index: 1;
-  pointer-events: none;
+#modulos-anuales .card {
+  flex: 0 0 auto;
+  width: 280px;
+  min-width: 260px;
 }
 
-.scroll-sombra::before {
-  left: 0;
-  background: linear-gradient(to right, rgba(255,255,255,0.9), transparent);
-}
-
-.scroll-sombra::after {
-  right: 0;
-  background: linear-gradient(to left, rgba(255,255,255,0.9), transparent);
-}
-/* Animaciones suaves */
 .fade-in {
   animation: fadeIn 0.2s ease-in forwards;
 }
@@ -57,27 +39,9 @@ tr:hover{
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes fadeOut {
   from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-10px); }
-}
-
-#modulos-anuales-wrapper {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-#modulos-anuales {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 1rem;
-}
-
-#modulos-anuales .card {
-  flex: 0 0 auto; /* Evita que se reduzcan o se repartan */
-  width: 280px;
-  min-width: 260px;
-  max-width: 100%;
+  to   { opacity: 0; transform: translateY(-10px); }
 }
