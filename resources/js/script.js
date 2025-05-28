@@ -96,7 +96,7 @@ function filtraTexto(datoValor, filtroValor) {
 // Espera a que todo el DOM esté cargado antes de ejecutar el script
 document.addEventListener("DOMContentLoaded", function () {
 
- 
+
   const colGrafico = document.getElementById('columna-grafico');
   const colResumen = document.getElementById('columna-resumen');
 
@@ -114,8 +114,8 @@ document.addEventListener("DOMContentLoaded", function () {
       colResumen.className = 'col-12';
     }
   }
-  
-function configurarBotonToggle(idBoton, idSeccion, textoMostrar, textoOcultar) {
+
+  function configurarBotonToggle(idBoton, idSeccion, textoMostrar, textoOcultar) {
     const btn = document.getElementById(idBoton);
     const seccion = document.getElementById(idSeccion);
 
@@ -194,9 +194,74 @@ function configurarBotonToggle(idBoton, idSeccion, textoMostrar, textoOcultar) {
     mostrarErrorBootstrap("Error al cargar los datos iniciales", err.message || err);
   });
 
+const REGISTROS_POR_LOTE = 500;
 
+document.getElementById("btn-imprimir").addEventListener("click", async function () {
+  if (!datosFiltrados || datosFiltrados.length === 0) {
+    alert("No hay datos que imprimir.");
+    return;
+  }
 
+  // Solo los detalles abiertos se ajustan para impresión
+  document.querySelectorAll(".collapse.show").forEach(el => {
+    el.style.height = "auto";
+    el.style.overflow = "visible";
+    el.style.maxHeight = "none";
+  });
+
+  const total = datosFiltrados.length;
+  const totalLotes = Math.ceil(total / REGISTROS_POR_LOTE);
+
+  let continuar = true;
+  for (let lote = 0; lote < totalLotes && continuar; lote++) {
+    const desde = lote * REGISTROS_POR_LOTE;
+    const hasta = Math.min(desde + REGISTROS_POR_LOTE, total);
+
+    continuar = confirm(`Lote ${lote + 1} de ${totalLotes} (registros ${desde + 1} a ${hasta}).\n¿Deseas imprimir este bloque?`);
+    if (!continuar) break;
+
+    const contenedor = document.getElementById("tabla-imprimir");
+    if (!contenedor) return;
+
+    const datosLote = datosFiltrados.slice(desde, hasta);
+
+    contenedor.innerHTML = `
+      <h5 class="mb-2">Registros ${desde + 1} a ${hasta} de ${total}</h5>
+      <table class="table table-bordered small">
+        <thead class="table-light">
+          <tr>
+            <th>Municipio</th>
+            <th>CUPS</th>
+            <th>Dirección</th>
+            <th>Fecha</th>
+            <th>Consumo (kWh)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${datosLote.map(d => `
+            <tr>
+              <td>${d.municipio}</td>
+              <td>${d.cups_codigo}</td>
+              <td>${d.cups_direccion}</td>
+              <td>${d.fecha}</td>
+              <td>${d.consumo != null ? d.consumo.toFixed(2) : "Desconocido"}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+    window.print();
+  }
+
+  // Limpia el contenedor tras imprimir todos los lotes
+  const contenedor = document.getElementById("tabla-imprimir");
+  if (contenedor) contenedor.innerHTML = "";
 });
+});
+
+
 // Función que genera un resumen estadístico y visual de los datos filtrados. 
 // Si no hay datos filtrados, muestra mensaje informativo
 
@@ -362,7 +427,7 @@ function generarResumenConsumo() {
     tarjeta.innerHTML = `
       <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
         <span class="fw-bold mb-0">${año}</span>
-        <button class="btn btn-sm btn-light text-dark" onclick="toggleDetalles('${idCollapse}', this)">Mostrar detalles</button>
+        <button class="btn btn-sm btn-light text-dark no-imprimir" onclick="toggleDetalles('${idCollapse}', this)">Mostrar detalles</button>
       </div>
       <div class="card-body">
         <p class="mb-1"><strong>Total anual:</strong> ${total} kWh</p>

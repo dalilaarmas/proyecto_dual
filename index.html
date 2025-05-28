@@ -33,6 +33,9 @@
           <pre id="detallesError" class="mt-2" style="display: none;"></pre>
           <button id="cerrarError" class="btn btn-sm btn-secondary mt-2">Cerrar</button>
         </div>
+        <button id="btn-imprimir" class="btn btn-outline-primary" title="Imprimir">
+          <i class="bi bi-printer"></i>
+        </button>
         <!-- Botones de mostrar/ocultar gráfica y resumen -->
         <div class="d-flex justify-content-end gap-2 my-3">
           <button id="btn-toggle-grafico" class="btn btn-danger btn-sm">
@@ -57,7 +60,7 @@
                 tarjetas por año</button>
             </div>
             <div id="modulos-anuales-wrapper" class="scroll-sombra mt-2 px-2 overflow-auto">
-              <div id="modulos-anuales" class="d-flex flex-row flex-nowrap gap-3">
+              <div id="modulos-anuales" class="d-flex flex-row flex-nowrap gap-3 card resumen">
                 <!-- Tarjetas por año generadas dinámicamente -->
               </div>
             </div>
@@ -83,6 +86,7 @@
 
         <!-- Tabla de datos -->
         <div id="datos-container" class="table-responsive" style="max-height: 60vh; overflow-y: auto;"></div>
+        <div id="tabla-imprimir" class="d-none d-print-block"></div>
 
         <!-- Paginación -->
         <div id="error-paginacion" class="alert alert-danger d-inline-block small p-1 px-2 py-1 mt-2 d-none"
