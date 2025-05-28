@@ -20,14 +20,33 @@ https://datos.tenerife.es/es/datos/conjuntos-de-datos/consumo-energetico-del-cab
 * Carga dinámica de datos desde archivos JSON públicos alojados en GitHub.
 * Interfaz responsive adaptada con Bootstrap 5.
 * Aplicación 100 % en cliente: no requiere instalación ni backend.
+* 🖨️ **Impresión inteligente** de contenidos: permite imprimir todos los registros de la tabla según los filtros seleccionados. Si no se aplican filtros se pueden imprimir todos los registros.
 
 🪧CUPS (Código Universal del Punto de Suministro): Identificador único del punto donde se mide el consumo.
+
+
+## 🖨️ Funcionalidad de impresión avanzada
+
+La aplicación incorpora una opción de **impresión completa por lotes** diseñada para evitar errores y mejorar el rendimiento, incluso cuando hay miles de registros:
+
+* **Botón de impresión directa**: accesible desde la interfaz principal.
+* **Impresión por bloques de 500 registros** para evitar que el navegador se bloquee por exceso de contenido.
+* **Se imprimen todos los registros que coinciden con los filtros aplicados**, no solo los visibles en pantalla. Si no se aplican filtros se pueden imprimir todos los registros.
+* Se incluye también:
+
+  * La **tabla completa** (bloque por bloque).
+  * La **gráfica de consumo** generada dinámicamente.
+  * El **resumen general** de consumo.
+  * Todas las **tarjetas anuales** generadas.
+  * Los **detalles mensuales** de las tarjetas anuales si se han desplegado previamente desde el botón "Mostrar más detalles".
+
+> ⚠️ Antes de imprimir cada lote, se muestra una confirmación para continuar o cancelar el proceso.
+
 ---
 
 ## 🚧 Funcionalidades en desarrollo
 
-* 🖨️ **Impresión personalizada** de los contenidos filtrados (tabla, gráficos y resúmenes).
-Perfecto. Si estás trabajando en un rediseño compacto y adaptable, lo ideal es reflejar que la aplicación está **en proceso de optimización para todos los tamaños de pantalla**, no solo móviles. Aquí tienes el bloque **ajustado profesionalmente** para dejarlo claro:
+* ⏳ Indicador de **carga inicial** mientras se procesan los archivos grandes (loading spinner).
 
 ---
 
@@ -64,22 +83,21 @@ Esta página se genera automáticamente con GitHub Pages para facilitar la visua
 
 A continuación se explican las secciones principales y cómo utilizar sus herramientas:
 
+---
+
 ### 🔍 Filtros disponibles
 
 Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros se encuentran en la cabecera de la tabla, y se despliegan al hacer clic en el icono de filtro correspondiente.
 
 #### 📌 Municipio / CUPS / Dirección
 
-* ✏️ Introduce **al menos 3 caracteres** para que el filtro empiece a funcionar.
+* Introduce **al menos 3 caracteres** para que el filtro empiece a funcionar.
 
 🎨 **Colores del icono:**
 
-🔴 Rojo: el campo está vacío.
-🟡 Amarillo: has escrito 1 o 2 caracteres (aún no filtra).
-🔵 Azul: se está aplicando el filtro (3 o más caracteres).
-
-
-* 🔄 Puedes combinar estos campos con los demás filtros.
+* 🔴 Rojo: el campo está vacío.
+* 🟡 Amarillo: has escrito 1 o 2 caracteres (aún no filtra).
+* 🔵 Azul: se está aplicando el filtro (3 o más caracteres).
 
 #### 📅 Fecha
 
@@ -92,8 +110,8 @@ Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros s
 
 🎨 **Colores del icono:**
 
-🔴 Rojo: no hay ningún valor introducido.
-🔵 Azul: el campo tiene una fecha escrita y el filtro está activo.
+* 🔴 Rojo: no hay ningún valor introducido.
+* 🔵 Azul: el campo tiene una fecha escrita y el filtro está activo.
 
 #### ⚡ Consumo (kWh)
 
@@ -102,22 +120,20 @@ Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros s
   * Solo **mínimo**
   * Solo **máximo**
   * O **ambos** para establecer un rango
-* Deja vacío cualquiera de los dos campos si solo quieres un límite.
 
 🎨 **Colores del icono:**
 
-🔴 Rojo: ambos campos vacíos.
-🔵 Azul: al menos uno de los campos tiene un valor, y se está aplicando el filtro.
+* 🔴 Rojo: ambos campos vacíos.
+* 🔵 Azul: al menos uno de los campos tiene un valor, y se está aplicando el filtro.
 
 ---
 
-#### ℹ️ Tooltips informativos
+### ℹ️ Tooltips informativos
 
-* Junto a cada filtro encontrarás un icono `ℹ️` que muestra una breve explicación sobre su funcionamiento.
-* Puedes consultarlo:
+* Junto a cada filtro hay un icono `ℹ️` que muestra una breve explicación sobre su funcionamiento:
 
-  * **En ordenador:** Haciendo clic.
-  * **En dispositivos táctiles:** tocando el icono con el dedo.
+  * **En ordenador:** clic sobre el icono.
+  * **En móvil:** toca con el dedo.
 
 ---
 
@@ -125,19 +141,20 @@ Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros s
 
 * Representa el total de consumo según los filtros aplicados.
 * Se actualiza automáticamente.
-* Puedes **ocultarla o mostrarla** con el botón "Ocultar gráfica".
+* Puedes **mostrar u ocultar** la gráfica con el botón correspondiente.
 
 ---
 
 ### 🧾 Resumen general
 
-* Muestra los siguientes datos clave:
+* Muestra datos clave:
 
   * Día de mayor y menor consumo
   * Top 3 días con mayor y menor consumo global
   * Año con más y menos consumo
   * Mes con menor consumo global
-* Siempre se muestra junto a la gráfica en pantallas grandes.
+
+* Aparece junto a la gráfica en pantallas grandes.
 
 ---
 
@@ -148,17 +165,37 @@ Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros s
   * Consumo total
   * Promedio mensual
   * Mes con mayor consumo
-* Incluye un botón para **mostrar u ocultar los detalles mensuales**.
-* Se pueden **ocultar todas las tarjetas** desde el botón general.
+* Botón para **mostrar/ocultar detalles mensuales por año**.
+* Las tarjetas también se pueden ocultar en bloque desde el botón general.
 
 ---
 
 ### 📋 Tabla de datos
 
-* Muestra los registros individuales tras aplicar los filtros.
-* Incluye paginación con control para ir a una página concreta.
-* El contenido se adapta automáticamente al tamaño de la pantalla.
+* Muestra los registros filtrados en forma tabular.
+* Incluye paginación con selección directa de página.
+* El contenido es responsive y se adapta a cualquier dispositivo.
 
+---
+
+### 🖨️ Impresión de contenido
+
+La aplicación permite **imprimir todos los elementos visibles y filtrados** con un solo clic:
+
+✅ Todos los registros filtrados, no solo los visibles.
+✅ Tarjetas anuales generadas dinámicamente.
+✅ Gráfica de consumo actualizada.
+✅ Resumen general.
+✅ Detalles expandidos en las tarjetas, si se han desplegado previamente.
+✅ Diseño optimizado para que no se corten tarjetas ni tablas entre páginas.
+
+**Impresión por lotes:**
+
+* Si hay más de 500 registros filtrados, la impresión se divide automáticamente en bloques de 500.
+* Antes de imprimir cada bloque, se muestra un aviso de confirmación.
+* La tabla temporal para impresión se genera dinámicamente y se limpia tras cada lote.
+
+🎯 Accede desde el botón con icono de impresora.
 ---
 
 
