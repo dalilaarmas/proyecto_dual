@@ -58,7 +58,7 @@ Este proyecto **no requiere instalación ni servidor local**. Puedes visualizarl
 
 Puedes ver una **versión temporal del proyecto** desplegada desde la rama `desarrollo` a través de **GitHub Pages** en el siguiente enlace:
 
-🔗 [https://dalilaarmas.github.io/proyecto\_dual/](https://dalilaarmas.github.io/proyecto_dual/)
+🔗 [dalilaarmas.github.io/proyecto_dual/](dalilaarmas.github.io/proyecto_dual/)
 
 Esta página se genera automáticamente con GitHub Pages para facilitar la visualización del proyecto sin necesidad de descargar ni configurar nada localmente.
 
