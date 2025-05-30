@@ -97,103 +97,103 @@ function filtraTexto(datoValor, filtroValor) {
 
 
 
-  const colGrafico = document.getElementById('columna-grafico');
-  const colResumen = document.getElementById('columna-resumen');
+const colGrafico = document.getElementById('columna-grafico');
+const colResumen = document.getElementById('columna-resumen');
 
 
-  function ajustarColumnas() {
-    const graficoVisible = !colGrafico.classList.contains('d-none');
-    const resumenVisible = !colResumen.classList.contains('d-none');
+function ajustarColumnas() {
+  const graficoVisible = !colGrafico.classList.contains('d-none');
+  const resumenVisible = !colResumen.classList.contains('d-none');
 
-    if (graficoVisible && resumenVisible) {
-      colGrafico.className = 'col-lg-8 col-12 mb-3 mb-lg-0';
-      colResumen.className = 'col-lg-4 col-12';
-    } else if (graficoVisible) {
-      colGrafico.className = 'col-12';
-    } else if (resumenVisible) {
-      colResumen.className = 'col-12';
-    }
+  if (graficoVisible && resumenVisible) {
+    colGrafico.className = 'col-lg-8 col-12 mb-3 mb-lg-0';
+    colResumen.className = 'col-lg-4 col-12';
+  } else if (graficoVisible) {
+    colGrafico.className = 'col-12';
+  } else if (resumenVisible) {
+    colResumen.className = 'col-12';
   }
+}
 
-  function configurarBotonToggle(idBoton, idSeccion, textoMostrar, textoOcultar) {
-    const btn = document.getElementById(idBoton);
-    const seccion = document.getElementById(idSeccion);
+function configurarBotonToggle(idBoton, idSeccion, textoMostrar, textoOcultar) {
+  const btn = document.getElementById(idBoton);
+  const seccion = document.getElementById(idSeccion);
 
-    if (btn && seccion) {
-      // Estado inicial
-      let visible = true;
-      btn.innerHTML = `<i class="bi bi-eye-slash-fill me-1"></i> ${textoOcultar}`;
-      btn.classList.add("btn-outline-primary");
-      btn.classList.remove("btn-primary");
+  if (btn && seccion) {
+    // Estado inicial
+    let visible = true;
+    btn.innerHTML = `<i class="bi bi-eye-slash-fill me-1"></i> ${textoOcultar}`;
+    btn.classList.add("btn-outline-primary");
+    btn.classList.remove("btn-primary");
 
-      btn.addEventListener("click", () => {
-        visible = !visible;
-        seccion.classList.remove("fade-in", "fade-out");
-        seccion.classList.add(visible ? "fade-in" : "fade-out");
+    btn.addEventListener("click", () => {
+      visible = !visible;
+      seccion.classList.remove("fade-in", "fade-out");
+      seccion.classList.add(visible ? "fade-in" : "fade-out");
 
-        setTimeout(() => {
-          seccion.classList.toggle("d-none", !visible);
-          if (typeof ajustarColumnas === "function") ajustarColumnas();
-        }, 200);
+      setTimeout(() => {
+        seccion.classList.toggle("d-none", !visible);
+        if (typeof ajustarColumnas === "function") ajustarColumnas();
+      }, 200);
 
-        btn.innerHTML = visible
-          ? `<i class="bi bi-eye-slash-fill me-1"></i> ${textoOcultar}`
-          : `<i class="bi bi-eye-fill me-1"></i> ${textoMostrar}`;
+      btn.innerHTML = visible
+        ? `<i class="bi bi-eye-slash-fill me-1"></i> ${textoOcultar}`
+        : `<i class="bi bi-eye-fill me-1"></i> ${textoMostrar}`;
 
-        btn.classList.toggle("btn-outline-primary", visible);
-        btn.classList.toggle("btn-primary", !visible);
-      });
-    }
+      btn.classList.toggle("btn-outline-primary", visible);
+      btn.classList.toggle("btn-primary", !visible);
+    });
   }
+}
 
-  // Aquí va la llamada DESPUÉS de definir la función
-  configurarBotonToggle("btn-toggle-grafico", "contenedor-canvas", "Mostrar gráfica", "Ocultar gráfica");
-  configurarBotonToggle("btn-toggle-resumen", "columna-resumen", "Mostrar resumen", "Ocultar resumen");
-  configurarBotonToggle("btn-toggle-tarjetas", "modulos-anuales-wrapper", "Mostrar tarjetas por año", "Ocultar tarjetas por año");
+// Aquí va la llamada DESPUÉS de definir la función
+configurarBotonToggle("btn-toggle-grafico", "contenedor-canvas", "Mostrar gráfica", "Ocultar gráfica");
+configurarBotonToggle("btn-toggle-resumen", "columna-resumen", "Mostrar resumen", "Ocultar resumen");
+configurarBotonToggle("btn-toggle-tarjetas", "modulos-anuales-wrapper", "Mostrar tarjetas por año", "Ocultar tarjetas por año");
 
-  // Aplicar filtros al escribir
-  const filtros = [
-    "filtro-municipio",
-    "filtro-cups",
-    "filtro-direccion",
-    "filtro-fecha-desde",
-    "filtro-fecha-hasta",
-    "filtro-consumo-min",
-    "filtro-consumo-max"
-  ];
+// Aplicar filtros al escribir
+const filtros = [
+  "filtro-municipio",
+  "filtro-cups",
+  "filtro-direccion",
+  "filtro-fecha-desde",
+  "filtro-fecha-hasta",
+  "filtro-consumo-min",
+  "filtro-consumo-max"
+];
 
-  filtros.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener("input", () => {
-        try {
-          aplicarFiltros();
-        } catch (e) {
-          // Evitamos errores mientras se escribe
-        }
-      });
-    }
-  });
+filtros.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener("input", () => {
+      try {
+        aplicarFiltros();
+      } catch (e) {
+        // Evitamos errores mientras se escribe
+      }
+    });
+  }
+});
 
-  cargarYMostrarDatos().then(() => {
-    datosFiltrados = [...todosLosDatos]; // Inicializa con todos los datos
-    mostrarPagina();
-    renderPaginacion(datosFiltrados.length);
-    actualizarResumenRegistros();
-    generarResumenConsumo();
-    const canvas = document.getElementById("miGrafico");
-    if (canvas) actualizarGrafico(datosFiltrados);
+cargarYMostrarDatos().then(() => {
+  datosFiltrados = [...todosLosDatos]; // Inicializa con todos los datos
+  mostrarPagina();
+  renderPaginacion(datosFiltrados.length);
+  actualizarResumenRegistros();
+  generarResumenConsumo();
+  const canvas = document.getElementById("miGrafico");
+  if (canvas) actualizarGrafico(datosFiltrados);
 
-    ["filtro-municipio", "filtro-cups", "filtro-direccion", "filtro-fecha-desde", "filtro-fecha-hasta", "filtro-consumo-min", "filtro-consumo-max"]
-      .forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener("input", aplicarFiltros);
-      });
+  ["filtro-municipio", "filtro-cups", "filtro-direccion", "filtro-fecha-desde", "filtro-fecha-hasta", "filtro-consumo-min", "filtro-consumo-max"]
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener("input", aplicarFiltros);
+    });
 
-  }).catch(err => {
-    mostrarErrorBootstrap("Error al cargar los datos iniciales", err.message || err);
+}).catch(err => {
+  mostrarErrorBootstrap("Error al cargar los datos iniciales", err.message || err);
 
-  });
+});
 const REGISTROS_POR_LOTE = 500;
 
 document.getElementById("btn-imprimir").addEventListener("click", async function () {
@@ -901,30 +901,35 @@ function actualizarGrafico(consumosFiltrados) {
   if (graficoConsumo) {
     graficoConsumo.destroy();
   }
-
-  graficoConsumo = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: etiquetas,
-      datasets: [{
-        label: 'Consumo energético (kWh)',
-        data: datos,
-        fill: false,
-        borderColor: 'rgb(75, 192, 192)',
-        tension: 0.3
-      }]
+graficoConsumo = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: etiquetas,
+    datasets: [{
+      label: 'Consumo energético (kWh)',
+      data: datos,
+      fill: false,
+      borderColor: 'rgb(75, 192, 192)',
+      tension: 0.3
+    }]
+  },
+  options: {
+    responsive: true,
+    animation: {
+      duration: 0 // 0 segundos
+      // easing: 'easeOutQuart' // animación más fluida
     },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { display: true },
-        title: {
-          display: true,
-          text: 'Evolución del consumo energético'
-        }
+    plugins: {
+      legend: { display: true },
+      title: {
+        display: true,
+        text: 'Evolución del consumo energético'
       }
     }
-  });
+  }
+});
+
+  
 }
 
 
@@ -1098,11 +1103,36 @@ function toggleDetalles(id, boton) {
   // Cambia el texto del botón
   boton.textContent = visible ? "Mostrar detalles mensuales" : "Ocultar detalles mensuales";
 }
-let paginaCargada = false;
-let tiempoCumplido = false;
+
+// SI NO SE MUESTRA EL LOADING USAR ESTO:
+// let paginaCargada = false;
+// let tiempoCumplido = false;
+
+// function intentarMostrarContenido() {
+//   if (paginaCargada && tiempoCumplido) {
+//     document.getElementById("pantalla-carga").style.display = "none";
+//     const contenido = document.getElementById("contenido");
+//     if (contenido) {
+//       contenido.style.display = "block";
+//       contenido.style.visibility = "visible";
+//     }
+//   }
+// }
+
+// // Espera mínima (ej. 1.5 segundos)
+// setTimeout(() => {
+//   tiempoCumplido = true;
+//   intentarMostrarContenido();
+// }, 1500);
+
+// // Espera a que se cargue todo
+// window.addEventListener("load", () => {
+//   paginaCargada = true;
+//   intentarMostrarContenido();
+// });
 
 function intentarMostrarContenido() {
-  if (paginaCargada && tiempoCumplido) {
+  if (paginaCargada) {
     document.getElementById("pantalla-carga").style.display = "none";
     const contenido = document.getElementById("contenido");
     if (contenido) {
@@ -1111,17 +1141,9 @@ function intentarMostrarContenido() {
     }
   }
 }
-
-// Espera mínima (ej. 1.5 segundos)
-setTimeout(() => {
-  tiempoCumplido = true;
+ window.addEventListener("load", () => {
+ paginaCargada = true;
   intentarMostrarContenido();
-}, 1500);
+ });
 
-// Espera a que se cargue todo
-window.addEventListener("load", () => {
-  paginaCargada = true;
-  intentarMostrarContenido();
-});
 
-document.getElementById("miGrafico").classList.add("visible");
