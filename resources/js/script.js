@@ -123,8 +123,8 @@ document.addEventListener("DOMContentLoaded", function () {
       // Estado inicial
       let visible = true;
       btn.innerHTML = `<i class="bi bi-eye-slash-fill me-1"></i> ${textoOcultar}`;
-      btn.classList.add("btn-danger");
-      btn.classList.remove("btn-outline-primary");
+      btn.classList.add("btn-outline-primary");
+      btn.classList.remove("btn-primary");
 
       btn.addEventListener("click", () => {
         visible = !visible;
@@ -140,8 +140,8 @@ document.addEventListener("DOMContentLoaded", function () {
           ? `<i class="bi bi-eye-slash-fill me-1"></i> ${textoOcultar}`
           : `<i class="bi bi-eye-fill me-1"></i> ${textoMostrar}`;
 
-        btn.classList.toggle("btn-danger", visible);
-        btn.classList.toggle("btn-outline-primary", !visible);
+        btn.classList.toggle("btn-outline-primary", visible);
+        btn.classList.toggle("btn-primary", !visible);
       });
     }
   }
