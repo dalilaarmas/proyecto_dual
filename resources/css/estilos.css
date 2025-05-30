@@ -1,3 +1,23 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+#contenido {
+  visibility: hidden;
+}
+
+/* Loader que cubre la pantalla */
+#pantalla-carga {
+  position: fixed;
+  inset: 0;
+  background: white;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 
 body {
   overflow-x: hidden;

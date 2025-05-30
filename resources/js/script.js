@@ -94,7 +94,7 @@ function filtraTexto(datoValor, filtroValor) {
 
 
 // Espera a que todo el DOM esté cargado antes de ejecutar el script
-document.addEventListener("DOMContentLoaded", function () {
+
 
 
   const colGrafico = document.getElementById('columna-grafico');
@@ -192,8 +192,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   }).catch(err => {
     mostrarErrorBootstrap("Error al cargar los datos iniciales", err.message || err);
-  });
 
+  });
 const REGISTROS_POR_LOTE = 500;
 
 document.getElementById("btn-imprimir").addEventListener("click", async function () {
@@ -259,7 +259,7 @@ document.getElementById("btn-imprimir").addEventListener("click", async function
   const contenedor = document.getElementById("tabla-imprimir");
   if (contenedor) contenedor.innerHTML = "";
 });
-});
+
 
 
 // Función que genera un resumen estadístico y visual de los datos filtrados. 
@@ -1098,3 +1098,30 @@ function toggleDetalles(id, boton) {
   // Cambia el texto del botón
   boton.textContent = visible ? "Mostrar detalles mensuales" : "Ocultar detalles mensuales";
 }
+let paginaCargada = false;
+let tiempoCumplido = false;
+
+function intentarMostrarContenido() {
+  if (paginaCargada && tiempoCumplido) {
+    document.getElementById("pantalla-carga").style.display = "none";
+    const contenido = document.getElementById("contenido");
+    if (contenido) {
+      contenido.style.display = "block";
+      contenido.style.visibility = "visible";
+    }
+  }
+}
+
+// Espera mínima (ej. 1.5 segundos)
+setTimeout(() => {
+  tiempoCumplido = true;
+  intentarMostrarContenido();
+}, 1500);
+
+// Espera a que se cargue todo
+window.addEventListener("load", () => {
+  paginaCargada = true;
+  intentarMostrarContenido();
+});
+
+document.getElementById("miGrafico").classList.add("visible");
