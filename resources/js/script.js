@@ -1132,10 +1132,12 @@ setTimeout(() => {
   intentarMostrarContenido();
 }, 1500);
 
-// Espera a que se cargue todo
+// Espera a que se cargue todo, y ADEMÁS da un tiempo extra antes de intentar mostrar
 window.addEventListener("load", () => {
-  paginaCargada = true;
-  intentarMostrarContenido();
+  setTimeout(() => {
+    paginaCargada = true;
+    intentarMostrarContenido();
+  }, 300); // Puedes subir este valor si ves que aún se carga por partes
 });
 
 
