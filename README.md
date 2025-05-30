@@ -21,6 +21,7 @@ https://datos.tenerife.es/es/datos/conjuntos-de-datos/consumo-energetico-del-cab
 * Interfaz responsive adaptada con Bootstrap 5.
 * Aplicación 100 % en cliente: no requiere instalación ni backend.
 * 🖨️ **Impresión inteligente** de contenidos: permite imprimir todos los registros de la tabla según los filtros seleccionados. Si no se aplican filtros se pueden imprimir todos los registros.
+* ⏳ Indicador de **carga inicial** mientras se procesan los archivos grandes (loading spinner)
 
 🪧CUPS (Código Universal del Punto de Suministro): Identificador único del punto donde se mide el consumo.
 
@@ -46,7 +47,17 @@ La aplicación incorpora una opción de **impresión completa por lotes** diseñ
 
 ## 🚧 Funcionalidades en desarrollo
 
-* ⏳ Indicador de **carga inicial** mientras se procesan los archivos grandes (loading spinner).
+### 🖨️ Funcionalidad de impresión selectiva (en desarrollo)
+
+Se está implementando un **sistema de impresión selectiva mediante un modal de configuración**, que permitirá al usuario:
+
+* **Elegir qué secciones imprimir** (tabla de registros, gráfica de consumo, resúmenes anuales, resumen global, etc.).
+* **Aplicar filtros específicos desde el modal**, como:
+
+  * Rango de años o fechas
+  * Número de registros (ej: del 100 al 300)
+  * Campos comunes como CUPS, dirección, municipio, consumo mínimo/máximo
+
 
 ---
 
