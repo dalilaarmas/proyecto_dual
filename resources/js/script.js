@@ -652,6 +652,17 @@ function aplicarFiltros() {
   const municipioSeleccionado = document.getElementById("filtro-municipio").value.toLowerCase();
   const cupsSeleccionado = document.getElementById("filtro-cups").value.toLowerCase();
   const direccionSeleccionada = document.getElementById("filtro-direccion").value.toLowerCase();
+
+ if (
+  (municipioSeleccionado && municipioSeleccionado.length < MIN_CARACTERES_FILTRO) ||
+  (cupsSeleccionado && cupsSeleccionado.length < MIN_CARACTERES_FILTRO) ||
+  (direccionSeleccionada && direccionSeleccionada.length < MIN_CARACTERES_FILTRO)
+) {
+  return; // Detener sin aplicar ningún filtro ni actualizar nada
+}
+
+
+
   const fechaDesde = document.getElementById("filtro-fecha-desde").value.trim();
   const fechaHasta = document.getElementById("filtro-fecha-hasta").value.trim();
 
@@ -915,10 +926,6 @@ graficoConsumo = new Chart(ctx, {
   },
   options: {
     responsive: true,
-    animation: {
-      duration: 0 // 0 segundos
-      // easing: 'easeOutQuart' // animación más fluida
-    },
     plugins: {
       legend: { display: true },
       title: {
@@ -1104,35 +1111,12 @@ function toggleDetalles(id, boton) {
   boton.textContent = visible ? "Mostrar detalles mensuales" : "Ocultar detalles mensuales";
 }
 
-// SI NO SE MUESTRA EL LOADING USAR ESTO:
-// let paginaCargada = false;
-// let tiempoCumplido = false;
 
-// function intentarMostrarContenido() {
-//   if (paginaCargada && tiempoCumplido) {
-//     document.getElementById("pantalla-carga").style.display = "none";
-//     const contenido = document.getElementById("contenido");
-//     if (contenido) {
-//       contenido.style.display = "block";
-//       contenido.style.visibility = "visible";
-//     }
-//   }
-// }
-
-// // Espera mínima (ej. 1.5 segundos)
-// setTimeout(() => {
-//   tiempoCumplido = true;
-//   intentarMostrarContenido();
-// }, 1500);
-
-// // Espera a que se cargue todo
-// window.addEventListener("load", () => {
-//   paginaCargada = true;
-//   intentarMostrarContenido();
-// });
+let paginaCargada = false;
+let tiempoCumplido = false;
 
 function intentarMostrarContenido() {
-  if (paginaCargada) {
+  if (paginaCargada && tiempoCumplido) {
     document.getElementById("pantalla-carga").style.display = "none";
     const contenido = document.getElementById("contenido");
     if (contenido) {
@@ -1141,9 +1125,19 @@ function intentarMostrarContenido() {
     }
   }
 }
- window.addEventListener("load", () => {
- paginaCargada = true;
+
+// Espera mínima (ej. 1.5 segundos)
+setTimeout(() => {
+  tiempoCumplido = true;
   intentarMostrarContenido();
- });
+}, 1500);
+
+// Espera a que se cargue todo
+window.addEventListener("load", () => {
+  paginaCargada = true;
+  intentarMostrarContenido();
+});
+
+
 
 
