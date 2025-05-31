@@ -1333,7 +1333,7 @@ function prepararGraficoImpresion(datos, rango = "") {
     }
   }
 
-  // Agrupar por mes y calcular la media de consumo
+  // Agrupar por mes
   const agrupadoPorMes = {};
 
   datosFiltrados.forEach(d => {
@@ -1491,8 +1491,8 @@ function imprimirSeccionesEnDocumento(bloquesHTML, ventana) {
   scriptChart.onload = () => {
     if (datosGrafico) {
       const canvas = doc.createElement("canvas");
-    canvas.width = 1600;
-    canvas.height = 800;
+    canvas.width = 800;
+    canvas.height = 450;
     canvas.style.display = "block";
     canvas.style.margin = "0 auto";
 
