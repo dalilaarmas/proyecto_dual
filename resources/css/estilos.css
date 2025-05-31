@@ -203,3 +203,7 @@ body {
 #btn-imprimir{
   margin-top: 10px;
 }
+
+#tabla-consumo tr:hover td{
+font-weight: bold;
+}
