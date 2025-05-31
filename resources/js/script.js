@@ -1379,7 +1379,7 @@ function prepararTablaFiltradaPorLotes(datos, rango = "") {
   tabla.innerHTML = `
     <thead class="table-light">
       <tr>
-        <th>#</th>
+        <th>Nº de registro</th>
         <th>Fecha</th>
         <th>Consumo (kWh)</th>
         <th>Municipio</th>
@@ -1394,8 +1394,9 @@ function prepararTablaFiltradaPorLotes(datos, rango = "") {
           <td>${r.fecha}</td>
           <td>${r.consumo}</td>
           <td>${r.municipio || ""}</td>
-          <td>${r.direccion || ""}</td>
-          <td>${r.cups || ""}</td>
+          <td>${r.cups_codigo || ""}</td>
+          <td>${r.cups_direccion || ""}</td>
+
         </tr>
       `).join("")}
     </tbody>
