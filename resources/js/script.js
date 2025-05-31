@@ -441,18 +441,6 @@ function generarResumenConsumo() {
   });
 }
 
-
-// Para alternar visibilidad de detalles dentro de una tarjeta
-function toggleDetalles(id, btn) {
-  const elemento = document.getElementById(id);
-  if (!elemento) return;
-  const activo = elemento.classList.contains("show");
-  const colapso = new bootstrap.Collapse(elemento, {
-    toggle: true
-  });
-  btn.textContent = activo ? "Mostrar detalles" : "Ocultar detalles";
-}
-
 // Limpiar mensajes de error anteriores
 limpiarErroresBootstrap();
 
@@ -1110,6 +1098,455 @@ function toggleDetalles(id, boton) {
   // Cambia el texto del botón
   boton.textContent = visible ? "Mostrar detalles mensuales" : "Ocultar detalles mensuales";
 }
+
+function recogerOpcionesImpresion() {
+  return {
+    imprimirResumenGlobal: document.getElementById('chkResumenGlobal').checked,
+    imprimirTarjetasAnuales: document.getElementById('chkTarjetasAnuales').checked,
+    aniosTarjetas: document.getElementById('inputAniosTarjetas').value.trim(),
+    incluirDetallesTarjetas: document.getElementById('chkMostrarDetallesTarjetas').checked,
+    imprimirGrafico: document.getElementById('chkGrafico').checked,
+    usarGraficoFiltrado: document.getElementById('graficoFiltrado').checked,
+    rangoGrafico: document.getElementById('inputRangoGrafico').value.trim(),
+    imprimirTabla: document.getElementById('chkTabla').checked,
+    usarTablaFiltrada: document.getElementById('tablaFiltrada').checked,
+    rangoTabla: document.getElementById('inputRangoTabla').value.trim(),
+    filtrosGenerales: {
+      cups: document.getElementById('filtroCUPS').value.trim().toLowerCase(),
+      direccion: document.getElementById('filtroDireccion').value.trim().toLowerCase(),
+      municipio: document.getElementById('filtroMunicipio').value.trim().toLowerCase(),
+      consumoMin: parseFloat(document.getElementById('filtroConsumoMin').value.trim()),
+      consumoMax: parseFloat(document.getElementById('filtroConsumoMax').value.trim()),
+      fechaMin: document.getElementById('filtroFechaMin').value.trim(),
+      fechaMax: document.getElementById('filtroFechaMax').value.trim()
+    }
+  };
+}
+
+function filtrarDatosParaImpresion(filtros) {
+  return todosLosDatos.filter(dato => {
+    const c = dato.consumo;
+    const f = dato.fecha;
+    return (!filtros.cups || dato.cups?.toLowerCase().includes(filtros.cups)) &&
+           (!filtros.direccion || dato.direccion?.toLowerCase().includes(filtros.direccion)) &&
+           (!filtros.municipio || dato.municipio?.toLowerCase().includes(filtros.municipio)) &&
+           (!isNaN(filtros.consumoMin) ? c >= filtros.consumoMin : true) &&
+           (!isNaN(filtros.consumoMax) ? c <= filtros.consumoMax : true) &&
+           (!filtros.fechaMin || dato.fecha >= filtros.fechaMin) &&
+           (!filtros.fechaMax || dato.fecha <= filtros.fechaMax);
+  });
+}
+
+function extraerRango(datos, rangoTexto) {
+  if (!rangoTexto) return datos;
+  const match = rangoTexto.match(/(\d+)-(\d+)/);
+  if (!match) return datos;
+  const inicio = parseInt(match[1], 10) - 1;
+  const fin = parseInt(match[2], 10);
+  return datos.slice(inicio, fin);
+}
+
+// Evento al pulsar en imprimir
+document.getElementById("btnEjecutarImpresion").addEventListener("click", async () => {
+  const ventana = window.open("", "_blank");
+  if (!ventana) {
+    alert("Error al abrir la ventana de impresión");
+    return;
+  }
+
+  const opciones = recogerOpcionesImpresion();
+  const datosFiltrados = filtrarDatosParaImpresion(opciones.filtrosGenerales);
+  if (!datosFiltrados.length) {
+    alert("No hay datos que cumplan los filtros.");
+    return;
+  }
+
+  const secciones = [];
+
+  if (opciones.imprimirResumenGlobal) {
+    const resumen = await prepararResumenGlobal(datosFiltrados, opciones.aniosTarjetas);
+    secciones.push(resumen);
+  }
+
+  if (opciones.imprimirTarjetasAnuales) {
+    const tarjetas = await prepararResumenesAnuales(datosFiltrados, opciones.aniosTarjetas, opciones.incluirDetallesTarjetas);
+    secciones.push(tarjetas);
+  }
+
+  if (opciones.imprimirGrafico) {
+  const datosGrafico = opciones.usarGraficoFiltrado ? datosFiltrados : todosLosDatos;
+  const graficoData = prepararGraficoImpresion(datosGrafico, opciones.rangoGrafico);
+  secciones.push({ tipo: "grafico", datos: graficoData });
+}
+
+
+  if (opciones.imprimirTabla) {
+    const datosTabla = opciones.usarTablaFiltrada ? datosFiltrados : todosLosDatos;
+    const rangoTabla = extraerRango(datosTabla, opciones.rangoTabla);
+    const tabla = await prepararTablaFiltradaPorLotes(rangoTabla);
+    secciones.push(tabla);
+  }
+
+  imprimirSeccionesEnDocumento(secciones, ventana);
+});
+
+
+
+
+
+function prepararResumenesAnuales(datos, aniosSeleccionados = "", mostrarDetalles = false) {
+  const contenedor = document.createElement("div");
+  contenedor.className = "row";
+
+  // Convertimos la cadena de años (tipo "2022,2024" o "2022-2024") en un Set
+  const aniosSet = parsearAniosSeleccionados(aniosSeleccionados);
+
+  // Agrupar datos por año
+  const agrupadoPorAnio = {};
+  datos.forEach(d => {
+    const anio = new Date(d.fecha).getFullYear();
+    if (!agrupadoPorAnio[anio]) agrupadoPorAnio[anio] = [];
+    agrupadoPorAnio[anio].push(d);
+  });
+
+  // Crear tarjetas para cada año
+  Object.entries(agrupadoPorAnio).forEach(([anio, registros]) => {
+    if (aniosSet && !aniosSet.has(parseInt(anio))) return;
+
+    const total = registros.reduce((s, r) => s + r.consumo, 0);
+    const media = total / registros.length;
+
+    const tarjeta = document.createElement("div");
+    tarjeta.className = "col-md-6 col-lg-4 mb-3";
+    tarjeta.innerHTML = `
+      <div class="card shadow-sm">
+        <div class="card-header bg-secondary text-white fw-bold">Año ${anio}</div>
+        <div class="card-body">
+          <p><strong>Total consumo:</strong> ${total.toFixed(2)} kWh</p>
+          <p><strong>Media diaria:</strong> ${media.toFixed(2)} kWh</p>
+          ${mostrarDetalles ? generarDetallesPorMes(registros) : ""}
+        </div>
+      </div>
+    `;
+    contenedor.appendChild(tarjeta);
+  });
+
+  return contenedor;
+}
+
+function generarDetallesPorMes(registros) {
+  const porMes = {};
+  registros.forEach(r => {
+    const fecha = new Date(r.fecha);
+    const clave = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
+    if (!porMes[clave]) porMes[clave] = [];
+    porMes[clave].push(r);
+  });
+
+  let html = "<ul class='list-group list-group-flush small'>";
+  Object.entries(porMes).forEach(([mes, registrosMes]) => {
+    const total = registrosMes.reduce((s, r) => s + r.consumo, 0);
+    html += `<li class='list-group-item'>${mes}: ${total.toFixed(2)} kWh</li>`;
+  });
+  html += "</ul>";
+  return html;
+}
+
+function prepararResumenGlobal(datos, aniosSeleccionados = "") {
+  const aniosSet = parsearAniosSeleccionados(aniosSeleccionados);
+  const datosFiltrados = aniosSet
+    ? datos.filter(d => aniosSet.has(new Date(d.fecha).getFullYear()))
+    : datos;
+
+  if (!datosFiltrados.length) {
+    const aviso = document.createElement("div");
+    aviso.innerHTML = `<div class="alert alert-warning p-2">No hay datos suficientes para el resumen global.</div>`;
+    return aviso;
+  }
+
+  const resumen = {};
+  const totalesPorAnio = {};
+  const totalesPorMes = {};
+  let diaMayorConsumo = { fecha: "", consumo: -Infinity };
+  let diaMenorConsumo = { fecha: "", consumo: Infinity };
+
+  let sumaTotal = 0;
+
+  datosFiltrados.forEach(dato => {
+    const fecha = new Date(dato.fecha);
+    const anio = fecha.getFullYear();
+    const mesClave = `${anio}-${String(fecha.getMonth() + 1).padStart(2, "0")}`;
+    const consumo = dato.consumo;
+
+    // Totales por año
+    totalesPorAnio[anio] = (totalesPorAnio[anio] || 0) + consumo;
+
+    // Totales por mes
+    totalesPorMes[mesClave] = (totalesPorMes[mesClave] || 0) + consumo;
+
+    // Día de mayor y menor consumo
+    if (consumo > diaMayorConsumo.consumo) {
+      diaMayorConsumo = { fecha: dato.fecha, consumo };
+    }
+    if (consumo < diaMenorConsumo.consumo) {
+      diaMenorConsumo = { fecha: dato.fecha, consumo };
+    }
+
+    sumaTotal += consumo;
+  });
+
+  const mediaGlobal = sumaTotal / datosFiltrados.length;
+
+  // Año con más y menos consumo
+  const aniosOrdenados = Object.entries(totalesPorAnio).sort((a, b) => b[1] - a[1]);
+  const anioMasConsumo = aniosOrdenados[0];
+  const anioMenosConsumo = aniosOrdenados[aniosOrdenados.length - 1];
+
+  // Mes con menor consumo
+  const mesMenor = Object.entries(totalesPorMes).sort((a, b) => a[1] - b[1])[0];
+
+  const divResumen = document.createElement("div");
+  divResumen.className = "card mb-3";
+  divResumen.innerHTML = `
+    <div class="card-header bg-info text-white fw-bold">Resumen global</div>
+    <div class="card-body small">
+      <p><strong>Total consumo global:</strong> ${sumaTotal.toFixed(2)} kWh</p>
+      <p><strong>Media diaria global:</strong> ${mediaGlobal.toFixed(2)} kWh</p>
+      <p><strong>Día con mayor consumo:</strong> ${diaMayorConsumo.fecha} (${diaMayorConsumo.consumo.toFixed(2)} kWh)</p>
+      <p><strong>Día con menor consumo:</strong> ${diaMenorConsumo.fecha} (${diaMenorConsumo.consumo.toFixed(2)} kWh)</p>
+      <p><strong>Año con mayor consumo:</strong> ${anioMasConsumo[0]} (${anioMasConsumo[1].toFixed(2)} kWh)</p>
+      <p><strong>Año con menor consumo:</strong> ${anioMenosConsumo[0]} (${anioMenosConsumo[1].toFixed(2)} kWh)</p>
+      <p><strong>Mes con menor consumo global:</strong> ${mesMenor[0]} (${mesMenor[1].toFixed(2)} kWh)</p>
+    </div>
+  `;
+
+  return divResumen;
+}
+function prepararGraficoImpresion(datos, rango = "") {
+  let datosFiltrados = [...datos];
+
+  // Aplicar rango si está definido
+  if (rango) {
+    const [inicio, fin] = rango.split("-").map(x => parseInt(x));
+    if (!isNaN(inicio) && !isNaN(fin)) {
+      datosFiltrados = datosFiltrados.slice(inicio - 1, fin);
+    }
+  }
+
+  // Agrupar por mes y calcular la media de consumo
+  const agrupadoPorMes = {};
+
+  datosFiltrados.forEach(d => {
+    const fecha = new Date(d.fecha);
+    if (isNaN(fecha)) return;
+
+    const clave = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, "0")}`;
+
+    if (!agrupadoPorMes[clave]) {
+      agrupadoPorMes[clave] = [];
+    }
+
+    agrupadoPorMes[clave].push(d.consumo);
+  });
+
+  // Calcular la media mensual y ordenar por fecha
+  const resumenMensual = Object.entries(agrupadoPorMes)
+    .map(([mes, consumos]) => ({
+      fecha: mes,
+      consumo: consumos.reduce((a, b) => a + b, 0) / consumos.length
+    }))
+    .sort((a, b) => a.fecha.localeCompare(b.fecha));
+
+  const fechas = resumenMensual.map(d => d.fecha);
+  const consumos = resumenMensual.map(d => d.consumo);
+
+  return { fechas, consumos };
+}
+
+
+function prepararTablaFiltradaPorLotes(datos, rango = "") {
+  let registros = [...datos];
+
+  if (rango) {
+    const [inicio, fin] = rango.split("-").map(x => parseInt(x));
+    if (!isNaN(inicio) && !isNaN(fin)) {
+      registros = registros.slice(inicio - 1, fin);
+    }
+  }
+
+  const tabla = document.createElement("table");
+  tabla.className = "table table-bordered table-sm small";
+  tabla.innerHTML = `
+    <thead class="table-light">
+      <tr>
+        <th>#</th>
+        <th>Fecha</th>
+        <th>Consumo (kWh)</th>
+        <th>Municipio</th>
+        <th>Dirección</th>
+        <th>CUPS</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${registros.map((r, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${r.fecha}</td>
+          <td>${r.consumo}</td>
+          <td>${r.municipio || ""}</td>
+          <td>${r.direccion || ""}</td>
+          <td>${r.cups || ""}</td>
+        </tr>
+      `).join("")}
+    </tbody>
+  `;
+  return tabla;
+}
+
+function parsearAniosSeleccionados(cadena) {
+  if (!cadena || cadena.trim() === "") return null;
+
+  const resultado = new Set();
+  cadena.split(",").forEach(parte => {
+    if (parte.includes("-")) {
+      const [inicio, fin] = parte.split("-").map(n => parseInt(n.trim()));
+      for (let i = inicio; i <= fin; i++) resultado.add(i);
+    } else {
+      const año = parseInt(parte.trim());
+      if (!isNaN(año)) resultado.add(año);
+    }
+  });
+  return resultado;
+}
+
+function aplicarFiltrosGenerales(datos, filtros) {
+  return datos.filter(d => {
+    const fecha = d.fecha || "";
+    const consumo = d.consumo || 0;
+
+    if (filtros.cups && !d.cups?.toLowerCase().includes(filtros.cups.toLowerCase())) return false;
+    if (filtros.direccion && !d.direccion?.toLowerCase().includes(filtros.direccion.toLowerCase())) return false;
+    if (filtros.municipio && !d.municipio?.toLowerCase().includes(filtros.municipio.toLowerCase())) return false;
+    if (filtros.consumoMin !== "" && consumo < filtros.consumoMin) return false;
+    if (filtros.consumoMax !== "" && consumo > filtros.consumoMax) return false;
+    if (filtros.fechaMin && fecha < filtros.fechaMin) return false;
+    if (filtros.fechaMax && fecha > filtros.fechaMax) return false;
+
+    return true;
+  });
+}
+
+function imprimirSeccionesEnDocumento(bloquesHTML, ventana) {
+  if (!ventana) return alert("Error al abrir la ventana de impresión");
+
+  const doc = ventana.document;
+
+  // Crear estructura básica
+  const html = doc.createElement("html");
+  const head = doc.createElement("head");
+  const body = doc.createElement("body");
+  body.className = "p-3";
+
+  // Título
+  const titulo = doc.createElement("title");
+  titulo.textContent = "Impresión";
+  head.appendChild(titulo);
+
+  // Estilos
+  const bootstrap = doc.createElement("link");
+  bootstrap.rel = "stylesheet";
+  bootstrap.href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css";
+  head.appendChild(bootstrap);
+
+  const estilos = doc.createElement("link");
+  estilos.rel = "stylesheet";
+  estilos.href = "resources/css/estilos.css";
+  head.appendChild(estilos);
+
+  // 🎯 Añadimos la librería Chart.js
+  const scriptChart = doc.createElement("script");
+  scriptChart.src = "https://cdn.jsdelivr.net/npm/chart.js";
+  head.appendChild(scriptChart);
+
+  // Recoger datos del gráfico si existen
+  let datosGrafico = null;
+
+  bloquesHTML.forEach(b => {
+    if (b && b.tipo === "grafico") {
+      datosGrafico = b.datos;
+    } else if (typeof b === "string") {
+      const div = doc.createElement("div");
+      div.innerHTML = b;
+      body.appendChild(div);
+    } else {
+      body.appendChild(b);
+    }
+  });
+
+  html.appendChild(head);
+  html.appendChild(body);
+  doc.replaceChild(html, doc.documentElement);
+
+  // Esperar a que Chart.js cargue y se inserte el canvas
+  scriptChart.onload = () => {
+    if (datosGrafico) {
+      const canvas = doc.createElement("canvas");
+    canvas.width = 1600;
+    canvas.height = 800;
+    canvas.style.display = "block";
+    canvas.style.margin = "0 auto";
+
+      body.insertBefore(canvas, body.firstChild);
+
+      new ventana.Chart(canvas.getContext("2d"), {
+        type: "line",
+        data: {
+          labels: datosGrafico.fechas,
+          datasets: [{
+            label: "Consumo energético",
+            data: datosGrafico.consumos,
+            borderWidth: 2,
+            fill: false
+          }]
+        },
+        options: {
+          responsive: false,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: true } },
+          scales: {
+            x: { title: { display: true, text: "Fecha" } },
+            y: { title: { display: true, text: "Consumo (kWh)" } }
+          }
+        }
+      });
+    }
+
+    // Imprimir después de un pequeño delay
+    setTimeout(() => {
+      ventana.focus();
+      ventana.print();
+      ventana.close();
+    }, 500);
+  };
+}
+
+  
+
+function agruparPorMes(datos) {
+  const agrupados = {};
+  datos.forEach(d => {
+    const fecha = new Date(d.fecha);
+    const clave = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, "0")}`;
+    if (!agrupados[clave]) agrupados[clave] = [];
+    agrupados[clave].push(d.consumo);
+  });
+
+  return Object.entries(agrupados).map(([mes, consumos]) => ({
+    fecha: mes,
+    consumo: consumos.reduce((a, b) => a + b, 0) / consumos.length
+  }));
+}
+
 
 
 let paginaCargada = false;
