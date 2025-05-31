@@ -207,3 +207,9 @@ body {
 #tabla-consumo tr:hover td{
 font-weight: bold;
 }
+
+@media print {
+  .salto-pagina {
+    page-break-before: always;
+  }
+}
