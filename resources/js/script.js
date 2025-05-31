@@ -1349,11 +1349,11 @@ function prepararGraficoImpresion(datos, rango = "") {
     agrupadoPorMes[clave].push(d.consumo);
   });
 
-  // Calcular la media mensual y ordenar por fecha
+  // Calcular total mensual y ordenar por fecha
   const resumenMensual = Object.entries(agrupadoPorMes)
     .map(([mes, consumos]) => ({
       fecha: mes,
-      consumo: consumos.reduce((a, b) => a + b, 0) / consumos.length
+      consumo: consumos.reduce((a, b) => a + b, 0)
     }))
     .sort((a, b) => a.fecha.localeCompare(b.fecha));
 
@@ -1543,7 +1543,7 @@ function agruparPorMes(datos) {
 
   return Object.entries(agrupados).map(([mes, consumos]) => ({
     fecha: mes,
-    consumo: consumos.reduce((a, b) => a + b, 0) / consumos.length
+    consumo: consumos.reduce((a, b) => a + b, 0)
   }));
 }
 
