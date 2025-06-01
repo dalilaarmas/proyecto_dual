@@ -225,30 +225,38 @@ document.getElementById("btn-imprimir").addEventListener("click", async function
     const datosLote = datosFiltrados.slice(desde, hasta);
 
     contenedor.innerHTML = `
-      <h5 class="mb-2">Registros ${desde + 1} a ${hasta} de ${total}</h5>
-      <table class="table table-bordered small">
-        <thead class="table-light">
-          <tr>
-            <th>Municipio</th>
-            <th>CUPS</th>
-            <th>Dirección</th>
-            <th>Fecha</th>
-            <th>Consumo (kWh)</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${datosLote.map(d => `
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white fw-bold">
+      Registros ${desde + 1} a ${hasta} de ${total}
+    </div>
+    <div class="card-body p-2">
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped table-sm mb-0">
+          <thead class="table-light">
             <tr>
-              <td>${d.municipio}</td>
-              <td>${d.cups_codigo}</td>
-              <td>${d.cups_direccion}</td>
-              <td>${d.fecha}</td>
-              <td>${d.consumo != null ? d.consumo.toFixed(2) : "Desconocido"}</td>
+              <th>Municipio</th>
+              <th>CUPS</th>
+              <th>Dirección</th>
+              <th>Fecha</th>
+              <th>Consumo (kWh)</th>
             </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    `;
+          </thead>
+          <tbody>
+            ${datosLote.map(d => `
+              <tr>
+                <td>${d.municipio}</td>
+                <td>${d.cups_codigo}</td>
+                <td>${d.cups_direccion}</td>
+                <td>${d.fecha}</td>
+                <td>${d.consumo != null ? d.consumo.toFixed(2) : "Desconocido"}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+`;
 
     await new Promise(resolve => setTimeout(resolve, 100));
     window.print();
