@@ -194,6 +194,107 @@ cargarYMostrarDatos().then(() => {
   mostrarErrorBootstrap("Error al cargar los datos iniciales", err.message || err);
 
 });
+const REGISTROS_POR_LOTE = 500;
+
+document.getElementById("btn-imprimir").addEventListener("click", async function () {
+  if (!datosFiltrados || datosFiltrados.length === 0) {
+    mostrarAlertaBootstrap("No hay datos que imprimir.");
+    return;
+  }
+
+  document.querySelectorAll(".collapse.show").forEach(el => {
+    el.style.height = "auto";
+    el.style.overflow = "visible";
+    el.style.maxHeight = "none";
+  });
+
+  const total = datosFiltrados.length;
+  const totalLotes = Math.ceil(total / REGISTROS_POR_LOTE);
+
+  let continuar = true;
+  for (let lote = 0; lote < totalLotes && continuar; lote++) {
+    const desde = lote * REGISTROS_POR_LOTE;
+    const hasta = Math.min(desde + REGISTROS_POR_LOTE, total);
+
+    continuar = await confirmarLoteBootstrap(`Lote ${lote + 1} de ${totalLotes} (registros ${desde + 1} a ${hasta}). ¿Deseas imprimir este bloque?`);
+    if (!continuar) break;
+
+    const contenedor = document.getElementById("tabla-imprimir");
+    if (!contenedor) return;
+
+    const datosLote = datosFiltrados.slice(desde, hasta);
+
+    contenedor.innerHTML = `
+      <h5 class="mb-2">Registros ${desde + 1} a ${hasta} de ${total}</h5>
+      <table class="table table-bordered small">
+        <thead class="table-light">
+          <tr>
+            <th>Municipio</th>
+            <th>CUPS</th>
+            <th>Dirección</th>
+            <th>Fecha</th>
+            <th>Consumo (kWh)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${datosLote.map(d => `
+            <tr>
+              <td>${d.municipio}</td>
+              <td>${d.cups_codigo}</td>
+              <td>${d.cups_direccion}</td>
+              <td>${d.fecha}</td>
+              <td>${d.consumo != null ? d.consumo.toFixed(2) : "Desconocido"}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+    window.print();
+  }
+
+  const contenedor = document.getElementById("tabla-imprimir");
+  if (contenedor) contenedor.innerHTML = "";
+});
+
+function mostrarAlertaBootstrap(mensaje, tipo = "warning") {
+  const alerta = document.getElementById("alerta-bootstrap");
+  if (!alerta) return;
+
+  alerta.textContent = mensaje;
+  alerta.className = `alert alert-${tipo} fixed-top m-3 z-3`;
+  alerta.classList.remove("d-none");
+
+  setTimeout(() => {
+    alerta.classList.add("d-none");
+  }, 4000);
+}
+
+function confirmarLoteBootstrap(texto) {
+  return new Promise(resolve => {
+    const modal = new bootstrap.Modal(document.getElementById("modalConfirmacionLote"));
+    const textoModal = document.getElementById("texto-modal-lote");
+    const btnConfirmar = document.getElementById("btn-confirmar-lote");
+
+    textoModal.textContent = texto;
+
+    const handler = () => {
+      btnConfirmar.removeEventListener("click", handler);
+      modal.hide();
+      resolve(true);
+    };
+
+    btnConfirmar.addEventListener("click", handler);
+
+    const cerrar = () => resolve(false);
+    document.getElementById("modalConfirmacionLote").addEventListener("hidden.bs.modal", cerrar, { once: true });
+
+    modal.show();
+  });
+}
+
+
 
 // Función que genera un resumen estadístico y visual de los datos filtrados. 
 // Si no hay datos filtrados, muestra mensaje informativo
@@ -1032,54 +1133,42 @@ function toggleDetalles(id, boton) {
   boton.textContent = visible ? "Mostrar detalles mensuales" : "Ocultar detalles mensuales";
 }
 
-
-function filtrarDatosParaImpresion(filtros) {
-  if (!filtros || Object.keys(filtros).length === 0) return [...todosLosDatos];
-
-  return todosLosDatos.filter(d => {
-    const fecha = d.fecha || "";
-    const consumo = parseFloat(d.consumo) || 0;
-
-    if (filtros.cups && !d.cups?.toLowerCase().includes(filtros.cups.toLowerCase())) return false;
-    if (filtros.direccion && !d.direccion?.toLowerCase().includes(filtros.direccion.toLowerCase())) return false;
-    if (filtros.municipio && !d.municipio?.toLowerCase().includes(filtros.municipio.toLowerCase())) return false;
-    if (filtros.consumoMin !== "" && consumo < filtros.consumoMin) return false;
-    if (filtros.consumoMax !== "" && consumo > filtros.consumoMax) return false;
-    if (filtros.fechaMin && !fecha.startsWith(filtros.fechaMin)) return false;
-    if (filtros.fechaMax && !fecha.startsWith(filtros.fechaMax)) return false;
-
-    return true;
-  });
-}
-
-
 function recogerOpcionesImpresion() {
-  const getInput = id => document.getElementById(id)?.value?.trim() || "";
-  const getCheck = id => document.getElementById(id)?.checked || false;
-
   return {
-    imprimirResumenGlobal: getCheck("checkResumenGlobal"),
-    imprimirTarjetasAnuales: getCheck("checkTarjetasAnuales"),
-    incluirDetallesTarjetas: getCheck("checkDetallesTarjetas"),
-    imprimirGrafico: getCheck("checkGrafico"),
-    usarGraficoFiltrado: getCheck("checkFiltrarGrafico"),
-    imprimirTabla: getCheck("checkTabla"),
-    usarFiltradoTabla: getCheck("checkFiltrarTabla"),
-
-    tablaRango: getInput("rangoTabla"),
-    rangoGrafico: getInput("rangoGrafico"),
-    aniosTarjetas: getInput("aniosTarjetas"),
-
+    imprimirResumenGlobal: document.getElementById('chkResumenGlobal').checked,
+    imprimirTarjetasAnuales: document.getElementById('chkTarjetasAnuales').checked,
+    aniosTarjetas: document.getElementById('inputAniosTarjetas').value.trim(),
+    incluirDetallesTarjetas: document.getElementById('chkMostrarDetallesTarjetas').checked,
+    imprimirGrafico: document.getElementById('chkGrafico').checked,
+    usarGraficoFiltrado: document.getElementById('graficoFiltrado').checked,
+    rangoGrafico: document.getElementById('inputRangoGrafico').value.trim(),
+    imprimirTabla: document.getElementById('chkTabla').checked,
+    usarTablaFiltrada: document.getElementById('tablaFiltrada').checked,
+    rangoTabla: document.getElementById('inputRangoTabla').value.trim(),
     filtrosGenerales: {
-      cups: getInput("filtroCups"),
-      direccion: getInput("filtroDireccion"),
-      municipio: getInput("filtroMunicipio"),
-      consumoMin: getInput("filtroConsumoMin") !== "" ? parseFloat(getInput("filtroConsumoMin")) : "",
-      consumoMax: getInput("filtroConsumoMax") !== "" ? parseFloat(getInput("filtroConsumoMax")) : "",
-      fechaMin: getInput("filtroFechaMin"),
-      fechaMax: getInput("filtroFechaMax")
+      cups: document.getElementById('filtroCUPS').value.trim().toLowerCase(),
+      direccion: document.getElementById('filtroDireccion').value.trim().toLowerCase(),
+      municipio: document.getElementById('filtroMunicipio').value.trim().toLowerCase(),
+      consumoMin: parseFloat(document.getElementById('filtroConsumoMin').value.trim()),
+      consumoMax: parseFloat(document.getElementById('filtroConsumoMax').value.trim()),
+      fechaMin: document.getElementById('filtroFechaMin').value.trim(),
+      fechaMax: document.getElementById('filtroFechaMax').value.trim()
     }
   };
+}
+
+function filtrarDatosParaImpresion(filtros) {
+  return todosLosDatos.filter(dato => {
+    const c = dato.consumo;
+    const f = dato.fecha;
+    return (!filtros.cups || dato.cups?.toLowerCase().includes(filtros.cups)) &&
+           (!filtros.direccion || dato.direccion?.toLowerCase().includes(filtros.direccion)) &&
+           (!filtros.municipio || dato.municipio?.toLowerCase().includes(filtros.municipio)) &&
+           (!isNaN(filtros.consumoMin) ? c >= filtros.consumoMin : true) &&
+           (!isNaN(filtros.consumoMax) ? c <= filtros.consumoMax : true) &&
+           (!filtros.fechaMin || dato.fecha >= filtros.fechaMin) &&
+           (!filtros.fechaMax || dato.fecha <= filtros.fechaMax);
+  });
 }
 
 function extraerRango(datos, rangoTexto) {
@@ -1091,122 +1180,48 @@ function extraerRango(datos, rangoTexto) {
   return datos.slice(inicio, fin);
 }
 
+// Evento al pulsar en imprimir
 document.getElementById("btnEjecutarImpresion").addEventListener("click", async () => {
+  const ventana = window.open("", "_blank");
+  if (!ventana) {
+    alert("Error al abrir la ventana de impresión");
+    return;
+  }
+
   const opciones = recogerOpcionesImpresion();
   const datosFiltrados = filtrarDatosParaImpresion(opciones.filtrosGenerales);
-
   if (!datosFiltrados.length) {
     alert("No hay datos que cumplan los filtros.");
     return;
   }
 
-  const ventana = window.open("", "_blank");
-  if (!ventana || ventana.closed) {
-    alert("No se pudo abrir la ventana de impresión.");
-    return;
-  }
-
-  const doc = ventana.document;
-  const html = doc.createElement("html");
-  const head = doc.createElement("head");
-  const body = doc.createElement("body");
-  body.className = "p-3";
-
-  // --- HEAD ---
-  const titulo = doc.createElement("title");
-  titulo.textContent = "Impresión";
-  head.appendChild(titulo);
-
-  const bootstrap = doc.createElement("link");
-  bootstrap.rel = "stylesheet";
-  bootstrap.href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css";
-  head.appendChild(bootstrap);
-
-  const estilos = doc.createElement("link");
-  estilos.rel = "stylesheet";
-  estilos.href = "resources/css/estilos.css";
-  head.appendChild(estilos);
-
-  const scriptChart = doc.createElement("script");
-  scriptChart.src = "https://cdn.jsdelivr.net/npm/chart.js";
-  head.appendChild(scriptChart);
-
-  // --- BLOQUES A INSERTAR ---
-  let datosGrafico = null;
+  const secciones = [];
 
   if (opciones.imprimirResumenGlobal) {
     const resumen = await prepararResumenGlobal(datosFiltrados, opciones.aniosTarjetas);
-    const contenedor = doc.createElement("div");
-    contenedor.innerHTML = resumen;
-    body.appendChild(contenedor);
+    secciones.push(resumen);
   }
 
   if (opciones.imprimirTarjetasAnuales) {
-    const tarjetas = await prepararResumenesAnuales(
-      datosFiltrados,
-      opciones.aniosTarjetas,
-      opciones.incluirDetallesTarjetas
-    );
-    tarjetas.forEach(t => body.appendChild(t));
+    const tarjetas = await prepararResumenesAnuales(datosFiltrados, opciones.aniosTarjetas, opciones.incluirDetallesTarjetas);
+    secciones.push(tarjetas);
   }
 
   if (opciones.imprimirGrafico) {
-    datosGrafico = prepararGraficoImpresion(
-      opciones.usarGraficoFiltrado ? datosFiltrados : todosLosDatos,
-      opciones.rangoGrafico
-    );
-  }
+  const datosGrafico = opciones.usarGraficoFiltrado ? datosFiltrados : todosLosDatos;
+  const graficoData = prepararGraficoImpresion(datosGrafico, opciones.rangoGrafico);
+  secciones.push({ tipo: "grafico", datos: graficoData });
+}
+
 
   if (opciones.imprimirTabla) {
-    const base = opciones.usarFiltradoTabla ? datosFiltrados : [...todosLosDatos];
-    const tablas = await prepararTablasPorLote(base, opciones.tablaRango);
-    tablas.forEach(t => body.appendChild(t));
+    const datosTabla = opciones.usarTablaFiltrada ? datosFiltrados : todosLosDatos;
+    const rangoTabla = extraerRango(datosTabla, opciones.rangoTabla);
+    const tabla = await prepararTablaFiltradaPorLotes(rangoTabla);
+    secciones.push(tabla);
   }
 
-  // --- Montar documento completo ---
-  html.appendChild(head);
-  html.appendChild(body);
-  doc.replaceChild(html, doc.documentElement);
-
-  scriptChart.onload = () => {
-    if (datosGrafico) {
-      const canvas = doc.createElement("canvas");
-      canvas.width = 800;
-      canvas.height = 450;
-      canvas.style.display = "block";
-      canvas.style.margin = "0 auto";
-      body.insertBefore(canvas, body.firstChild);
-
-      new ventana.Chart(canvas.getContext("2d"), {
-        type: "line",
-        data: {
-          labels: datosGrafico.fechas,
-          datasets: [{
-            label: "Consumo energético",
-            data: datosGrafico.consumos,
-            borderWidth: 2,
-            fill: false
-          }]
-        },
-        options: {
-          responsive: false,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: true } },
-          scales: {
-            x: { title: { display: true, text: "Fecha" } },
-            y: { title: { display: true, text: "Consumo (kWh)" } }
-          }
-        }
-      });
-    }
-
-    // Dar tiempo a todo para cargar
-    setTimeout(() => {
-      ventana.focus();
-      ventana.print();
-      ventana.close();
-    }, 800);
-  };
+  imprimirSeccionesEnDocumento(secciones, ventana);
 });
 
 
@@ -1381,62 +1396,47 @@ function prepararGraficoImpresion(datos, rango = "") {
 
   return { fechas, consumos };
 }
-async function prepararTablasPorLote(registros, rango = "", tamañoLote = 500) {
-  const tablas = [];
-  let inicio = 1, fin;
+
+
+function prepararTablaFiltradaPorLotes(datos, rango = "") {
+  let registros = [...datos];
 
   if (rango) {
-    const partes = rango.split("-").map(x => parseInt(x));
-    if (!isNaN(partes[0])) inicio = partes[0];
-    if (!isNaN(partes[1])) fin = partes[1];
-    registros = registros.slice(inicio - 1, fin);
+    const [inicio, fin] = rango.split("-").map(x => parseInt(x));
+    if (!isNaN(inicio) && !isNaN(fin)) {
+      registros = registros.slice(inicio - 1, fin);
+    }
   }
 
-  const totalLotes = Math.ceil(registros.length / tamañoLote);
-
-  for (let i = 0; i < totalLotes; i++) {
-    const desde = i * tamañoLote;
-    const hasta = desde + tamañoLote;
-    const lote = registros.slice(desde, hasta);
-    const numeroInicial = inicio + desde;
-
-    const contenedor = document.createElement("div");
-
-    const h5 = document.createElement("h5");
-    h5.textContent = `Lote ${i + 1} de ${totalLotes}: Registros ${numeroInicial} a ${numeroInicial + lote.length - 1}`;
-    h5.className = "fw-bold my-3";
-    contenedor.appendChild(h5);
-
-    const tabla = document.createElement("table");
-    tabla.className = "table table-bordered table-sm small";
-    tabla.innerHTML = `
-      <thead class="table-light">
+  const tabla = document.createElement("table");
+  tabla.className = "table table-bordered table-sm small";
+  tabla.innerHTML = `
+    <thead class="table-light">
+      <tr>
+        <th>Nº de registro</th>
+        <th>Fecha</th>
+        <th>Consumo (kWh)</th>
+        <th>Municipio</th>
+        <th>Dirección</th>
+        <th>CUPS</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${registros.map((r, i) => `
         <tr>
-          <th>Nº</th><th>Fecha</th><th>Consumo</th><th>Municipio</th><th>Dirección</th><th>CUPS</th>
+          <td>${i + 1}</td>
+          <td>${r.fecha}</td>
+          <td>${r.consumo}</td>
+          <td>${r.municipio || ""}</td>
+          <td>${r.cups_codigo || ""}</td>
+          <td>${r.cups_direccion || ""}</td>
+
         </tr>
-      </thead>
-      <tbody>
-        ${lote.map((r, j) => `
-          <tr>
-            <td>${numeroInicial + j}</td>
-            <td>${r.fecha || ""}</td>
-            <td>${r.consumo || ""}</td>
-            <td>${r.municipio || ""}</td>
-            <td>${r.cups_direccion || ""}</td>
-            <td>${r.cups_codigo || ""}</td>
-          </tr>`).join("")}
-      </tbody>`;
-
-      if (i > 0) tabla.classList.add("salto-pagina");
-    
-    contenedor.appendChild(tabla);
-    tablas.push(contenedor);
-  }
-
-  return tablas;
+      `).join("")}
+    </tbody>
+  `;
+  return tabla;
 }
-
-
 
 function parsearAniosSeleccionados(cadena) {
   if (!cadena || cadena.trim() === "") return null;
@@ -1471,6 +1471,101 @@ function aplicarFiltrosGenerales(datos, filtros) {
   });
 }
 
+function imprimirSeccionesEnDocumento(bloquesHTML, ventana) {
+  if (!ventana) return alert("Error al abrir la ventana de impresión");
+
+  const doc = ventana.document;
+
+  // Crear estructura básica
+  const html = doc.createElement("html");
+  const head = doc.createElement("head");
+  const body = doc.createElement("body");
+  body.className = "p-3";
+
+  // Título
+  const titulo = doc.createElement("title");
+  titulo.textContent = "Impresión";
+  head.appendChild(titulo);
+
+  // Estilos
+  const bootstrap = doc.createElement("link");
+  bootstrap.rel = "stylesheet";
+  bootstrap.href = "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css";
+  head.appendChild(bootstrap);
+
+  const estilos = doc.createElement("link");
+  estilos.rel = "stylesheet";
+  estilos.href = "resources/css/estilos.css";
+  head.appendChild(estilos);
+
+  // 🎯 Añadimos la librería Chart.js
+  const scriptChart = doc.createElement("script");
+  scriptChart.src = "https://cdn.jsdelivr.net/npm/chart.js";
+  head.appendChild(scriptChart);
+
+  // Recoger datos del gráfico si existen
+  let datosGrafico = null;
+
+  bloquesHTML.forEach(b => {
+    if (b && b.tipo === "grafico") {
+      datosGrafico = b.datos;
+    } else if (typeof b === "string") {
+      const div = doc.createElement("div");
+      div.innerHTML = b;
+      body.appendChild(div);
+    } else {
+      body.appendChild(b);
+    }
+  });
+
+  html.appendChild(head);
+  html.appendChild(body);
+  doc.replaceChild(html, doc.documentElement);
+
+  // Esperar a que Chart.js cargue y se inserte el canvas
+  scriptChart.onload = () => {
+    if (datosGrafico) {
+      const canvas = doc.createElement("canvas");
+    canvas.width = 800;
+    canvas.height = 450;
+    canvas.style.display = "block";
+    canvas.style.margin = "0 auto";
+
+      body.insertBefore(canvas, body.firstChild);
+
+      new ventana.Chart(canvas.getContext("2d"), {
+        type: "line",
+        data: {
+          labels: datosGrafico.fechas,
+          datasets: [{
+            label: "Consumo energético",
+            data: datosGrafico.consumos,
+            borderWidth: 2,
+            fill: false
+          }]
+        },
+        options: {
+          responsive: false,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: true } },
+          scales: {
+            x: { title: { display: true, text: "Fecha" } },
+            y: { title: { display: true, text: "Consumo (kWh)" } }
+          }
+        }
+      });
+    }
+
+    // Imprimir después de un pequeño delay
+    setTimeout(() => {
+      ventana.focus();
+      ventana.print();
+      ventana.close();
+    }, 500);
+  };
+}
+
+  
 
 function agruparPorMes(datos) {
   const agrupados = {};
@@ -1499,7 +1594,6 @@ function intentarMostrarContenido() {
     if (contenido) {
       contenido.style.display = "block";
       contenido.style.visibility = "visible";
-      
     }
   }
 }
@@ -1515,7 +1609,6 @@ window.addEventListener("load", () => {
   setTimeout(() => {
     paginaCargada = true;
     intentarMostrarContenido();
-   
   }, 300); // Puedes subir este valor si ves que aún se carga por partes
 });
 

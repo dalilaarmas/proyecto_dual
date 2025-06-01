@@ -200,16 +200,10 @@ body {
   border: none !important;
 }
 
-#btn-imprimir{
+#btn-imprimir, #impresion-avanzada{
   margin-top: 10px;
 }
 
 #tabla-consumo tr:hover td{
 font-weight: bold;
-}
-
-@media print {
-  .salto-pagina {
-    page-break-before: always;
-  }
 }
