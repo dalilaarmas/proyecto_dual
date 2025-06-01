@@ -40,7 +40,12 @@
             <pre id="detallesError" class="mt-2" style="display: none;"></pre>
             <button id="cerrarError" class="btn btn-sm btn-secondary mt-2">Cerrar</button>
           </div>
-          <button id="btn-imprimir" class="btn btn-outline-primary btn-sm" title="Imprimir">
+           <i class="bi bi-info-circle text-primary"
+            data-bs-toggle="tooltip"
+            data-bs-placement="bottom"
+            data-bs-html="true"
+            data-bs-title='Antes de imprimir registros por lotes puedes aplicar filtros (Municipio, CUPS, Fecha, Consumo, Dirección y Potencia) tocando los iconos de la tabla de registros.'></button>
+          </i><button id="btn-imprimir" class="btn btn-outline-primary btn-sm" title="Imprimir">
             <i class="bi bi-printer"></i> Imprimir por lotes
           </button>
           <button class="btn btn-success btn-sm no-imprimir" id="impresion-avanzada" data-bs-toggle="modal" data-bs-target="#modalImpresion">
