@@ -26,7 +26,7 @@ https://datos.tenerife.es/es/datos/conjuntos-de-datos/consumo-energetico-del-cab
 🪧CUPS (Código Universal del Punto de Suministro): Identificador único del punto donde se mide el consumo.
 
 
-## 🖨️ Funcionalidad de impresión avanzada
+## 🖨️ Funcionalidad de impresión por lotes
 
 La aplicación incorpora una opción de **impresión completa por lotes** diseñada para evitar errores y mejorar el rendimiento, incluso cuando hay miles de registros:
 
@@ -41,15 +41,12 @@ La aplicación incorpora una opción de **impresión completa por lotes** diseñ
   * Todas las **tarjetas anuales** generadas.
   * Los **detalles mensuales** de las tarjetas anuales si se han desplegado previamente desde el botón "Mostrar más detalles".
 
+
 > ⚠️ Antes de imprimir cada lote, se muestra una confirmación para continuar o cancelar el proceso.
 
----
+### 🖨️ Funcionalidad de impresión avanzada
 
-## 🚧 Funcionalidades en desarrollo
-
-### 🖨️ Funcionalidad de impresión selectiva (en desarrollo)
-
-Se está implementando un **sistema de impresión selectiva mediante un modal de configuración**, que permitirá al usuario:
+Se ha implementado un **sistema de impresión selectiva mediante un modal de configuración**, que permitirá al usuario:
 
 * **Elegir qué secciones imprimir** (tabla de registros, gráfica de consumo, resúmenes anuales, resumen global, etc.).
 * **Aplicar filtros específicos desde el modal**, como:
@@ -57,7 +54,6 @@ Se está implementando un **sistema de impresión selectiva mediante un modal de
   * Rango de años o fechas
   * Número de registros (ej: del 100 al 300)
   * Campos comunes como CUPS, dirección, municipio, consumo mínimo/máximo
-
 
 ---
 
