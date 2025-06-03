@@ -793,23 +793,6 @@ function toggleAnalisis() {
   }
 }
 
-function prepararCanvasAltaResolucion(idCanvas) {
-  const canvas = document.getElementById(idCanvas);
-  if (!canvas) return;
-
-  const ctx = canvas.getContext("2d");
-  const ratio = window.devicePixelRatio || 1;
-
-  // Tamaño visual del canvas (definido por CSS)
-  const width = canvas.clientWidth;
-  const height = canvas.clientHeight;
-
-  // Escalamos internamente el canvas para alta resolución
-  canvas.width = width * ratio;
-  canvas.height = height * ratio;
-  ctx.setTransform(ratio, 0, 0, ratio, 0, 0); // escalar contexto
-}
-
 
 
 function actualizarGrafico(consumosFiltrados) {
