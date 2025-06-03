@@ -20,29 +20,11 @@ https://datos.tenerife.es/es/datos/conjuntos-de-datos/consumo-energetico-del-cab
 * Carga dinámica de datos desde archivos JSON públicos alojados en GitHub.
 * Interfaz responsive adaptada con Bootstrap 5.
 * Aplicación 100 % en cliente: no requiere instalación ni backend.
-* 🖨️ **Impresión inteligente** de contenidos: permite imprimir todos los registros de la tabla según los filtros seleccionados. Si no se aplican filtros se pueden imprimir todos los registros.
+* 🖨️ **Impresión inteligente** de contenidos: permite imprimir todos los registros de la tabla según los filtros seleccionados. Si no se aplican filtros se pueden imprimir todos los registros por rangos para que no se bloquee el navegador.
 * ⏳ Indicador de **carga inicial** mientras se procesan los archivos grandes (loading spinner)
 
 🪧CUPS (Código Universal del Punto de Suministro): Identificador único del punto donde se mide el consumo.
 
-
-## 🖨️ Funcionalidad de impresión por lotes
-
-La aplicación incorpora una opción de **impresión completa por lotes** diseñada para evitar errores y mejorar el rendimiento, incluso cuando hay miles de registros:
-
-* **Botón de impresión directa**: accesible desde la interfaz principal.
-* **Impresión por bloques de 500 registros** para evitar que el navegador se bloquee por exceso de contenido.
-* **Se imprimen todos los registros que coinciden con los filtros aplicados**, no solo los visibles en pantalla. Si no se aplican filtros se pueden imprimir todos los registros.
-* Se incluye también:
-
-  * La **tabla completa** (bloque por bloque).
-  * La **gráfica de consumo** generada dinámicamente.
-  * El **resumen general** de consumo.
-  * Todas las **tarjetas anuales** generadas.
-  * Los **detalles mensuales** de las tarjetas anuales si se han desplegado previamente desde el botón "Mostrar más detalles".
-
-
-> ⚠️ Antes de imprimir cada lote, se muestra una confirmación para continuar o cancelar el proceso.
 
 ### 🖨️ Funcionalidad de impresión avanzada
 

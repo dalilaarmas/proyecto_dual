@@ -40,14 +40,6 @@
             <pre id="detallesError" class="mt-2" style="display: none;"></pre>
             <button id="cerrarError" class="btn btn-sm btn-secondary mt-2">Cerrar</button>
           </div>
-           <i class="bi bi-info-circle text-primary no-imprimir"
-            data-bs-toggle="tooltip"
-            data-bs-placement="bottom"
-            data-bs-html="true"
-            data-bs-title='Antes de imprimir registros por lotes puedes aplicar filtros (Municipio, CUPS, Fecha, Consumo, Dirección y Potencia) tocando los iconos de la tabla de registros. Imprime gráficos, resumenes y tabla.'></button>
-          </i><button id="btn-imprimir" class="btn btn-outline-primary btn-sm" title="Imprimir">
-            <i class="bi bi-printer"></i> Imprimir por lotes
-          </button>
           <button class="btn btn-success btn-sm no-imprimir" id="impresion-avanzada" data-bs-toggle="modal" data-bs-target="#modalImpresion">
             <i class="bi bi-printer me-1 no-imprimir"></i> Impresión selectiva
           </button>
@@ -236,26 +228,6 @@
   </div>
 <!-- Alerta visual Bootstrap -->
 <div id="alerta-bootstrap" class="alert alert-warning d-none fixed-top m-3 z-3" role="alert" style="max-width: 500px;"></div>
-
-<!-- Modal para confirmar impresión de lote -->
-<div class="modal fade" id="modalConfirmacionLote" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Confirmar impresión</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body" id="texto-modal-lote">
-        <!-- Aquí se inserta el texto de cada lote -->
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary" id="btn-confirmar-lote">Imprimir</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 
   <!-- Scripts -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>

@@ -28,12 +28,9 @@ body {
 #btn-toggle-tarjetas {
   font-weight: bold;
   font-size: 0.95rem;
-  /* animation: pulse 1.2s infinite; */
+ 
 }
-/* @keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-} */
+
 #modulos-anuales-wrapper {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -83,32 +80,8 @@ body {
   to { opacity: 0; transform: translateY(-10px); }
 }
 @media print {
-    /* Oculta botones y navegación */
-    #btn-imprimir,
-    #btn-toggle-grafico,
-    #btn-toggle-resumen,
-    #btn-toggle-tarjetas,
-    .pagination,
-    nav,
-    .input-group,
-    .alert-danger,
-    .alert-warning,
-    .alert-info,
-    .no-imprimir {
-      display: none !important;
-    }
 
-    /* Quita scrolls y limita altura para que no se recorten */
-    html, body {
-      overflow: visible !important;
-      height: auto !important;
-      margin: 0;
-      padding: 0;
-      background: white !important;
-      color: black !important;
-    }
-
-    /* Evita que se corten tarjetas entre páginas
+    /*Evita que se corten tarjetas entre páginas*/
     .card,
     .card-body,
     .card-header,
@@ -116,7 +89,7 @@ body {
     .resumen .card {
       page-break-inside: avoid !important;
       break-inside: avoid !important;
-    } */
+    }
     .accordion-body,
     .collapse .card-body,
     .collapse .card {
@@ -125,7 +98,7 @@ body {
     }
 
 
-    /* Ajusta canvas y columnas para impresión */
+    /*Ajusta canvas y columnas para impresión*/
     #contenedor-canvas,
     #columna-grafico,
     #columna-resumen {
@@ -134,7 +107,7 @@ body {
       display: block !important;
     }
 
-    /* Evita cortes en los contenedores de tarjetas */
+    /*Evita cortes en los contenedores de tarjetas*/
     #modulos-anuales-wrapper,
     #modulos-anuales {
       overflow: visible !important;
@@ -143,57 +116,13 @@ body {
       flex-wrap: wrap !important;
       height: auto !important;
     }
-
-    /* Opcional: cambia márgenes de la página */
-    @page {
-      size: auto;
-      margin: 1cm;
-    }
-
-    #datos-container,
-    .pagination,
-    nav,
-    #resumen-registros,
-    #tabla-consumo {
-      display: none !important;
-    }
-
-    #tabla-imprimir {
-      display: block !important;
-      page-break-before: always;
-    }
-
-    #tabla-imprimir table {
-      width: 100%;
-      border-collapse: collapse;
-      page-break-inside: auto;
-    }
-
-    #tabla-imprimir tr {
-      page-break-inside: avoid;
-      page-break-after: auto;
-    }
-
-  .collapse {
-      transition: none !important;
-    }
-  .collapse:not(.show) {
-      display: none !important;
-    }
-
-    .collapse.show {
-    display: block !important;
-    height: auto !important;
-    overflow: visible !important;
-    max-height: none !important;
   }
-}
-
+    
 #modulos-anuales {
   border: none !important;
 }
 
-#btn-imprimir, #impresion-avanzada{
+#impresion-avanzada{
   margin-top: 10px;
 }
 
