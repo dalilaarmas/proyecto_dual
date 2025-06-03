@@ -182,7 +182,13 @@ cargarYMostrarDatos().then(() => {
   actualizarResumenRegistros();
   generarResumenConsumo();
   const canvas = document.getElementById("miGrafico");
-  if (canvas) actualizarGrafico(datosFiltrados);
+if (canvas) {
+  canvas.style.display = "block";
+  canvas.width = 800;
+  canvas.height = 400;
+  actualizarGrafico(datosFiltrados);
+}
+
 
   ["filtro-municipio", "filtro-cups", "filtro-direccion", "filtro-fecha-desde", "filtro-fecha-hasta", "filtro-consumo-min", "filtro-consumo-max"]
     .forEach(id => {
@@ -793,56 +799,76 @@ function toggleAnalisis() {
   }
 }
 
-
-
 function actualizarGrafico(consumosFiltrados) {
   const canvas = document.getElementById("miGrafico");
-  if (!canvas) return;
+  if (!canvas || !consumosFiltrados || consumosFiltrados.length === 0) return;
 
   const ctx = canvas.getContext("2d");
-
-  // Agrupar consumos por mes o año
-  const agrupadoPorFecha = {};
-
-  consumosFiltrados.forEach(item => {
-    const fecha = new Date(item.fecha);
-    const clave = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`; // YYYY-MM
-    if (!agrupadoPorFecha[clave]) agrupadoPorFecha[clave] = 0;
-    agrupadoPorFecha[clave] += item.consumo;
-  });
-
-  const etiquetas = Object.keys(agrupadoPorFecha).sort();
-  const datos = etiquetas.map(clave => agrupadoPorFecha[clave]);
 
   if (graficoConsumo) {
     graficoConsumo.destroy();
   }
-graficoConsumo = new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: etiquetas,
-    datasets: [{
-      label: 'Consumo energético (kWh)',
-      data: datos,
-      fill: false,
-      borderColor: 'rgb(75, 192, 192)',
-      tension: 0.3
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { display: true },
-      title: {
-        display: true,
-        text: 'Evolución del consumo energético'
+
+  // 🔁 Seleccionar si agrupamos por día o por mes
+  const usarAgrupacionPorDia = consumosFiltrados.length <= 60;
+
+  const agrupado = {};
+
+  consumosFiltrados.forEach(item => {
+    if (!item.fecha || typeof item.consumo !== "number") return;
+
+    const fecha = new Date(item.fecha);
+    if (isNaN(fecha)) return;
+
+    let clave;
+    if (usarAgrupacionPorDia) {
+      clave = item.fecha; // YYYY-MM-DD
+    } else {
+      clave = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, "0")}`; // YYYY-MM
+    }
+
+    agrupado[clave] = (agrupado[clave] || 0) + item.consumo;
+  });
+
+  const etiquetas = Object.keys(agrupado).sort();
+  const datos = etiquetas.map(k => agrupado[k]);
+
+  graficoConsumo = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: etiquetas,
+      datasets: [{
+        label: 'Consumo energético (kWh)',
+        data: datos,
+        fill: false,
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.3,
+        pointRadius: etiquetas.length > 100 ? 0 : 2,
+        borderWidth: 1.5
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: false,
+      plugins: {
+        legend: { display: true },
+        title: {
+          display: true,
+          text: 'Evolución del consumo energético'
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            autoSkip: true,
+            maxTicksLimit: 25
+          }
+        }
       }
     }
-  }
-});
-
-  
+  });
 }
+
 
 
 
@@ -1250,35 +1276,33 @@ function prepararGraficoImpresion(datos, rango = "") {
     }
   }
 
-  // Agrupar por mes
-  const agrupadoPorMes = {};
+  // Determinar si se agrupa por día o por mes
+  const usarAgrupacionPorDia = datosFiltrados.length <= 60;
+
+  const agrupado = {};
 
   datosFiltrados.forEach(d => {
+    if (!d.fecha || typeof d.consumo !== "number") return;
+
     const fecha = new Date(d.fecha);
     if (isNaN(fecha)) return;
 
-    const clave = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, "0")}`;
-
-    if (!agrupadoPorMes[clave]) {
-      agrupadoPorMes[clave] = [];
+    let clave;
+    if (usarAgrupacionPorDia) {
+      clave = d.fecha; // YYYY-MM-DD
+    } else {
+      clave = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, "0")}`; // YYYY-MM
     }
 
-    agrupadoPorMes[clave].push(d.consumo);
+    agrupado[clave] = (agrupado[clave] || 0) + d.consumo;
   });
 
-  // Calcular total mensual y ordenar por fecha
-  const resumenMensual = Object.entries(agrupadoPorMes)
-    .map(([mes, consumos]) => ({
-      fecha: mes,
-      consumo: consumos.reduce((a, b) => a + b, 0)
-    }))
-    .sort((a, b) => a.fecha.localeCompare(b.fecha));
-
-  const fechas = resumenMensual.map(d => d.fecha);
-  const consumos = resumenMensual.map(d => d.consumo);
+  const fechas = Object.keys(agrupado).sort();
+  const consumos = fechas.map(k => agrupado[k]);
 
   return { fechas, consumos };
 }
+
 
 
 function prepararTablaFiltradaPorLotes(datos, rango = "") {
