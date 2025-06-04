@@ -40,7 +40,8 @@
             <pre id="detallesError" class="mt-2" style="display: none;"></pre>
             <button id="cerrarError" class="btn btn-sm btn-secondary mt-2">Cerrar</button>
           </div>
-          <button class="btn btn-success btn-sm no-imprimir" id="impresion-avanzada" data-bs-toggle="modal" data-bs-target="#modalImpresion">
+          <button class="btn btn-success btn-sm no-imprimir" id="impresion-avanzada" data-bs-toggle="modal"
+            data-bs-target="#modalImpresion">
             <i class="bi bi-printer me-1 no-imprimir"></i> Impresión selectiva
           </button>
 
@@ -165,7 +166,9 @@
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="chkTabla" checked>
-                <label class="form-check-label" for="chkTabla"><strong>Tabla de registros.</strong> <strong>⚠️Nota importante:⚠️</strong>Si se imprime la tabla de registros con <strong>700 registros</strong> o más la página podría fallar. El número de registros tolerado depende de muchos factores.</label>
+                <label class="form-check-label" for="chkTabla"><strong>Tabla de registros.</strong> <strong>⚠️Nota
+                    importante:⚠️</strong>Si se imprime la tabla de registros con <strong>700 registros</strong> o más
+                  la página podría fallar. El número de registros tolerado depende de muchos factores.</label>
                 <div class="ms-3 mt-2">
                   <div class="form-check">
                     <input class="form-check-input" type="radio" name="modoTabla" id="tablaFiltrada" checked>
@@ -187,31 +190,38 @@
               <legend class="w-auto px-2">Filtros generales (se aplican si seleccionas registros filtrados)</legend>
               <div class="row g-2">
                 <div class="col-md-4">
-                  <label for="filtroCUPS" class="form-label"><strong>CUPS </strong><i class="bi bi-plug-fill text-info"></i></label>
+                  <label for="filtroCUPS" class="form-label"><strong>CUPS </strong><i
+                      class="bi bi-plug-fill text-info"></i></label>
                   <input type="text" class="form-control" id="filtroCUPS" placeholder="Opcional">
                 </div>
                 <div class="col-md-4">
-                  <label for="filtroDireccion" class="form-label"><strong>Dirección </strong> <i class="bi bi-pin-map-fill text-info"></i></label>
+                  <label for="filtroDireccion" class="form-label"><strong>Dirección </strong> <i
+                      class="bi bi-pin-map-fill text-info"></i></label>
                   <input type="text" class="form-control" id="filtroDireccion" placeholder="Opcional">
                 </div>
                 <div class="col-md-4">
-                  <label for="filtroMunicipio" class="form-label"><strong>Municipio </strong> <i class="bi bi-map-fill text-info"></i></label>
+                  <label for="filtroMunicipio" class="form-label"><strong>Municipio </strong> <i
+                      class="bi bi-map-fill text-info"></i></label>
                   <input type="text" class="form-control" id="filtroMunicipio" placeholder="Opcional">
                 </div>
                 <div class="col-md-3">
-                  <label for="filtroConsumoMin" class="form-label"><strong>Consumo mínimo </strong> <i class="bi bi-battery text-danger"></i></label>
+                  <label for="filtroConsumoMin" class="form-label"><strong>Consumo mínimo </strong> <i
+                      class="bi bi-battery text-danger"></i></label>
                   <input type="number" class="form-control" id="filtroConsumoMin" placeholder="Opcional">
                 </div>
                 <div class="col-md-3">
-                  <label for="filtroConsumoMax" class="form-label"><strong>Consumo máximo </strong> <i class="bi bi-battery-full text-success"></i></label>
+                  <label for="filtroConsumoMax" class="form-label"><strong>Consumo máximo </strong> <i
+                      class="bi bi-battery-full text-success"></i></label>
                   <input type="number" class="form-control" id="filtroConsumoMax" placeholder="Opcional">
                 </div>
                 <div class="col-md-3">
-                  <label for="filtroFechaMin" class="form-label"><strong>Fecha mínima </strong> <i class="bi bi-calendar-minus-fill text-danger"></i></label>
+                  <label for="filtroFechaMin" class="form-label"><strong>Fecha mínima </strong> <i
+                      class="bi bi-calendar-minus-fill text-danger"></i></label>
                   <input type="text" class="form-control" id="filtroFechaMin" placeholder="aaaa o aaaa-mm o aaaa-mm-dd">
                 </div>
                 <div class="col-md-3">
-                  <label for="filtroFechaMax" class="form-label"><strong>Fecha máxima </strong> <i class="bi bi-calendar-plus-fill text-success"></i></i></label>
+                  <label for="filtroFechaMax" class="form-label"><strong>Fecha máxima </strong> <i
+                      class="bi bi-calendar-plus-fill text-success"></i></i></label>
                   <input type="text" class="form-control" id="filtroFechaMax" placeholder="aaaa o aaaa-mm o aaaa-mm-dd">
                 </div>
               </div>
@@ -226,8 +236,9 @@
       </div>
     </div>
   </div>
-<!-- Alerta visual Bootstrap -->
-<div id="alerta-bootstrap" class="alert alert-warning d-none fixed-top m-3 z-3" role="alert" style="max-width: 500px;"></div>
+  <!-- Alerta visual Bootstrap -->
+  <div id="alerta-bootstrap" class="alert alert-warning d-none fixed-top m-3 z-3" role="alert"
+    style="max-width: 500px;"></div>
 
   <!-- Scripts -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
