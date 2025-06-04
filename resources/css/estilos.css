@@ -122,10 +122,20 @@ body {
   border: none !important;
 }
 
-#impresion-avanzada{
-  margin-top: 10px;
-}
 
 #tabla-consumo tr:hover td{
 font-weight: bold;
+}
+/* Mostrar el botón por defecto (en PC) */
+#impresion-avanzada{
+  margin-top: 10px;
+  display: inline-block;
+}
+
+
+/* Ocultarlo en pantallas pequeñas (teléfonos y tablets) */
+@media screen and (max-width: 991px) {
+  #impresion-avanzada {
+    display: none;
+  }
 }
