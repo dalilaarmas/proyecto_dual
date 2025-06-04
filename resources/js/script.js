@@ -1086,8 +1086,13 @@ function extraerRango(datos, rangoTexto) {
   if (!match) return datos;
   const inicio = parseInt(match[1], 10) - 1;
   const fin = parseInt(match[2], 10);
-  return datos.slice(inicio, fin);
+
+  // Asignar el número real a cada registro del rango
+  return datos.slice(inicio, fin).map((r, i) => {
+    return { ...r, __numeroReal: inicio + i + 1 };
+  });
 }
+
 
 // Evento al pulsar en imprimir
 document.getElementById("btnEjecutarImpresion").addEventListener("click", async () => {
@@ -1331,7 +1336,7 @@ function prepararTablaFiltradaPorLotes(datos, rango = "") {
     <tbody>
       ${registros.map((r, i) => `
         <tr>
-          <td>${i + 1}</td>
+          <td>${r.__numeroReal || (i + 1)}</td>
           <td>${r.fecha}</td>
           <td>${r.consumo}</td>
           <td>${r.municipio || ""}</td>
