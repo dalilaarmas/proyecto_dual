@@ -85,6 +85,7 @@ Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros s
 🎨 **Colores del icono:**
 
 * 🔴 Rojo: el campo está vacío.
+* 🟡 Amarillo: Aviso de que el filtro no se está aplicando. Requiere mínimo 3 caracteres para aplicarse el filtro.
 * 🔵 Azul: se está aplicando el filtro (3 o más caracteres).
 
 #### 📅 Fecha

@@ -1,11 +1,18 @@
-
+// Variables de control de paginación y filtros
 let paginaActual = 1;
 const REGISTROS_POR_PAGINA = 20;
-let filtroAño, filtroMunicipio, filtroCups, filtroDireccion, filtroConsumo, filtroFecha;
+
+
+// Variables de control de paginación y filtros
 let todosLosDatos = [];
 let datosFiltrados = [];
+
+// Referencia al gráfico Chart.js
 let graficoConsumo;
+
+// Indica si las tarjetas anuales están desplegadas
 let tarjetasVisibles = true;
+
 // Archivos JSON con datos energéticos por año, que serán cargados y procesados
 const archivos = [
   "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/refs/heads/master/resources/json/consumo-energetico-2022.json",
@@ -14,7 +21,7 @@ const archivos = [
   "https://raw.githubusercontent.com/dalilaarmas/proyecto_dual/refs/heads/master/resources/json/consumo-energetico-2025.json"
 ];
 
-// Función para mostrar un mensaje de error usando Bootstrap, con opción a mostrar detalles adicionales
+// Función para mostrar un mensaje de error usando Bootstrap, con opción a mostrar detalles adicionales. Se usa si la carga de datos falla.
 function mostrarErrorBootstrap(mensaje, detalle = "") {
   const mensajeError = document.getElementById("mensajeError");
   const contenidoError = document.getElementById("contenidoError");
@@ -24,7 +31,7 @@ function mostrarErrorBootstrap(mensaje, detalle = "") {
   // Validación para asegurar que los elementos existen en el DOM antes de continuar
   if (!mensajeError || !contenidoError || !detallesError || !btnToggleDetalles) {
     console.error("No se encontró el contenedor de errores en el DOM");
-    alert(mensaje + "\n" + detalle); // fallback básico
+    alert(mensaje + "\n" + detalle); // Fallback si no hay HTML preparado
     return;
   }
 
@@ -50,12 +57,12 @@ function mostrarErrorBootstrap(mensaje, detalle = "") {
   };
 }
 
-// Captura errores globales y muestra el error en el contenedor de error Bootstrap personalizado
+/* Capturar y mostrar errores no controlados de forma global  (window.onerror) y de promesas (unhandledrejection) en la interfaz de una aplicación web, 
+usando un sistema visual basado en Bootstrap. Muestras el error en la interfaz y por consola. */
 window.onerror = function (message, source, lineno, colno, error) {
   let detalle = `${message} en ${source}:${lineno}:${colno}`;
 
   if (error) {
-    // Si existe el objeto error, añadimos su stack trace o su mensaje adicional
     if (error.stack) {
       detalle += `\nStack:\n${error.stack}`;
     } else if (error.message && error.message !== message) {
@@ -63,9 +70,12 @@ window.onerror = function (message, source, lineno, colno, error) {
     }
   }
 
-  // Mostrar en interfaz
-  mostrarErrorBootstrap("Error global detectado", detalle);
-  // Mostrar por consola
+  try {
+    mostrarErrorBootstrap("Error global detectado", detalle);
+  } catch (e) {
+    console.error("Fallo al mostrar el error en interfaz:", e);
+  }
+
   console.error("Error global capturado:", detalle);
   return false;
 };
@@ -74,9 +84,15 @@ window.addEventListener("unhandledrejection", function (event) {
   const error = event.reason;
   let detalle = error && error.stack ? error.stack : error;
 
-  mostrarErrorBootstrap("Error en promesa no gestionada", detalle);
+  try {
+    mostrarErrorBootstrap("Error en promesa no gestionada", detalle);
+  } catch (e) {
+    console.error("Fallo al mostrar la promesa rechazada:", e);
+  }
+
   console.error("Unhandled rejection:", detalle);
 });
+
 
 const MIN_CARACTERES_FILTRO = 3; // Mínimo de caracteres para activar filtro en texto
 
@@ -91,15 +107,13 @@ function filtraTexto(datoValor, filtroValor) {
 }
 
 
-
-
-// Espera a que todo el DOM esté cargado antes de ejecutar el script
-
-
-
 const colGrafico = document.getElementById('columna-grafico');
 const colResumen = document.getElementById('columna-resumen');
 
+
+/*La función ajustarColumnas() modifica las clases CSS de dos columnas (una para el gráfico y otra para el resumen) según cuáles estén visibles. 
+Esto sirve para ajustar automáticamente el diseño de la interfaz y que se aproveche bien el espacio disponible dependiendo de si se muestra una o 
+ambas secciones. */
 
 function ajustarColumnas() {
   const graficoVisible = !colGrafico.classList.contains('d-none');
@@ -114,6 +128,9 @@ function ajustarColumnas() {
     colResumen.className = 'col-12';
   }
 }
+
+/*La función configurarBotonToggle(...) sirve para asociar a un botón la funcionalidad de mostrar/ocultar una 
+sección con animación y cambiar el aspecto del botón.*/
 
 function configurarBotonToggle(idBoton, idSeccion, textoMostrar, textoOcultar) {
   const btn = document.getElementById(idBoton);
@@ -146,7 +163,7 @@ function configurarBotonToggle(idBoton, idSeccion, textoMostrar, textoOcultar) {
   }
 }
 
-// Aquí va la llamada DESPUÉS de definir la función
+
 configurarBotonToggle("btn-toggle-grafico", "contenedor-canvas", "Mostrar gráfica", "Ocultar gráfica");
 configurarBotonToggle("btn-toggle-resumen", "columna-resumen", "Mostrar resumen", "Ocultar resumen");
 configurarBotonToggle("btn-toggle-tarjetas", "modulos-anuales-wrapper", "Mostrar tarjetas por año", "Ocultar tarjetas por año");
@@ -161,6 +178,7 @@ const filtros = [
   "filtro-consumo-min",
   "filtro-consumo-max"
 ];
+
 
 filtros.forEach(id => {
   const el = document.getElementById(id);
@@ -182,12 +200,12 @@ cargarYMostrarDatos().then(() => {
   actualizarResumenRegistros();
   generarResumenConsumo();
   const canvas = document.getElementById("miGrafico");
-if (canvas) {
-  canvas.style.display = "block";
-  canvas.width = 800;
-  canvas.height = 400;
-  actualizarGrafico(datosFiltrados);
-}
+  if (canvas) {
+    canvas.style.display = "block";
+    canvas.width = 800;
+    canvas.height = 400;
+    actualizarGrafico(datosFiltrados);
+  }
 
 
   ["filtro-municipio", "filtro-cups", "filtro-direccion", "filtro-fecha-desde", "filtro-fecha-hasta", "filtro-consumo-min", "filtro-consumo-max"]
@@ -196,14 +214,35 @@ if (canvas) {
       if (el) el.addEventListener("input", aplicarFiltros);
     });
 
+
+    //cambiar colores filtro según si están activos o no
+  [
+  "filtro-municipio",
+  "filtro-cups",
+  "filtro-direccion",
+  "filtro-fecha-desde",
+  "filtro-fecha-hasta",
+  "filtro-consumo-min",
+  "filtro-consumo-max"
+].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener("input", actualizarEstadoIconosFiltro);
+  }
+});
+
+
+actualizarEstadoIconosFiltro();
+
+
 }).catch(err => {
   mostrarErrorBootstrap("Error al cargar los datos iniciales", err.message || err);
 
 });
 
 
-// Función que genera un resumen estadístico y visual de los datos filtrados. 
-// Si no hay datos filtrados, muestra mensaje informativo
+/*La función actualizarResumenRegistros() se encarga de mostrar u ocultar un resumen visual de cuántos registros se están viendo 
+actualmente respecto al total, y actualizar ese mensaje dinámicamente según los filtros aplicados. */
 
 function actualizarResumenRegistros() {
   const resumen = document.getElementById("resumen-registros");
@@ -215,13 +254,18 @@ function actualizarResumenRegistros() {
     resumen.textContent = `Mostrando ${datosFiltrados.length} de ${todosLosDatos.length} registros.`;
   }
 }
+
+/*Limpia y reconstruye desde cero el resumen global y las tarjetas anuales. Da contexto visual completo: máximos, mínimos, promedios y top de días.
+Organiza los datos por año y permite expandir detalles de cada mes. Usa clases de Bootstrap (card, collapse, badge, etc.) para una presentación 
+visual clara y responsive.*/
+
 function generarResumenConsumo() {
   const contenedorResumen = document.getElementById("resumen-general-consumo");
   const contenedorTarjetas = document.getElementById("modulos-anuales");
 
   if (!contenedorResumen || !contenedorTarjetas) return;
 
-  // Limpia el contenido anterior
+  // Limpiar contenido previo antes de generar nuevo resumen
   contenedorResumen.innerHTML = "";
   contenedorTarjetas.innerHTML = "";
 
@@ -231,26 +275,33 @@ function generarResumenConsumo() {
     return;
   }
 
-  const resumen = {};
-  const diasTotales = [];
+  const resumen = {}; // Estructura agrupada por año → mes y día
+  const diasTotales = [];  // Lista global de todos los días con consumo
   let diaMayorConsumo = { fecha: "", consumo: -Infinity };
   let diaMenorConsumo = { fecha: "", consumo: Infinity };
 
+  // Recorrer todos los registros filtrados
   datosFiltrados.forEach(dato => {
+
+    // Validación básica de fecha
     if (!dato.fecha || typeof dato.fecha !== "string" || dato.fecha.length < 10) return;
 
     const año = dato.fecha.slice(0, 4);
     const mes = dato.fecha.slice(0, 7);
 
+    // Inicializar estructura para el año
     if (!resumen[año]) resumen[año] = { total: 0, meses: {}, dias: {} };
 
     if (dato.consumo != null) {
+      // Acumular consumo por año, mes y día
       resumen[año].total += dato.consumo;
       resumen[año].meses[mes] = (resumen[año].meses[mes] || 0) + dato.consumo;
       resumen[año].dias[dato.fecha] = (resumen[año].dias[dato.fecha] || 0) + dato.consumo;
 
+      // Añadir a la lista total de días
       diasTotales.push({ fecha: dato.fecha, consumo: dato.consumo });
 
+      // Actualizar día de mayor y menor consumo
       if (dato.consumo > diaMayorConsumo.consumo) {
         diaMayorConsumo = { fecha: dato.fecha, consumo: dato.consumo };
       }
@@ -260,11 +311,12 @@ function generarResumenConsumo() {
     }
   });
 
-  const años = Object.keys(resumen).sort();
+  const años = Object.keys(resumen).sort(); // Años ordenados
   let añoMayor = "", consumoMayor = -Infinity;
   let añoMenor = "", consumoMenor = Infinity;
   let mesMenor = null, consumoMesMenor = Infinity;
 
+  // Calcular año de mayor/menor consumo y mes más bajo
   años.forEach(año => {
     if (resumen[año].total > consumoMayor) {
       añoMayor = año;
@@ -282,10 +334,12 @@ function generarResumenConsumo() {
     }
   });
 
+  // Top 3 días globales de mayor y menor consumo (>0)
   const top3DiasGlobalMayor = diasTotales.sort((a, b) => b.consumo - a.consumo).slice(0, 3);
   const top3DiasGlobalMenor = diasTotales.filter(d => d.consumo > 0).sort((a, b) => a.consumo - b.consumo).slice(0, 3);
 
-  // HTML del resumen general
+  // HTML del resumen general. Aquí se inserta el resumen principal con íconos, colores de Bootstrap y datos clave.
+  //Los días del top se muestran como listas ordenadas (<ol>).
   contenedorResumen.innerHTML = `
     <div class="card mb-4 shadow-sm">
       <div class="card-header bg-primary text-white">
@@ -327,11 +381,13 @@ function generarResumenConsumo() {
       </div>
     </div>`;
 
-  // Tarjetas anuales
+  // Tarjetas anuales collapsables
   años.forEach(año => {
     const idCollapse = `detalles-${año}`;
     const total = resumen[año].total.toFixed(2);
     const promedio = (resumen[año].total / Object.keys(resumen[año].meses).length).toFixed(2);
+
+    // Buscar mes de mayor consumo
     let mesMayor = "", consumoMayor = -Infinity;
     for (const [mes, consumo] of Object.entries(resumen[año].meses)) {
       if (consumo > consumoMayor) {
@@ -341,6 +397,7 @@ function generarResumenConsumo() {
     }
     const mesFormateado = new Date(mesMayor + "-01").toLocaleString("es-ES", { month: "long", year: "numeric" });
 
+    // Preparar los 3 días con más consumo por mes dentro del año
     const diasMes = resumen[año].dias;
     const detalleMeses = Object.entries(diasMes).reduce((acc, [fecha, consumo]) => {
       const mes = fecha.slice(0, 7);
@@ -349,10 +406,12 @@ function generarResumenConsumo() {
       return acc;
     }, {});
     Object.entries(detalleMeses).forEach(([mes, dias]) => {
+      dias = dias.filter(d => d.consumo > 0); // ❗️Excluir ceros aquí
       dias.sort((a, b) => b.consumo - a.consumo);
       detalleMeses[mes] = dias.slice(0, 3);
     });
 
+    // HTML para los detalles colapsables
     const detalleHtml = Object.entries(detalleMeses).map(([mes, dias]) => `
       <strong>${new Date(mes + "-01").toLocaleString("es-ES", { month: "long", year: "numeric" })}</strong>
       <ul class="mb-2 small">
@@ -360,6 +419,7 @@ function generarResumenConsumo() {
       </ul>
     `).join("");
 
+    // Crear tarjeta del año
     const tarjeta = document.createElement("div");
     tarjeta.className = "card shadow-sm";
     tarjeta.style.minWidth = "280px";
@@ -367,7 +427,7 @@ function generarResumenConsumo() {
     tarjeta.innerHTML = `
       <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
         <span class="fw-bold mb-0">${año}</span>
-        <button class="btn btn-sm btn-light text-dark no-imprimir" onclick="toggleDetalles('${idCollapse}', this)">Mostrar detalles</button>
+        <button class="btn btn-sm btn-light text-dark no-imprimir" onclick="toggleDetalles('${idCollapse}', this)">Mostrar detalles mensuales</button>
       </div>
       <div class="card-body">
         <p class="mb-1"><strong>Total anual:</strong> ${total} kWh</p>
@@ -528,7 +588,7 @@ async function cargarYMostrarDatos() {
     }
   });
 
-  const mensajeError = document.getElementById("mensajeError");
+
 
   // Recorre cada archivo y agrega los datos al array principal
   for (const archivo of archivos) {
@@ -568,6 +628,7 @@ async function cargarYMostrarDatos() {
     actualizarGrafico(todosLosDatos);
   }
   aplicarFiltros();
+  actualizarEstadoIconosFiltro();
 }
 
 
@@ -581,13 +642,13 @@ function aplicarFiltros() {
   const cupsSeleccionado = document.getElementById("filtro-cups").value.toLowerCase();
   const direccionSeleccionada = document.getElementById("filtro-direccion").value.toLowerCase();
 
- if (
-  (municipioSeleccionado && municipioSeleccionado.length < MIN_CARACTERES_FILTRO) ||
-  (cupsSeleccionado && cupsSeleccionado.length < MIN_CARACTERES_FILTRO) ||
-  (direccionSeleccionada && direccionSeleccionada.length < MIN_CARACTERES_FILTRO)
-) {
-  return; // Detener sin aplicar ningún filtro ni actualizar nada
-}
+  if (
+    (municipioSeleccionado && municipioSeleccionado.length < MIN_CARACTERES_FILTRO) ||
+    (cupsSeleccionado && cupsSeleccionado.length < MIN_CARACTERES_FILTRO) ||
+    (direccionSeleccionada && direccionSeleccionada.length < MIN_CARACTERES_FILTRO)
+  ) {
+    return; // Detener sin aplicar ningún filtro ni actualizar nada
+  }
 
 
 
@@ -647,10 +708,7 @@ function aplicarFiltros() {
 }
 
 
-
-
-
-
+// Cambia el color de los iconos en función de si se ha escrito algo o no, y si el filtro está activo
 function actualizarEstadoIconosFiltro() {
   const filtros = [
     { inputId: "filtro-municipio", iconoId: "iconoFiltroMunicipio", tipo: "texto" },
@@ -664,40 +722,32 @@ function actualizarEstadoIconosFiltro() {
 
   const estadoIconos = {};
 
+  // Evaluar cada input individualmente
   filtros.forEach(({ inputId, iconoId, tipo }) => {
     const input = document.getElementById(inputId);
-    if (!input) return;
+    const icono = document.getElementById(iconoId);
+    if (!input || !icono) return;
+
     const valor = input.value.trim();
-    if (!estadoIconos[iconoId]) estadoIconos[iconoId] = { danger: true, warning: false, primary: false };
+    let estado = "danger";
 
     if (tipo === "texto") {
-      if (valor.length >= 3) {
-        estadoIconos[iconoId] = { danger: false, warning: false, primary: true };
-      } else if (valor.length > 0) {
-        estadoIconos[iconoId] = { danger: false, warning: true, primary: false };
-      }
+      if (valor.length >= 3) estado = "primary";
+      else if (valor.length > 0) estado = "warning";
     } else {
-      if (valor !== "") {
-        estadoIconos[iconoId] = { danger: false, warning: false, primary: true };
-      }
+      if (valor !== "") estado = "primary";
     }
-  });
 
-  Object.entries(estadoIconos).forEach(([iconoId, estado]) => {
-    const icono = document.getElementById(iconoId);
-    if (!icono) return;
+    estadoIconos[iconoId] = estado;
 
     icono.classList.remove("text-danger", "text-warning", "text-primary");
-
-    if (estado.primary) {
-      icono.classList.add("text-primary");
-    } else if (estado.warning) {
-      icono.classList.add("text-warning");
-    } else {
-      icono.classList.add("text-danger");
-    }
+    icono.classList.add(`text-${estado}`);
   });
 }
+
+
+
+
 
 // Carga un archivo JSON usando fetch y lo convierte a objeto
 async function cargarJSON(url) {
@@ -752,64 +802,25 @@ function limpiarErroresBootstrap() {
     btnToggleDetalles.textContent = "Ver detalles";  // Reiniciar texto del botón
   }
 }
-// Mostrar/ocultar resumen por años
-function toggleAños() {
-  const divAños = document.getElementById("resumen-años");
-  const btn = document.getElementById("btnToggleAños");
-  if (!divAños || !btn) return;
 
-  if (divAños.style.display === "none") {
-    divAños.style.display = "block";
-    btn.textContent = "Ocultar consumo por años";
-  } else {
-    divAños.style.display = "none";
-    btn.textContent = "Mostrar consumo por años";
-  }
-}
-
-// Mostrar/ocultar resumen por meses
-function toggleMeses() {
-  const divMeses = document.getElementById("resumen-meses");
-  const btn = document.getElementById("btnToggleMeses");
-  if (!divMeses || !btn) return;
-
-  if (divMeses.style.display === "none") {
-    divMeses.style.display = "block";
-    btn.textContent = "Ocultar consumo por meses";
-  } else {
-    divMeses.style.display = "none";
-    btn.textContent = "Mostrar consumo por meses";
-  }
-}
-
-//La función alterna (muestra u oculta) la sección de análisis en la página y 
-// cambia el texto del botón para que el usuario sepa si al pulsarlo va a mostrar 
-// o a ocultar esa sección.
-function toggleAnalisis() {
-  const divAnalisis = document.getElementById("resumen-analisis");
-  const btn = document.getElementById("btnToggleAnalisis");
-  if (!divAnalisis || !btn) return;
-
-  if (divAnalisis.style.display === "none") {
-    divAnalisis.style.display = "block";
-    btn.textContent = "Ocultar análisis";
-  } else {
-    divAnalisis.style.display = "none";
-    btn.textContent = "Mostrar análisis";
-  }
-}
-
+// La función actualizarGrafico(consumosFiltrados) genera o actualiza una gráfica de líneas con Chart.js 
+// para mostrar la evolución del consumo energético
 function actualizarGrafico(consumosFiltrados) {
+
+  // Obtener el canvas donde se dibujará el gráfico
   const canvas = document.getElementById("miGrafico");
   if (!canvas || !consumosFiltrados || consumosFiltrados.length === 0) return;
 
   const ctx = canvas.getContext("2d");
 
+  // Si ya hay un gráfico creado, destruirlo antes de crear uno nuevo
   if (graficoConsumo) {
     graficoConsumo.destroy();
   }
 
-  // 🔁 Seleccionar si agrupamos por día o por mes
+  // Decidir si se agrupa por día o por mes
+  // Si hay 60 o menos registros, se usa agrupación diaria (YYYY-MM-DD)
+  // Si hay más, se agrupa por mes (YYYY-MM)
   const usarAgrupacionPorDia = consumosFiltrados.length <= 60;
 
   const agrupado = {};
@@ -820,6 +831,7 @@ function actualizarGrafico(consumosFiltrados) {
     const fecha = new Date(item.fecha);
     if (isNaN(fecha)) return;
 
+    // Clave de agrupación: por día o por mes
     let clave;
     if (usarAgrupacionPorDia) {
       clave = item.fecha; // YYYY-MM-DD
@@ -827,12 +839,15 @@ function actualizarGrafico(consumosFiltrados) {
       clave = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, "0")}`; // YYYY-MM
     }
 
+    // Sumar consumo a la clave correspondiente
     agrupado[clave] = (agrupado[clave] || 0) + item.consumo;
   });
 
+   // Preparar los datos del gráfico: etiquetas (fechas) y consumos
   const etiquetas = Object.keys(agrupado).sort();
   const datos = etiquetas.map(k => agrupado[k]);
 
+   // Crear el gráfico con Chart.js
   graficoConsumo = new Chart(ctx, {
     type: 'line',
     data: {
@@ -917,19 +932,30 @@ function mostrarPagina() {
   tbody.innerHTML = html;
   renderPaginacion(datosFiltrados.length);
 }
+
+
+/* Verifica si una cadena representa una fecha parcial válida.
+ * Formatos aceptados:
+ * - "YYYY" (solo año)
+ * - "YYYY-MM" (año y mes)
+ * - "YYYY-MM-DD" (fecha completa)*/
+
 function esFechaParcialValida(fecha) {
   return /^\d{4}(-\d{2}){0,2}$/.test(fecha);
 }
 
-function coincideFechaParcial(fechaDato, fechaFiltro) {
-  return fechaDato.startsWith(fechaFiltro);
-}
+/** Renderiza la paginación en la interfaz según el número total de registros.
+ * Actualiza los botones de página y añade lógica para saltar directamente a una página específica.*/
 function renderPaginacion(totalRegistros) {
+  
+  // Calcula el número total de páginas según los registros por página
   const totalPaginas = Math.ceil(totalRegistros / REGISTROS_POR_PAGINA);
+  
+   // Selecciona el contenedor de paginación y lo limpia
   const paginacion = document.getElementById("paginacion");
   paginacion.innerHTML = "";
 
-  const maxBotonesVisibles = 5; // Páginas alrededor de la actual
+  // Función auxiliar para crear y añadir un botón de página
   const añadirBoton = (texto, pagina, activa = false, deshabilitada = false) => {
     const li = document.createElement("li");
     li.classList.add("page-item");
@@ -941,12 +967,13 @@ function renderPaginacion(totalRegistros) {
     a.href = "#";
     a.textContent = texto;
 
+     // Si no está deshabilitado, define el comportamiento al hacer clic
     if (!deshabilitada) {
       a.onclick = (e) => {
         e.preventDefault();
         paginaActual = pagina;
-        mostrarPagina();
-        renderPaginacion(totalRegistros);
+        mostrarPagina(); // Muestra los datos de esa página
+        renderPaginacion(totalRegistros); // Vuelve a renderizar los botones
       };
     }
 
@@ -954,10 +981,10 @@ function renderPaginacion(totalRegistros) {
     paginacion.appendChild(li);
   };
 
-  // Botón « anterior
+  // Botón « para ir a la página anterior
   añadirBoton("«", paginaActual - 1, false, paginaActual === 1);
 
-  // Primera página
+   // Si la página actual está lejos del principio, muestra la página 1 y puntos suspensivos
   if (paginaActual > 3) {
     añadirBoton("1", 1);
     if (paginaActual > 4) {
@@ -968,14 +995,14 @@ function renderPaginacion(totalRegistros) {
     }
   }
 
-  // Páginas centrales
+ // Añade botones para las páginas centrales alrededor de la página actual
   const inicio = Math.max(1, paginaActual - 2);
   const fin = Math.min(totalPaginas, paginaActual + 2);
   for (let i = inicio; i <= fin; i++) {
     añadirBoton(i, i, i === paginaActual);
   }
 
-  // Última página
+  // Si la página actual está lejos del final, muestra puntos suspensivos y la última página
   if (paginaActual < totalPaginas - 2) {
     if (paginaActual < totalPaginas - 3) {
       const li = document.createElement("li");
@@ -986,8 +1013,10 @@ function renderPaginacion(totalRegistros) {
     añadirBoton(totalPaginas, totalPaginas);
   }
 
-  // Botón » siguiente
+  // Botón » para ir a la página siguiente
   añadirBoton("»", paginaActual + 1, false, paginaActual === totalPaginas);
+  
+   // Configura el botón "ir a página" para salto directo
   const inputIrPagina = document.getElementById("ir-a-pagina");
   const btnIrPagina = document.getElementById("btn-ir-a-pagina");
 
@@ -1028,8 +1057,9 @@ function renderPaginacion(totalRegistros) {
     };
   }
 
-
 }
+/*Alterna la visibilidad de una sección de detalles usando Bootstrap Collapse y actualiza el texto del botón correspondiente.*/
+
 function toggleDetalles(id, boton) {
   const seccion = document.getElementById(id);
   const visible = seccion.classList.contains("show");
@@ -1071,12 +1101,12 @@ function filtrarDatosParaImpresion(filtros) {
     const c = dato.consumo;
     const f = dato.fecha;
     return (!filtros.cups || dato.cups?.toLowerCase().includes(filtros.cups)) &&
-           (!filtros.direccion || dato.direccion?.toLowerCase().includes(filtros.direccion)) &&
-           (!filtros.municipio || dato.municipio?.toLowerCase().includes(filtros.municipio)) &&
-           (!isNaN(filtros.consumoMin) ? c >= filtros.consumoMin : true) &&
-           (!isNaN(filtros.consumoMax) ? c <= filtros.consumoMax : true) &&
-           (!filtros.fechaMin || dato.fecha >= filtros.fechaMin) &&
-           (!filtros.fechaMax || dato.fecha <= filtros.fechaMax);
+      (!filtros.direccion || dato.direccion?.toLowerCase().includes(filtros.direccion)) &&
+      (!filtros.municipio || dato.municipio?.toLowerCase().includes(filtros.municipio)) &&
+      (!isNaN(filtros.consumoMin) ? c >= filtros.consumoMin : true) &&
+      (!isNaN(filtros.consumoMax) ? c <= filtros.consumoMax : true) &&
+      (!filtros.fechaMin || dato.fecha >= filtros.fechaMin) &&
+      (!filtros.fechaMax || dato.fecha <= filtros.fechaMax);
   });
 }
 
@@ -1122,10 +1152,10 @@ document.getElementById("btnEjecutarImpresion").addEventListener("click", async 
   }
 
   if (opciones.imprimirGrafico) {
-  const datosGrafico = opciones.usarGraficoFiltrado ? datosFiltrados : todosLosDatos;
-  const graficoData = prepararGraficoImpresion(datosGrafico, opciones.rangoGrafico);
-  secciones.push({ tipo: "grafico", datos: graficoData });
-}
+    const datosGrafico = opciones.usarGraficoFiltrado ? datosFiltrados : todosLosDatos;
+    const graficoData = prepararGraficoImpresion(datosGrafico, opciones.rangoGrafico);
+    secciones.push({ tipo: "grafico", datos: graficoData });
+  }
 
 
   if (opciones.imprimirTabla) {
@@ -1366,23 +1396,6 @@ function parsearAniosSeleccionados(cadena) {
   return resultado;
 }
 
-function aplicarFiltrosGenerales(datos, filtros) {
-  return datos.filter(d => {
-    const fecha = d.fecha || "";
-    const consumo = d.consumo || 0;
-
-    if (filtros.cups && !d.cups?.toLowerCase().includes(filtros.cups.toLowerCase())) return false;
-    if (filtros.direccion && !d.direccion?.toLowerCase().includes(filtros.direccion.toLowerCase())) return false;
-    if (filtros.municipio && !d.municipio?.toLowerCase().includes(filtros.municipio.toLowerCase())) return false;
-    if (filtros.consumoMin !== "" && consumo < filtros.consumoMin) return false;
-    if (filtros.consumoMax !== "" && consumo > filtros.consumoMax) return false;
-    if (filtros.fechaMin && fecha < filtros.fechaMin) return false;
-    if (filtros.fechaMax && fecha > filtros.fechaMax) return false;
-
-    return true;
-  });
-}
-
 function imprimirSeccionesEnDocumento(bloquesHTML, ventana) {
   if (!ventana) return alert("Error al abrir la ventana de impresión");
 
@@ -1438,10 +1451,10 @@ function imprimirSeccionesEnDocumento(bloquesHTML, ventana) {
   scriptChart.onload = () => {
     if (datosGrafico) {
       const canvas = doc.createElement("canvas");
-    canvas.width = 800;
-    canvas.height = 450;
-    canvas.style.display = "block";
-    canvas.style.margin = "0 auto";
+      canvas.width = 800;
+      canvas.height = 450;
+      canvas.style.display = "block";
+      canvas.style.margin = "0 auto";
 
       body.insertBefore(canvas, body.firstChild);
 
@@ -1477,27 +1490,11 @@ function imprimirSeccionesEnDocumento(bloquesHTML, ventana) {
   };
 }
 
-  
-
-function agruparPorMes(datos) {
-  const agrupados = {};
-  datos.forEach(d => {
-    const fecha = new Date(d.fecha);
-    const clave = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, "0")}`;
-    if (!agrupados[clave]) agrupados[clave] = [];
-    agrupados[clave].push(d.consumo);
-  });
-
-  return Object.entries(agrupados).map(([mes, consumos]) => ({
-    fecha: mes,
-    consumo: consumos.reduce((a, b) => a + b, 0)
-  }));
-}
-
-
 
 let paginaCargada = false;
 let tiempoCumplido = false;
+
+/*Solo cuando la página esté cargada y el tiempo mínimo haya pasado se oculta el loader y se muestra #contenido.*/
 
 function intentarMostrarContenido() {
   if (paginaCargada && tiempoCumplido) {
@@ -1510,7 +1507,7 @@ function intentarMostrarContenido() {
   }
 }
 
-// Espera mínima (ej. 1.5 segundos)
+/*Espera 1.5 segundos antes de permitir mostrar el contenido. Sirve para asegurarse de que el loader no desaparezca demasiado rápido.*/
 setTimeout(() => {
   tiempoCumplido = true;
   intentarMostrarContenido();
@@ -1521,7 +1518,7 @@ window.addEventListener("load", () => {
   setTimeout(() => {
     paginaCargada = true;
     intentarMostrarContenido();
-  }, 300); // Puedes subir este valor si ves que aún se carga por partes
+  }, 300);
 });
 
 

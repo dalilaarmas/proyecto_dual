@@ -27,10 +27,18 @@ body {
 body {
   overflow-x: hidden;
 }
-
-.filtro-activo {
-  color: #0d6efd;
+.text-danger {
+  color: #dc3545 !important;
 }
+
+.text-warning {
+  color: #ffc107 !important;
+}
+
+.text-primary {
+  color: #0d6efd !important;
+}
+
 
 #btn-toggle-tarjetas {
   font-weight: bold;
