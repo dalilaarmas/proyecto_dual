@@ -131,11 +131,11 @@
               <legend class="w-auto px-2">¿Qué secciones deseas imprimir?</legend>
               <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="chkResumenGlobal" checked>
-                <label class="form-check-label" for="chkResumenGlobal">Resumen global</label>
+                <label class="form-check-label" for="chkResumenGlobal"><strong>Resumen global</strong></label>
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="chkTarjetasAnuales" checked>
-                <label class="form-check-label" for="chkTarjetasAnuales">Resumen por años</label>
+                <label class="form-check-label" for="chkTarjetasAnuales"><strong>Resumen por años</strong></label>
                 <div class="ms-3 mt-2">
                   <label for="inputAniosTarjetas" class="form-label">Años (ej: 2022,2024 o 2022-2024):</label>
                   <input type="text" id="inputAniosTarjetas" class="form-control form-control-sm"
@@ -148,7 +148,7 @@
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="chkGrafico" checked>
-                <label class="form-check-label" for="chkGrafico">Gráfica de consumo</label>
+                <label class="form-check-label" for="chkGrafico"><strong>Gráfica de consumo</strong></label>
                 <div class="ms-3 mt-2">
                   <div class="form-check">
                     <input class="form-check-input" type="radio" name="modoGrafico" id="graficoFiltrado" checked>
@@ -165,7 +165,7 @@
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="chkTabla" checked>
-                <label class="form-check-label" for="chkTabla">Tabla de registros. <strong>Nota importante: </strong>Si se imprime la tabla de registros con <strong>700 registros</strong> o más la página podría fallar. El número de registros tolerado depende de muchos factores.</label>
+                <label class="form-check-label" for="chkTabla"><strong>Tabla de registros.</strong> <strong>⚠️Nota importante:⚠️</strong>Si se imprime la tabla de registros con <strong>700 registros</strong> o más la página podría fallar. El número de registros tolerado depende de muchos factores.</label>
                 <div class="ms-3 mt-2">
                   <div class="form-check">
                     <input class="form-check-input" type="radio" name="modoTabla" id="tablaFiltrada" checked>
@@ -187,31 +187,31 @@
               <legend class="w-auto px-2">Filtros generales (se aplican si seleccionas registros filtrados)</legend>
               <div class="row g-2">
                 <div class="col-md-4">
-                  <label for="filtroCUPS" class="form-label">CUPS</label>
+                  <label for="filtroCUPS" class="form-label"><strong>CUPS </strong><i class="bi bi-plug-fill text-info"></i></label>
                   <input type="text" class="form-control" id="filtroCUPS" placeholder="Opcional">
                 </div>
                 <div class="col-md-4">
-                  <label for="filtroDireccion" class="form-label">Dirección</label>
+                  <label for="filtroDireccion" class="form-label"><strong>Dirección </strong> <i class="bi bi-pin-map-fill text-info"></i></label>
                   <input type="text" class="form-control" id="filtroDireccion" placeholder="Opcional">
                 </div>
                 <div class="col-md-4">
-                  <label for="filtroMunicipio" class="form-label">Municipio</label>
+                  <label for="filtroMunicipio" class="form-label"><strong>Municipio </strong> <i class="bi bi-map-fill text-info"></i></label>
                   <input type="text" class="form-control" id="filtroMunicipio" placeholder="Opcional">
                 </div>
                 <div class="col-md-3">
-                  <label for="filtroConsumoMin" class="form-label">Consumo mínimo</label>
+                  <label for="filtroConsumoMin" class="form-label"><strong>Consumo mínimo </strong> <i class="bi bi-battery text-danger"></i></label>
                   <input type="number" class="form-control" id="filtroConsumoMin" placeholder="Opcional">
                 </div>
                 <div class="col-md-3">
-                  <label for="filtroConsumoMax" class="form-label">Consumo máximo</label>
+                  <label for="filtroConsumoMax" class="form-label"><strong>Consumo máximo </strong> <i class="bi bi-battery-full text-success"></i></label>
                   <input type="number" class="form-control" id="filtroConsumoMax" placeholder="Opcional">
                 </div>
                 <div class="col-md-3">
-                  <label for="filtroFechaMin" class="form-label">Fecha mínima</label>
+                  <label for="filtroFechaMin" class="form-label"><strong>Fecha mínima </strong> <i class="bi bi-calendar-minus-fill text-danger"></i></label>
                   <input type="text" class="form-control" id="filtroFechaMin" placeholder="aaaa o aaaa-mm o aaaa-mm-dd">
                 </div>
                 <div class="col-md-3">
-                  <label for="filtroFechaMax" class="form-label">Fecha máxima</label>
+                  <label for="filtroFechaMax" class="form-label"><strong>Fecha máxima </strong> <i class="bi bi-calendar-plus-fill text-success"></i></i></label>
                   <input type="text" class="form-control" id="filtroFechaMax" placeholder="aaaa o aaaa-mm o aaaa-mm-dd">
                 </div>
               </div>
