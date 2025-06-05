@@ -62,19 +62,19 @@ app.get("/registros/:id", (req, res) => {
   });
 });
 
-// Crear nuevo registro
-// app.post("/registros", (req, res) => {
-//   const { cups, direccion, municipio, fecha, consumo } = req.body;
-//   db.run(
-//     `INSERT INTO registros (cups, direccion, municipio, fecha, consumo)
-//      VALUES (?, ?, ?, ?, ?)`,
-//     [cups, direccion, municipio, fecha, consumo],
-//     function (err) {
-//       if (err) return res.status(500).json({ error: err.message });
-//       res.status(201).json({ id: this.lastID });
-//     }
-//   );
-// });
+//Crear nuevo registro
+app.post("/registros", (req, res) => {
+  const { cups_codigo, cups_direccion, municipio, fecha, consumo } = req.body;
+  db.run(
+    `INSERT INTO registros (cups, direccion, municipio, fecha, consumo) VALUES (?, ?, ?, ?, ?)`,
+    [cups_codigo, cups_direccion, municipio, fecha, consumo],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.status(201).json({ id: this.lastID });
+    }
+  );
+});
+
 
 // Actualizar un registro por ID
 app.put("/registros/:id", (req, res) => {

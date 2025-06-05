@@ -92,6 +92,9 @@
             role="alert">
             No se encontraron resultados.
           </div>
+          <button id="btnNuevoRegistro" class="btn btn-success mb-3">
+            <i class="bi bi-plus-lg"></i> Nuevo registro
+          </button>
 
           <!-- Tabla de datos -->
           <div id="datos-container" class="table-responsive" style="max-height: 60vh; overflow-y: auto;"></div>
@@ -239,7 +242,7 @@
   </div>
   </div>
   </div>
- <div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
+  <div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
       <div class="modal-content">
         <form id="formEditar">
@@ -286,6 +289,69 @@
       </div>
     </div>
   </div>
+  <div class="modal fade" id="modalNuevo" tabindex="-1" aria-labelledby="modalNuevoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <form id="formNuevo">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalNuevoLabel">Crear nuevo registro</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="nuevo-municipio" class="form-label">Municipio</label>
+            <input type="text" class="form-control" id="nuevo-municipio" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="nuevo-cups" class="form-label">CUPS</label>
+            <input type="text" class="form-control" id="nuevo-cups" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="nuevo-direccion" class="form-label">Dirección</label>
+            <input type="text" class="form-control" id="nuevo-direccion" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="nuevo-fecha" class="form-label">Fecha</label>
+            <input type="date" class="form-control" id="nuevo-fecha" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="nuevo-consumo" class="form-label">Consumo</label>
+            <input type="number" step="0.01" class="form-control" id="nuevo-consumo" required>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Crear registro</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="modalConfirmarEliminar" tabindex="-1" aria-labelledby="modalConfirmarEliminarLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="modalConfirmarEliminarLabel">Confirmar eliminación</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <p>¿Seguro que quieres eliminar este registro?</p>
+        <p id="textoRegistroEliminar" class="fw-bold"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="btnCancelarEliminar" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" id="btnConfirmarEliminar" class="btn btn-danger">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
   <!-- Alerta visual Bootstrap -->
   <div id="alerta-bootstrap" class="alert alert-warning d-none fixed-top m-3 z-3" role="alert"

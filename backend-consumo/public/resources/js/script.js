@@ -927,6 +927,9 @@ function mostrarPagina() {
           <button class="btn btn-sm btn-primary btn-editar" data-id="${d.id}">
             <i class="bi bi-pencil"></i> Editar
           </button>
+          <button class="btn btn-sm btn-danger btn-eliminar" data-id="${d.id}">
+          <i class="bi bi-trash"></i> Eliminar
+        </button>
         </td>
       </tr>`;
   });
@@ -941,8 +944,81 @@ function mostrarPagina() {
     });
   });
 
+  // Listener botón eliminar en tabla
+document.querySelectorAll(".btn-eliminar").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const id = btn.getAttribute("data-id");
+    const descripcion = btn.closest("tr").querySelector("td").textContent; // Ejemplo: primer td (municipio)
+    abrirModalEliminar(id, descripcion);
+  });
+});
+
   renderPaginacion(datosFiltrados.length);
 }
+
+let idRegistroAEliminar = null;
+
+// Abre modal confirmación y guarda ID a eliminar
+function abrirModalEliminar(id, descripcion) {
+  idRegistroAEliminar = id;
+  document.getElementById("textoRegistroEliminar").textContent = descripcion || `ID: ${id}`;
+  const modalEliminar = new bootstrap.Modal(document.getElementById("modalConfirmarEliminar"));
+  modalEliminar.show();
+}
+
+// Confirmar eliminación
+document.getElementById("btnConfirmarEliminar").addEventListener("click", async () => {
+  if (!idRegistroAEliminar) return;
+  try {
+    const respuesta = await fetch(`/registros/${idRegistroAEliminar}`, { method: "DELETE" });
+    if (!respuesta.ok) throw new Error("Error al eliminar registro");
+    await cargarYMostrarDatos();
+    const modalEliminar = bootstrap.Modal.getInstance(document.getElementById("modalConfirmarEliminar"));
+    modalEliminar.hide();
+    idRegistroAEliminar = null;
+  } catch (error) {
+    mostrarErrorBootstrap("No se pudo eliminar el registro", error.message);
+  }
+});
+
+// Abrir modal nuevo registro al pulsar el botón
+document.getElementById("btnNuevoRegistro").addEventListener("click", () => {
+  document.getElementById("formNuevo").reset();  // Limpia formulario
+  const modalNuevo = new bootstrap.Modal(document.getElementById("modalNuevo"));
+  modalNuevo.show();
+});
+
+// Enviar datos para crear registro nuevo
+document.getElementById("formNuevo").addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const datos = {
+    municipio: document.getElementById("nuevo-municipio").value.trim(),
+    cups_codigo: document.getElementById("nuevo-cups").value.trim(),
+    cups_direccion: document.getElementById("nuevo-direccion").value.trim(),
+    fecha: document.getElementById("nuevo-fecha").value,
+    consumo: parseFloat(document.getElementById("nuevo-consumo").value)
+  };
+
+  try {
+  const respuesta = await fetch("/registros", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(datos)
+  });
+
+  const textoRespuesta = await respuesta.text();
+  console.log("Respuesta creación:", respuesta.status, textoRespuesta);
+
+  if (!respuesta.ok) throw new Error(`Error al crear registro: ${textoRespuesta}`);
+
+  await cargarYMostrarDatos();
+  bootstrap.Modal.getInstance(document.getElementById("modalNuevo")).hide();
+} catch (error) {
+  mostrarErrorBootstrap("No se pudo crear el registro", error.message);
+}
+
+});
 
 
 function abrirModalEdicion(id) {
