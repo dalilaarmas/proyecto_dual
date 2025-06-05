@@ -17,9 +17,10 @@ https://datos.tenerife.es/es/datos/conjuntos-de-datos/consumo-energetico-del-cab
 * Gráficos dinámicos generados con Chart.js según los filtros aplicados.
 * Paginación personalizada con selección directa de página.
 * Resúmenes automáticos de consumo: día, mes y año con mayor y menor consumo.
-* Carga dinámica de datos desde archivos JSON públicos alojados en GitHub.
+* **CRUD completo:** creación, edición y eliminación de registros con modales Bootstrap
 * Interfaz responsive adaptada con Bootstrap 5.
-* Aplicación 100 % en cliente: no requiere instalación ni backend.
+* Backend con **Node.js** + **Express** + **SQLite** para almacenamiento y gestión de datos.
+* La web carga datos dinámicamente desde la base SQLite mediante API REST.
 * 🖨️ **Impresión inteligente** de contenidos: permite imprimir todos los registros de la tabla según los filtros seleccionados. Si no se aplican filtros se pueden imprimir todos los registros por rangos para que no se bloquee el navegador.
 * ⏳ Indicador de **carga inicial** mientras se procesan los archivos grandes (loading spinner)
 
@@ -37,42 +38,69 @@ Se ha implementado un **sistema de impresión selectiva mediante un modal de con
   * Número de registros (ej: del 100 al 300)
   * Campos comunes como CUPS, dirección, municipio, consumo mínimo/máximo
 
+
+## 🚀 Cómo usar el proyecto localmente
+
+### Requisitos
+
+* Tener instalado [Node.js](https://nodejs.org/)
+* No necesitas instalar SQLite porque el paquete `sqlite3` lo maneja internamente.
+
+### Instalación y arranque
+
+1. Clona o descarga el repositorio completo (mantén la estructura).
+2. En la raíz, abre una terminal y ejecuta:
+
+```bash
+npm install
+node server.js
+```
+
+3. Abre en tu navegador: [http://localhost:3000](http://localhost:3000)
+
+La aplicación web estará funcionando con conexión al backend para consultar y modificar datos.
+
 ---
 
-## ▶️ Abrir la aplicación
+## 🧩 Tecnologías usadas
 
-Este proyecto **no requiere instalación ni servidor local**. Puedes visualizarlo de dos formas:
+* **Node.js** y **Express**: servidor y API REST.
+* **SQLite3**: base de datos local ligera.
+* **Bootstrap 5**: diseño y componentes (modales, botones, layout).
+* **Chart.js**: visualización gráfica.
+* **Fetch API**: comunicación frontend-backend asíncrona.
+* **JavaScript moderno (ES6+)**: lógica cliente y servidor.
 
-1. 🌐 **Acceso a la versión en línea**
+---
 
-Puedes ver una **versión temporal del proyecto** desplegada desde la rama `desarrollo` a través de **GitHub Pages** en el siguiente enlace:
+## 🛠️ Funcionalidades CRUD (Crear, Leer, Actualizar, Borrar)
 
-🔗 [dalilaarmas.github.io/proyecto_dual/](dalilaarmas.github.io/proyecto_dual/)
+* **Crear registros**: botón + modal con formulario para añadir registros nuevos.
+* **Leer registros**: tabla con datos cargados desde la base.
+* **Actualizar registros**: modal para editar cualquier campo de un registro.
+* **Eliminar registros**: confirmación con modal antes de borrar.
 
-Esta página se genera automáticamente con GitHub Pages para facilitar la visualización del proyecto sin necesidad de descargar ni configurar nada localmente.
+---
 
-2. **Desde tu ordenador (modo local)**  
-   También puedes ejecutar la aplicación en local **sin necesidad de instalar nada** ni configurar un servidor web.  
-   Para ello, debes seguir estos pasos:
+## 📝 Notas adicionales
 
-   - Descarga el repositorio completo (no solo el archivo `index.html`), ya que el proyecto utiliza rutas relativas para acceder a scripts, hojas de estilo e imágenes dentro de la carpeta `resources/`.
-   - Abre el archivo `index.html` haciendo doble clic desde el explorador de archivos de tu sistema operativo.
-   - La aplicación funcionará correctamente si mantienes la estructura de carpetas original del proyecto.
+* Los datos se almacenan y gestionan en SQLite (`consumo.db`).
+* El backend provee una API REST para operaciones CRUD.
+* La web consume esta API para mostrar y modificar datos.
+* Los modales Bootstrap mejoran UX para edición y confirmación.
+* Se usa paginación para manejar grandes volúmenes.
+* Cualquier cambio en el backend requiere reiniciar el servidor (`Ctrl+C` y `node server.js`).
 
-   **No necesitas tener los archivos `.json` descargados localmente.**  
-   Los datos se cargan automáticamente desde enlaces públicos de GitHub mediante `fetch()`, por lo que **es imprescindible tener conexión a internet** para que la aplicación funcione correctamente.
-
-> ⚠️ Si solo descargas el archivo `index.html` sin las carpetas `resources/js` y `resources/css`, la aplicación no se mostrará correctamente porque no encontrará los archivos necesarios.  
->
-> ⚠️ Si haces clic sobre `index.html` desde el navegador en GitHub, solo verás el código fuente, no la página web en funcionamiento.
 
 ---
 
 ## 🧭 Guía de uso de la aplicación
 
-A continuación se explican las secciones principales y cómo utilizar sus herramientas:
-
----
+### Principales controles e interacción
+* **Botón "Nuevo registro"** abre modal para añadir registros.
+* **Botón "Editar"** en cada fila para modificar datos.
+* **Botón "Eliminar"** con modal para confirmar antes de borrar.
+* **Impresión avanzada** desde modal para elegir qué imprimir.
 
 ### 🔍 Filtros disponibles
 
@@ -97,10 +125,6 @@ Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros s
   * Fecha completa: `2023-05-15`
 * Puedes escribir solo el campo "Desde", solo el campo "Hasta" o ambos.
 
-🎨 **Colores del icono:**
-
-* 🔴 Rojo: no hay ningún valor introducido.
-* 🔵 Azul: el campo tiene una fecha escrita y el filtro está activo.
 
 #### ⚡ Consumo (kWh)
 
@@ -109,11 +133,6 @@ Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros s
   * Solo **mínimo**
   * Solo **máximo**
   * O **ambos** para establecer un rango
-
-🎨 **Colores del icono:**
-
-* 🔴 Rojo: ambos campos vacíos.
-* 🔵 Azul: al menos uno de los campos tiene un valor, y se está aplicando el filtro.
 
 ---
 
@@ -167,53 +186,31 @@ Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros s
 
 ---
 
-### 🖨️ Impresión de contenido
-
-La aplicación permite **imprimir todos los elementos visibles y filtrados** con un solo clic:
-
-✅ Todos los registros filtrados, no solo los visibles.
-✅ Tarjetas anuales generadas dinámicamente.
-✅ Gráfica de consumo actualizada.
-✅ Resumen general.
-✅ Detalles expandidos en las tarjetas, si se han desplegado previamente.
-✅ Diseño optimizado para que no se corten tarjetas ni tablas entre páginas.
-
-**Impresión por lotes:**
-
-* Si hay más de 500 registros filtrados, la impresión se divide automáticamente en bloques de 500.
-* Antes de imprimir cada bloque, se muestra un aviso de confirmación.
-* La tabla temporal para impresión se genera dinámicamente y se limpia tras cada lote.
-
-🎯 Accede desde el botón con icono de impresora.
----
-
-
-## 🛠️ Tecnologías utilizadas
-
-- **HTML5, CSS3 y JavaScript** – Estructura, estilos y lógica.
-- **Bootstrap 5** – Diseño responsive y componentes visuales.
-- **Bootstrap Icons** – Iconos vectoriales en la interfaz.
-- **Chart.js** – Visualización gráfica de datos.
-- **jQuery** – Gestión de eventos y manipulación del DOM.
-- **Fetch API** – Carga dinámica de archivos JSON desde GitHub.
-
----
 
 ## 📁 Estructura del proyecto
 
-/resources
 
-├── /js → Scripts de filtrado, renderizado, gráficos y paginación
+/backend-consumo
 
-├── /css → Estilos personalizados sobre Bootstrap
+├── /json ← Archivos JSON con datos originales
 
-├── /json → Archivos JSON con datos de consumo energético
+├── consumo.db ← Base de datos SQLite con datos actuales
 
-└── /imagenes/diagramas → Diagramas UML explicativos
+├── server.js  ← Servidor backend Node.js + Express
 
-index.html → Página principal de la aplicación
-README.md → Documentación del proyecto
+└── /public  ← Carpeta servida estáticamente
 
+    ├── index.html  ← Página principal
+
+    ├── README.md  ← Documentación del proyecto
+
+    └── /resources
+
+        ├── /js  ← Scripts cliente (filtros, renderizado, gráficos, CRUD)
+
+        ├── /css ← Estilos personalizados sobre Bootstrap
+
+        └── /imagenes/diagramas← Diagramas UML explicativos
 
 ---
 
@@ -224,18 +221,18 @@ Para entender el diseño y funcionamiento del sistema, se incluyen los siguiente
 ### 🧱 Diagrama de Clases
 Representa las estructuras de datos utilizadas (consumo, registros, atributos clave).
 
-![Clases](resources/imagenes/diagramas/diagrama_de_clases_v2.png)
+![Clases](backend-consumo\public\resources\imagenes\diagramas\diagrama_de_clases_v2.png)
 
 ### 🔁 Diagramas de Secuencia
 Explican el flujo de interacción entre los componentes:
 
 - **Con filtros:**  
-  ![Con filtros](resources/imagenes/diagramas/diagrama_comportamiento_secuencial_filtros.png)
+  ![Con filtros](backend-consumo\public\resources\imagenes\diagramas\diagrama_comportamiento_secuencial_filtros.png)
 
 - **Sin filtros:**  
-  ![Sin filtros](resources/imagenes/diagramas/diagrama_comportamiento_secuencial_sin_filtrar.png)
+  ![Sin filtros](backend-consumo\public\resources\imagenes\diagramas\diagrama_comportamiento_secuencial_sin_filtrar.png)
 
 ### 🔄 Diagrama de Actividad
 Muestra el flujo lógico general de funcionamiento de la aplicación:
 
-![Actividad](resources/imagenes/diagramas/diagrama_comportamiento_actividad.drawio.png)
+![Actividad](backend-consumo\public\resources\imagenes\diagramas\diagrama_comportamiento_actividad.drawio.png)
