@@ -193,6 +193,7 @@ filtros.forEach(id => {
   }
 });
 
+
 cargarYMostrarDatos().then(() => {
   datosFiltrados = [...todosLosDatos]; // Inicializa con todos los datos
   mostrarPagina();
@@ -231,9 +232,11 @@ cargarYMostrarDatos().then(() => {
   }
 });
 
-
 actualizarEstadoIconosFiltro();
+tiempoCumplido = true;
+paginaCargada = true;
 
+intentarMostrarContenido();
 
 }).catch(err => {
   mostrarErrorBootstrap("Error al cargar los datos iniciales", err.message || err);
@@ -1513,13 +1516,6 @@ setTimeout(() => {
   intentarMostrarContenido();
 }, 1500);
 
-// Espera a que se cargue todo, y ADEMÁS da un tiempo extra antes de intentar mostrar
-window.addEventListener("load", () => {
-  setTimeout(() => {
-    paginaCargada = true;
-    intentarMostrarContenido();
-  }, 300);
-});
 
 
 
