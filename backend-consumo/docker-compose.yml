@@ -1,0 +1,9 @@
+services:
+  api:
+    build: .
+    container_name: api-consumo
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./consumo.db:/app/consumo.db
+    restart: unless-stopped
