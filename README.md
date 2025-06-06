@@ -26,7 +26,7 @@ https://datos.tenerife.es/es/datos/conjuntos-de-datos/consumo-energetico-del-cab
 🪧CUPS (Código Universal del Punto de Suministro): Identificador único del punto donde se mide el consumo.
 
 
-### 🖨️ Funcionalidad de impresión avanzada
+### 🖨️ Funcionalidad de impresión selectiva
 
 Se ha implementado un **sistema de impresión selectiva mediante un modal de configuración**, que permitirá al usuario:
 
@@ -97,11 +97,6 @@ Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros s
   * Fecha completa: `2023-05-15`
 * Puedes escribir solo el campo "Desde", solo el campo "Hasta" o ambos.
 
-🎨 **Colores del icono:**
-
-* 🔴 Rojo: no hay ningún valor introducido.
-* 🔵 Azul: el campo tiene una fecha escrita y el filtro está activo.
-
 #### ⚡ Consumo (kWh)
 
 * Puedes usar:
@@ -109,13 +104,6 @@ Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros s
   * Solo **mínimo**
   * Solo **máximo**
   * O **ambos** para establecer un rango
-
-🎨 **Colores del icono:**
-
-* 🔴 Rojo: ambos campos vacíos.
-* 🔵 Azul: al menos uno de los campos tiene un valor, y se está aplicando el filtro.
-
----
 
 ### ℹ️ Tooltips informativos
 
@@ -166,27 +154,6 @@ Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros s
 * El contenido es responsive y se adapta a cualquier dispositivo.
 
 ---
-
-### 🖨️ Impresión de contenido
-
-La aplicación permite **imprimir todos los elementos visibles y filtrados** con un solo clic:
-
-✅ Todos los registros filtrados, no solo los visibles.
-✅ Tarjetas anuales generadas dinámicamente.
-✅ Gráfica de consumo actualizada.
-✅ Resumen general.
-✅ Detalles expandidos en las tarjetas, si se han desplegado previamente.
-✅ Diseño optimizado para que no se corten tarjetas ni tablas entre páginas.
-
-**Impresión por lotes:**
-
-* Si hay más de 500 registros filtrados, la impresión se divide automáticamente en bloques de 500.
-* Antes de imprimir cada bloque, se muestra un aviso de confirmación.
-* La tabla temporal para impresión se genera dinámicamente y se limpia tras cada lote.
-
-🎯 Accede desde el botón con icono de impresora.
----
-
 
 ## 🛠️ Tecnologías utilizadas
 
