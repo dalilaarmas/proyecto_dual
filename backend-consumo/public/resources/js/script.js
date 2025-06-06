@@ -225,7 +225,9 @@ cargarYMostrarDatos().then(() => {
 
 
 actualizarEstadoIconosFiltro();
-
+ tiempoCumplido = true;
+  paginaCargada = true;
+  intentarMostrarContenido();
 
 }).catch(err => {
   mostrarErrorBootstrap("Error al cargar los datos iniciales", err.message || err);
@@ -1660,19 +1662,6 @@ function intentarMostrarContenido() {
   }
 }
 
-/*Espera 1.5 segundos antes de permitir mostrar el contenido. Sirve para asegurarse de que el loader no desaparezca demasiado rápido.*/
-setTimeout(() => {
-  tiempoCumplido = true;
-  intentarMostrarContenido();
-}, 1500);
-
-// Espera a que se cargue todo, y ADEMÁS da un tiempo extra antes de intentar mostrar
-window.addEventListener("load", () => {
-  setTimeout(() => {
-    paginaCargada = true;
-    intentarMostrarContenido();
-  }, 300);
-});
 
 
 
