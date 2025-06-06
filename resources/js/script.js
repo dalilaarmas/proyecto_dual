@@ -1510,11 +1510,6 @@ function intentarMostrarContenido() {
   }
 }
 
-/*Espera 1.5 segundos antes de permitir mostrar el contenido. Sirve para asegurarse de que el loader no desaparezca demasiado rápido.*/
-setTimeout(() => {
-  tiempoCumplido = true;
-  intentarMostrarContenido();
-}, 1500);
 
 
 
