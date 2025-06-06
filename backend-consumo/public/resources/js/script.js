@@ -587,6 +587,9 @@ async function cargarYMostrarDatos() {
     }
   });
 
+// Carga los registros desde la API, los normaliza y los guarda en todosLosDatos.
+// Luego genera la copia filtrable, actualiza resúmenes, la gráfica y aplica filtros.
+// Si ocurre un error en la carga, lo muestra en consola y en la interfaz.
 
 try {
     const registrosPlano = await cargarJSON("http://localhost:3000/registros");
@@ -1480,6 +1483,10 @@ function prepararGraficoImpresion(datos, rango = "") {
 }
 
 
+// Genera una tabla HTML con los datos recibidos, opcionalmente limitada por un rango de registros.
+// Asigna clases Bootstrap y muestra campos clave como fecha, consumo, municipio, dirección y CUPS.
+// Numera los registros usando __numeroReal o el índice local si no se especifica.
+
 
 function prepararTablaFiltradaPorLotes(datos, rango = "") {
   let registros = [...datos];
@@ -1520,6 +1527,11 @@ function prepararTablaFiltradaPorLotes(datos, rango = "") {
   `;
   return tabla;
 }
+
+
+// Convierte una cadena de años o rangos (como "2020,2022-2024") en un Set de años individuales.
+// Soporta tanto años sueltos como rangos numéricos separados por guion.
+// Devuelve null si la cadena está vacía o no válida.
 
 function parsearAniosSeleccionados(cadena) {
   if (!cadena || cadena.trim() === "") return null;
