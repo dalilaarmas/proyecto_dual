@@ -78,11 +78,30 @@ La aplicación web estará funcionando con conexión al backend para consultar y
 
 Este proyecto incluye un entorno listo para ejecutarse con Docker, permitiendo levantar la API de consumo energético en segundos, sin instalar Node.js ni dependencias en tu máquina.
 
-### 📁 Archivos incluidos
+### 📁 Archivos relacionados con Docker
 
-* `Dockerfile`: define la imagen Docker con Node.js y la API.
-* `docker-compose.yml`: simplifica la ejecución de la API con un solo comando.
-* `consumo.db`: base de datos SQLite con persistencia de datos.
+
+- `Dockerfile`: define la imagen con Node.js y la API.
+- `docker-compose.yml`: ejecuta el contenedor, expone el puerto y mantiene la base de datos con volumen.
+- `consumo.db`: base de datos SQLite persistente.
+
+#### 📄 `Dockerfile`
+
+Define la imagen del contenedor para el backend. Contiene las instrucciones necesarias para:
+
+* Crear un contenedor Node.js con Express.
+* Copiar los archivos del proyecto al contenedor.
+* Instalar las dependencias con `npm install`.
+* Ejecutar el servidor con `node server.js` o el comando definido en `package.json`.
+
+#### 📄 `docker-compose.yml`
+
+Permite levantar la aplicación con un solo comando. Este archivo:
+
+* Define el servicio del backend (`api-consumo`).
+* Expone el puerto `3000` del contenedor al host.
+* Usa un volumen para mantener persistente la base de datos (`consumo.db`).
+* Automatiza el reinicio del servicio si se cae.
 
 ---
 
@@ -248,8 +267,9 @@ Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros s
 
 ## 📁 Estructura del proyecto
 
-
-/backend-consumo
+* README.md  ← Documentación del proyecto
+* .gitignore
+* /backend-consumo
 
 ├── /json ← Archivos JSON con datos originales
 
@@ -257,11 +277,20 @@ Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros s
 
 ├── server.js  ← Servidor backend Node.js + Express
 
+├── cargarTodosLosJSON.js  ← Servidor backend Node.js + Express
+
+├── Dockerfile  ← Define la imagen del contenedor para el backend
+
+├── docker-compose.yml ← Orquesta y lanza el contenedor con Docker Compose
+
+├── package.json ← Declara las dependencias del proyecto
+
+├── package-lock.json ← Fija versiones exactas y mejora la estabilidad
+
+
 └── /public  ← Carpeta servida estáticamente
 
     ├── index.html  ← Página principal
-
-    ├── README.md  ← Documentación del proyecto
 
     └── /resources
 
