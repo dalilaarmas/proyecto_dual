@@ -146,7 +146,24 @@ Puedes construir versiones con etiquetas para mantener controladas tus versiones
 ```bash
 docker build -t api-consumo:v1.2.0 .
 ```
+---
+## 🛠️ Script de carga de datos (opcional)
 
+El archivo `cargarTodosLosJSON.js` es un script auxiliar que importa registros desde múltiples archivos `.json` ubicados en la carpeta `/json` hacia la base de datos `consumo.db`.
+
+Este script **solo debe ejecutarse si necesitas recrear la base de datos**, por ejemplo:
+
+- Has eliminado `consumo.db`
+- Quieres cargar nuevos archivos `.json`
+- Estás inicializando el proyecto desde cero sin base de datos
+
+### Uso manual:
+
+```bash
+node cargarTodosLosJSON.js
+```
+
+✅ No necesitas ejecutar este script si ya tienes consumo.db en el proyecto con los datos cargados.
 
 ---
 
@@ -277,7 +294,7 @@ Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros s
 
 ├── server.js  ← Servidor backend Node.js + Express
 
-├── cargarTodosLosJSON.js  ← Servidor backend Node.js + Express
+├── cargarTodosLosJSON.js  ← Script de utilidad para importar datos desde archivos JSON a la base de datos SQLite
 
 ├── Dockerfile  ← Define la imagen del contenedor para el backend
 
