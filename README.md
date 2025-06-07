@@ -15,10 +15,11 @@ https://datos.tenerife.es/es/datos/conjuntos-de-datos/consumo-energetico-del-cab
 * Filtro de fechas flexible: permite introducir solo el año, año y mes, o fecha completa.
 * Tooltips informativos integrados en cada filtro, compatibles con dispositivos móviles.
 * Gráficos dinámicos generados con Chart.js según los filtros aplicados.
-* Paginación personalizada con selección directa de página.
+* Paginación personalizada con selección directa de página. Se usa paginación para manejar grandes volúmenes.
 * Resúmenes automáticos de consumo: día, mes y año con mayor y menor consumo.
 * **CRUD completo:** creación, edición y eliminación de registros con modales Bootstrap
 * Interfaz responsive adaptada con Bootstrap 5.
+* Los modales Bootstrap mejoran UX para edición y confirmación.
 * Backend con **Node.js** + **Express** + **SQLite** para almacenamiento y gestión de datos.
 * La web carga datos dinámicamente desde la base SQLite mediante API REST.
 * 🖨️ **Impresión inteligente** de contenidos: permite imprimir todos los registros de la tabla según los filtros seleccionados. Si no se aplican filtros se pueden imprimir todos los registros por rangos para que no se bloquee el navegador.
@@ -41,6 +42,8 @@ Se ha implementado un **sistema de impresión selectiva mediante un modal de con
 
 ## 🚀 Cómo usar el proyecto localmente
 
+## Opcion 1 - Usar Node.js (sin Docker)
+
 ### Requisitos
 
 * Tener instalado [Node.js](https://nodejs.org/)
@@ -51,14 +54,80 @@ Se ha implementado un **sistema de impresión selectiva mediante un modal de con
 1. Clona o descarga el repositorio completo (mantén la estructura).
 2. En la raíz, abre una terminal y ejecuta:
 
-```bash
-npm install
-node server.js
-```
+#### Instalar dependencias
+`npm install`
+
+#### Iniciar el servidor
+`npm start`
+
 
 3. Abre en tu navegador: [http://localhost:3000](http://localhost:3000)
 
 La aplicación web estará funcionando con conexión al backend para consultar y modificar datos.
+
+## 📝 Notas adicionales
+
+* Los datos se almacenan y gestionan en SQLite (`consumo.db`).
+* El backend provee una API REST para operaciones CRUD.
+* La web consume esta API para mostrar y modificar datos.
+* Cualquier cambio en el backend requiere reiniciar el servidor (`Ctrl+C` y `node server.js`).
+
+## Opción 2 - Usar Docker (sin instalar Node.js)
+
+## 🐳 Docker y despliegue con Docker Compose
+
+Este proyecto incluye un entorno listo para ejecutarse con Docker, permitiendo levantar la API de consumo energético en segundos, sin instalar Node.js ni dependencias en tu máquina.
+
+### 📁 Archivos incluidos
+
+* `Dockerfile`: define la imagen Docker con Node.js y la API.
+* `docker-compose.yml`: simplifica la ejecución de la API con un solo comando.
+* `consumo.db`: base de datos SQLite con persistencia de datos.
+
+---
+
+### 🔧 Requisitos previos
+
+* Tener [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado y funcionando.
+* Estar ubicado en el directorio del backend (`backend-consumo/`).
+
+---
+
+### 🚀 Iniciar la API
+
+```bash
+docker-compose up -d
+```
+
+Este comando:
+
+* Construye la imagen si no existe
+* Inicia la API en segundo plano (`-d`)
+* Expone el puerto 3000
+* Monta `consumo.db` con persistencia
+
+Accede a tu app desde: [http://localhost:3000](http://localhost:3000)
+
+---
+
+### 🛑 Detener la API
+
+```bash
+docker-compose down
+```
+
+Este comando detiene y elimina el contenedor, pero **no borra la base de datos** gracias al volumen montado.
+
+---
+
+### 🏷️ Etiquetado de versiones (opcional)
+
+Puedes construir versiones con etiquetas para mantener controladas tus versiones del contenedor:
+
+```bash
+docker build -t api-consumo:v1.2.0 .
+```
+
 
 ---
 
@@ -70,6 +139,8 @@ La aplicación web estará funcionando con conexión al backend para consultar y
 * **Chart.js**: visualización gráfica.
 * **Fetch API**: comunicación frontend-backend asíncrona.
 * **JavaScript moderno (ES6+)**: lógica cliente y servidor.
+* **Docker**: empaquetado y despliegue de la aplicación sin necesidad de instalar Node.js ni dependencias en el sistema.
+* **Docker Compose**: orquestación de la ejecución con un solo comando (`up` / `down`) y persistencia de datos mediante volúmenes montados.
 
 ---
 
@@ -79,18 +150,6 @@ La aplicación web estará funcionando con conexión al backend para consultar y
 * **Leer registros**: tabla con datos cargados desde la base.
 * **Actualizar registros**: modal para editar cualquier campo de un registro.
 * **Eliminar registros**: confirmación con modal antes de borrar.
-
----
-
-## 📝 Notas adicionales
-
-* Los datos se almacenan y gestionan en SQLite (`consumo.db`).
-* El backend provee una API REST para operaciones CRUD.
-* La web consume esta API para mostrar y modificar datos.
-* Los modales Bootstrap mejoran UX para edición y confirmación.
-* Se usa paginación para manejar grandes volúmenes.
-* Cualquier cambio en el backend requiere reiniciar el servidor (`Ctrl+C` y `node server.js`).
-
 
 ---
 
