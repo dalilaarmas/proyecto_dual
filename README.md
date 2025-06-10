@@ -180,6 +180,7 @@ Puedes aplicar varios filtros a la vez para acotar los resultados. Los filtros s
 
 index.html → Página principal de la aplicación
 README.md → Documentación del proyecto
+.gitignore → Indica a Git qué archivos o carpetas no incluir en el control de versiones del repositorio
 
 
 ---
