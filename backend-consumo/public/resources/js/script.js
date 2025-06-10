@@ -998,7 +998,7 @@ document.getElementById("formNuevo").addEventListener("submit", async (event) =>
   event.preventDefault();
 
   const datos = {
-    municipio: document.getElementById("nuevo-municipio").value.trim(),
+    municipio: document.getElementById("nuevo-municipio").value.trim().toUpperCase(),
     cups_codigo: document.getElementById("nuevo-cups").value.trim(),
     cups_direccion: document.getElementById("nuevo-direccion").value.trim(),
     fecha: document.getElementById("nuevo-fecha").value,

@@ -46,11 +46,16 @@ db.serialize(() => {
 
 // Obtener todos los registros
 app.get("/registros", (req, res) => {
-  db.all("SELECT * FROM registros", (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
-  });
+  db.all(
+    "SELECT * FROM registros ORDER BY municipio ASC, fecha ASC",
+    [],
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(rows);
+    }
+  );
 });
+
 
 // Obtener un registro por ID
 app.get("/registros/:id", (req, res) => {

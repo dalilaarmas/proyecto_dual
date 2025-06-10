@@ -179,7 +179,7 @@ body {
 
 /* Al pasar el ratón sobre una fila, poner en negrita sus celdas */
 #tabla-consumo tr:hover td {
-  font-weight: bold;
+  color: #007bff;
 }
 
 /* Mostrar el botón por defecto (en PC) */
