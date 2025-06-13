@@ -631,7 +631,6 @@ try {
 
 
 
-
 // Filtra los datos según los valores introducidos en los campos
 function aplicarFiltros() {
   if (!todosLosDatos || todosLosDatos.length === 0) return;
@@ -639,16 +638,6 @@ function aplicarFiltros() {
   const municipioSeleccionado = document.getElementById("filtro-municipio").value.toLowerCase();
   const cupsSeleccionado = document.getElementById("filtro-cups").value.toLowerCase();
   const direccionSeleccionada = document.getElementById("filtro-direccion").value.toLowerCase();
-
-  if (
-    (municipioSeleccionado && municipioSeleccionado.length < MIN_CARACTERES_FILTRO) ||
-    (cupsSeleccionado && cupsSeleccionado.length < MIN_CARACTERES_FILTRO) ||
-    (direccionSeleccionada && direccionSeleccionada.length < MIN_CARACTERES_FILTRO)
-  ) {
-    return; // Detener sin aplicar ningún filtro ni actualizar nada
-  }
-
-
 
   const fechaDesde = document.getElementById("filtro-fecha-desde").value.trim();
   const fechaHasta = document.getElementById("filtro-fecha-hasta").value.trim();
@@ -665,9 +654,17 @@ function aplicarFiltros() {
   const datosMapeados = todosLosDatos.map((dato, i) => ({ ...dato, _index: i }));
 
   datosFiltrados = datosMapeados.filter(dato => {
-    const matchMunicipio = municipioSeleccionado === "" || filtraTexto(dato.municipio, municipioSeleccionado);
-    const matchCups = cupsSeleccionado === "" || filtraTexto(dato.cups_codigo, cupsSeleccionado);
-    const matchDireccion = direccionSeleccionada === "" || filtraTexto(dato.cups_direccion, direccionSeleccionada);
+    const matchMunicipio = municipioSeleccionado.length >= MIN_CARACTERES_FILTRO
+      ? filtraTexto(dato.municipio, municipioSeleccionado)
+      : true;
+
+    const matchCups = cupsSeleccionado.length >= MIN_CARACTERES_FILTRO
+      ? filtraTexto(dato.cups_codigo, cupsSeleccionado)
+      : true;
+
+    const matchDireccion = direccionSeleccionada.length >= MIN_CARACTERES_FILTRO
+      ? filtraTexto(dato.cups_direccion, direccionSeleccionada)
+      : true;
 
     const matchFechaDesde = !fechaDesde || !esFechaParcialValida(fechaDesde) || dato.fecha >= fechaDesde;
     const matchFechaHasta = !fechaHasta || !esFechaParcialValida(fechaHasta) || dato.fecha <= fechaHasta;
@@ -696,6 +693,7 @@ function aplicarFiltros() {
 
   actualizarResumenRegistros();
   generarResumenConsumo();
+
   const canvas = document.getElementById("miGrafico");
   if (canvas && typeof Chart !== "undefined") {
     actualizarGrafico(datosFiltrados);
@@ -706,6 +704,7 @@ function aplicarFiltros() {
   renderPaginacion(datosFiltrados.length);
   actualizarEstadoIconosFiltro();
 }
+
 
 
 // Cambia el color de los iconos en función de si se ha escrito algo o no, y si el filtro está activo
