@@ -1050,7 +1050,7 @@ async function guardarCambios(event) {
   const id = parseInt(document.getElementById("editar-id").value);
 
   const datos = {
-    municipio: document.getElementById("editar-municipio").value.trim(),
+    municipio: document.getElementById("editar-municipio").value.trim().toUpperCase(),
     cups_codigo: document.getElementById("editar-cups").value.trim(),         
     cups_direccion: document.getElementById("editar-direccion").value.trim(), 
     fecha: document.getElementById("editar-fecha").value,
